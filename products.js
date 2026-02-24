@@ -6,7 +6,7 @@ const danhSachSanPham = [
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
             { nhan: "Fake", soTien: "850.000đ" },
-            { nhan: "DIY", soTien: "100.000đ" }
+            { nhan: "Lẻ tiếng việt", soTien: "350.000đ" }
         ],
         GioiThieu: "Bộ cơ bản, bắt buộc phải mua nếu bạn chưa có bộ ROOT nào cả.",
         ThanhPhan: "Gồm 4 phe: Nữ Bá Tước Mèo, Vương Triều Tổ Chim, Liên Minh Khu Rừng, Vagabond.",
@@ -16,12 +16,12 @@ const danhSachSanPham = [
         ten: "Root: Riverfolk Expansion",
         loai: "Mở rộng",
         bienTheGia: [
-            { nhan: "Real", soTien: "2.000.000đ" },
-            { nhan: "Fake", soTien: "850.000đ" },
-            { nhan: "DIY", soTien: "100.000đ" }
+            { nhan: "Real", soTien: "1.800.000đ" },
+            { nhan: "Fake", soTien: "800.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "350.000đ" }
         ],
-        GioiThieu: "Một trò chơi về quyền lực và công lý trong rừng rậm Woodland.",
-        ThanhPhan: "Mỗi phe phái có cách chơi riêng biệt (Asymmetric). Mèo xây dựng, Chim chiếm đóng...",
+        GioiThieu: "<br><strong>Số người chơi:</strong> Tốt nhất cho nhóm đông (5-6 người). <br><strong> Đặc điểm:</strong> Bổ sung 2 phe Insurgents (ít chiếm đóng), giúp ván đấu nhẹ nhàng, ít va chạm trực tiếp. <br><strong>Điểm cộng:</strong> Thêm bảng Vagabond và 3 nhân vật mới (dễ chơi, ít luật mới). Có thêm chế độ đấu với máy (Mèo Máy).",
+        ThanhPhan: "Gồm 2 phe mới - Thương Hội Hải Ly, Giáo Phái Thằn Lằn. Bổ sung 1 Vagabond và Mèo máy 1.",
         anh: "https://ledergames.com/cdn/shop/products/20-RootRiverfolkBox-Edit-Web.png?v=1595306138" 
     },
     {
@@ -30,7 +30,7 @@ const danhSachSanPham = [
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
             { nhan: "Fake", soTien: "850.000đ" },
-            { nhan: "DIY", soTien: "100.000đ" }
+            { nhan: "Lẻ tiếng việt", soTien: "300.000đ" }
         ],
         GioiThieu: "Một trò chơi về quyền lực và công lý trong rừng rậm Woodland.",
         ThanhPhan: "Mỗi phe phái có cách chơi riêng biệt (Asymmetric). Mèo xây dựng, Chim chiếm đóng...",
@@ -38,6 +38,19 @@ const danhSachSanPham = [
     },
     {
         ten: "Root: Marauder Expansion",
+        loai: "Mở rộng",
+        bienTheGia: [
+            { nhan: "Real", soTien: "2.000.000đ" },
+            { nhan: "Fake", soTien: "850.000đ" },
+            { nhan: "DIY", soTien: "100.000đ" }
+        ],
+        GioiThieu: "Một trò chơi về quyền lực và công lý trong rừng rậm Woodland.",
+        ThanhPhan: "Mỗi phe phái có cách chơi riêng biệt (Asymmetric). Mèo xây dựng, Chim chiếm đóng...",
+        anh: "https://ledergames.com/cdn/shop/files/RootMarauderExp-GameBox.png?v=1744138999"
+    }
+    ,
+    {
+        ten: "Root: Homeland Expansion",
         loai: "Mở rộng",
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },

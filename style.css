@@ -17,7 +17,7 @@ body, html {
 /* Phần Hero (Nền trang chủ) */
 .hero-section {
     background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-                url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1350&q=80');
+                url('https://images.squarespace-cdn.com/content/v1/59230491cd0f6848c4b2f9f5/1521160512156-WN5JLHHEQE44WNKUUC0Y/root+color+grab.jpg');
     background-size: cover;
     background-position: center;
     height: 100vh;
