@@ -1,8 +1,7 @@
-// Danh sách sản phẩm (Mảng các đối tượng)
 const danhSachSanPham = [
     {
         ten: "Root base",
-        loai: "Board Game",
+        tags: ["Board Game"],
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
             { nhan: "Fake", soTien: "850.000đ" },
@@ -14,7 +13,7 @@ const danhSachSanPham = [
     },
     {
         ten: "Root: Riverfolk Expansion",
-        loai: "Mở rộng",
+        tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "1.800.000đ" },
             { nhan: "Fake", soTien: "800.000đ" },
@@ -26,32 +25,32 @@ const danhSachSanPham = [
     },
     {
         ten: "Root: Underworld Expansion",
-        loai: "Mở rộng",
+        tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "1.800.000đ" },
             { nhan: "Fake", soTien: "800.000đ" },
             { nhan: "Lẻ tiếng việt", soTien: "300.000đ" }
         ],
-        GioiThieu: "<br><strong>Số người chơi:</strong>Phù hợp nhóm trung bình (4-5 người). <br><strong> Đặc điểm:</strong>Có Chuột Chũi (Militants) giúp thay thế Mèo/Chim, và Quạ tạo ra nhiều tổ hợp chiến thuật mới. <br><strong>Điểm cộng:</strong> Cực kỳ đáng tiền nhờ có thêm 2 Bản đồ mới và 2 Landmark (Phong cảnh) tạo điểm nhấn cho bàn chơi.",
+        GioiThieu: "<br><strong>Số người chơi:</strong> Phù hợp nhóm trung bình (4-5 người). <br><strong> Đặc điểm:</strong> Có Chuột Chũi (Militants) giúp thay thế Mèo/Chim, và Quạ tạo ra nhiều tổ hợp chiến thuật mới. <br><strong>Điểm cộng:</strong> Cực kỳ đáng tiền nhờ có thêm 2 Bản đồ mới và 2 Landmark (Phong cảnh) tạo điểm nhấn cho bàn chơi.",
         ThanhPhan: "Gồm 2 phe mới - Công Quốc Chuột Chũi, Âm Mưu của Bầy Quạ. Bổ sung 2 bản đồ mới và 2 Landmark mới (Phong cảnh).",
         anh: "https://ledergames.com/cdn/shop/products/10-RootUnderworldBox-Edit-Web.png?height=1024&v=1595310452"
     },
     {
         ten: "Root: Marauder Expansion",
-        loai: "Mở rộng",
+        tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
             { nhan: "Fake", soTien: "850.000đ" },
             { nhan: "DIY", soTien: "500.000đ" },
             { nhan: "Lẻ tiếng việt", soTien: "350.000đ" }
         ],
-        GioiThieu: "<br><strong>Số người chơi:</strong>Tối ưu cho nhóm ít người (3-4 người, thậm chí 2 người). <br><strong> Đặc điểm:</strong>2 phe mới cực kỳ máu chiến, đẩy nhịp độ trận đấu lên rất cao và tăng tính va chạm. <br><strong>Điểm cộng:</strong>Có thêm cơ chế Hireling (Lính đánh thuê) giúp bàn đấu ít người vẫn nhộn nhịp. Có Advanced Setup giúp cân bằng game tốt hơn.",
+        GioiThieu: "<br><strong>Số người chơi:</strong> Tối ưu cho nhóm ít người (3-4 người, thậm chí 2 người). <br><strong> Đặc điểm:</strong> 2 phe mới cực kỳ máu chiến, đẩy nhịp độ trận đấu lên rất cao và tăng tính va chạm. <br><strong>Điểm cộng:</strong> Có thêm cơ chế Hireling (Lính đánh thuê) giúp bàn đấu ít người vẫn nhộn nhịp. Có Advanced Setup giúp cân bằng game tốt hơn.",
         ThanhPhan: "Gồm 2 phe mới - Chúa Tể Tộc Chuột, Binh Đoàn Lửng Sắt. Bổ sung 3 Hireling (lính đánh thuê) và Advanced Setup.",
         anh: "https://ledergames.com/cdn/shop/files/RootMarauderExp-GameBox.png?v=1744138999"
     },
     {
         ten: "Root: Homeland Expansion",
-        loai: "Mở rộng",
+        tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "Chưa ra mắt" },
             { nhan: "Fake", soTien: "Chưa ra mắt" },
@@ -63,7 +62,7 @@ const danhSachSanPham = [
     },
     {
         ten: "Root: Clockwork 1",
-        loai: "Mở rộng",
+        tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "1.500.000đ" },
             { nhan: "Fake", soTien: "800.000đ" },
@@ -76,7 +75,7 @@ const danhSachSanPham = [
     },
     {
         ten: "Root: Clockwork 2",
-        loai: "Mở rộng",
+        tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "1.500.000đ" },
             { nhan: "DIY", soTien: "300.000đ" },
@@ -88,7 +87,7 @@ const danhSachSanPham = [
     },
     {
         ten: "Root: Hireling",
-        loai: "Pack lẻ",
+        tags: ["Pack lẻ"],
         bienTheGia: [
             { nhan: "Real", soTien: "3-4.000.000đ" },
             { nhan: "DIY", soTien: "450.000đ" },
@@ -99,8 +98,30 @@ const danhSachSanPham = [
         anh: "https://ledergames.com/cdn/shop/products/Root_Hirelings-DeluxeBox-RetailWrap_Left_newangle.png?v=1646237750"
     },
     {
+        ten: "Đánh dấu vùng đất",
+        tags: ["Pack lẻ"],
+        bienTheGia: [
+            { nhan: "Real", soTien: "700.000đ" },
+            { nhan: "DIY", soTien: "150.000đ" }
+        ],
+        GioiThieu: "Các Resin Marker thay thế cho các địa danh trên bản đồ.",
+        ThanhPhan: "Gồm bộ mô hình nhựa cao cấp.",
+        anh: "https://ledergames.com/cdn/shop/products/40-RootResinMarkerBox-Edit-Web.png?v=1595309176"
+    },
+    {
+        ten: "Root: Vagabond Pack",
+        tags: ["Pack lẻ"],
+        bienTheGia: [
+            { nhan: "Real", soTien: "700.000đ" },
+            { nhan: "DIY", soTien: "120.000đ" }
+        ],
+        GioiThieu: "Bổ sung thêm các vagabond mới, những Pawns của các vagabond cũ để dễ nhìn hơn, đẹp hơn.",
+        ThanhPhan: "Bao gồm 3 lá bài Vagabond mới, 7 Pawn, 3 item.",
+        anh: "https://images-na.ssl-images-amazon.com/images/I/81iQAv7G86L.jpg"
+    },
+    {
         ten: "Root: The Exiles and Partisans Deck",
-        loai: "Pack lẻ",
+        tags: ["Pack lẻ","Deck"],
         bienTheGia: [
             { nhan: "Real", soTien: "600.000đ" },
             { nhan: "DIY", soTien: "170.000đ" },
@@ -111,52 +132,198 @@ const danhSachSanPham = [
         anh: "https://ledergames.com/cdn/shop/products/26-RootExileandPartisanBox-Edit-Web.png?height=1024&v=1595307143"
     },
     {
-        ten: "Đánh dấu vùng đất",
-        loai: "Pack lẻ",
+        ten: "Arcs Base",
+        tags: ["Board Game"],
         bienTheGia: [
-            { nhan: "Real", soTien: "700.000đ" },
-            { nhan: "DIY", soTien: "150.000đ" }
+            { nhan: "Real", soTien: "3.000.000đ" },
+            { nhan: "Fake", soTien: "1.300.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "500.000đ" }
         ],
-        GioiThieu: "Gồm 1 bộ bài thay thế hoàn toàn bộ bài chơi gốc, giúp tăng chiến thuật, cân bằng hơn và thay đổi khá nhiều lối chơi của các phe.",
-        ThanhPhan: "Bao gồm 1 bộ bài mới.",
-        anh: "https://ledergames.com/cdn/shop/products/40-RootResinMarkerBox-Edit-Web.png?v=1595309176"
+        GioiThieu: "Một trò chơi chiến thuật khoa học viễn tưởng lấy bối cảnh thiên hà đang sụp đổ, nơi người chơi sử dụng cơ chế lấy bài (trick-taking) độc đáo để thực hiện các hành động chiếm đóng và chiến đấu.",
+        ThanhPhan: "Gồm bản đồ thiên hà, các lá bài hành động, tàu vũ trụ bằng gỗ, xúc xắc chiến đấu, bảng người chơi và các token tài nguyên.",
+        anh: "https://d19y2ttatozxjp.cloudfront.net/wp-content/uploads/2024/11/26211040/Arcs-Game-Box-Right-e1732655528222.png"
     },
     {
-        ten: "Root: Vagabond Pack",
-        loai: "Pack lẻ",
+        ten: "Arcs: The Blighted Reach Expansion",
+        tags: ["Mở rộng"],
         bienTheGia: [
-            { nhan: "Real", soTien: "700.000đ" },
-            { nhan: "DIY", soTien: "120.000đ" }
+            { nhan: "Real", soTien: "5.000.000đ" },
+            { nhan: "Fake", soTien: "2.500.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "1.500.000đ" }
         ],
-        GioiThieu: "Bổ sung thêm các vagabond mới, những Pawns của các vagabond cũ để dễ nhìn hơn, đẹp hơn.",
-        ThanhPhan: "Bao gồm 3 lá bài Vagabond mới, 7 Pawn, 3 item.",
-        anh: "https://images-na.ssl-images-amazon.com/images/I/81iQAv7G86L.jpg"
+        GioiThieu: "Bản mở rộng này biến Arcs thành một chiến dịch dài kỳ (campaign) với cốt truyện sâu sắc, nơi các quyết định trong mỗi ván chơi sẽ ảnh hưởng trực tiếp đến bối cảnh của các ván tiếp theo.",
+        ThanhPhan: "Bổ sung thêm các cuốn sách luật chiến dịch, bảng số phận nhân vật (fate cards), các mảnh bản đồ mới và hệ thống token chuyên biệt cho chế độ chơi theo cốt truyện.",
+        anh: "https://eurekapuzzles.com/cdn/shop/files/59654.png?v=1740008431"
     },
     {
-        ten: "Root: MInibox",
-        loai: "Pack lẻ",
+        ten: "Arcs: Leaders and Lore Pack",
+        tags: ["Pack lẻ"],
+        bienTheGia: [
+            { nhan: "Real", soTien: "700.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "250.000đ" }
+        ],
+        GioiThieu: "Bổ sung các lá bài Leaders và Lore mới cho Arcs giúp game hay hơn, kịch tính hơn, phù hợp cho tụ đã quen Arcs cơ bản.",
+        ThanhPhan: "Gồm có các lá bài Leader và Lore mới.",
+        anh: "https://static.gamesmen.com.au/media/catalog/product/cache/57ddbad6affa8d28869fa47188b75842/a/r/arcs_leaders_lore_expansion_board_game.jpg"
+    },
+    {
+        ten: "Fort Base",
+        tags: ["Board Game"],
+        bienTheGia: [
+            { nhan: "Real", soTien: "1.300.000đ" },
+            { nhan: "Fake", soTien: "800.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "200.000đ" }
+        ],
+        GioiThieu: "Một trò chơi xây dựng bộ bài (deck-building) nhẹ nhàng với chủ đề trẻ con xây pháo đài, nơi bạn phải chiêu mộ bạn bè và thu thập đồ chơi, bánh pizza để trở thành đứa trẻ ngầu nhất xóm.",
+        ThanhPhan: "Bao gồm bộ bài bạn bè, bảng người chơi hai lớp, các token gỗ hình bánh pizza và đồ chơi, cùng các thẻ bài mục tiêu và danh hiệu.",
+        anh: "https://ledergames.com/cdn/shop/products/100-FortGameBox-Edit-Web.png?v=1595297967"
+    },
+    {
+        ten: "Fort: Cats & Dogs",
+        tags: ["Expansion"],
+        bienTheGia: [
+            { nhan: "Real", soTien: "1.300.000đ" },
+            { nhan: "Fake", soTien: "800.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "200.000đ" }
+        ],
+        GioiThieu: "Bổ sung thêm các lá bài Mèo và Chó, thay đổi lối chơi và tính toán trong game.",
+        ThanhPhan: "Bao gồm Lá bài Mèo và lá bài Chó mới.",
+        anh: "https://ledergames.com/cdn/shop/products/Fort-CaD-Expansion-Box-1000px.png?v=1625837015"
+    },
+    {
+        ten: "Root: Minibox",
+        tags: ["Pack lẻ", "Fanmade"],
         bienTheGia: [
             { nhan: "DIY", soTien: "15.000đ/box"}
         ],
         GioiThieu: "Có những hộp nhỏ để đựng thành phần của từng phe riêng biệt, giúp hộp game gọn gàng hơn.",
         ThanhPhan: "Giá chỉ bao gồm 1 box, chọn số lượng và loài để mua.",
         anh: "images/minibox.png"
+    },
+    {
+        ten: "Root: Deck Chính Nghĩa & Ngụy Đạo",
+        tags: ["Fanmade", "Deck"],
+        bienTheGia: [
+            { nhan: "DIY", soTien: "150.000đ"}
+        ],
+        GioiThieu: "Bộ bài Fanmade nổi tiếng giúp thay đổi lối chơi.",
+        ThanhPhan: "Bao gồm 1 bộ bài in chất lượng cao.",
+        anh: "images/deckChinhNghiaNguyDao.png"
+    },
+    {
+        ten: "Root: Deck Bình Minh & Hoàng Hôn",
+        tags: ["Fanmade", "Deck"],
+        bienTheGia: [
+            { nhan: "DIY", soTien: "200.000đ"}
+        ],
+        GioiThieu: "Bộ bài Fanmade nổi tiếng giúp thay đổi lối chơi.",
+        ThanhPhan: "Bao gồm 1 bộ bài in chất lượng cao.",
+        anh: "images/deckBinhMinhHoangHon.png"
+    },
+    {
+        ten: "Root: Deck Thuật Sư & Rừng Đen",
+        tags: ["Fanmade", "Deck"],
+        bienTheGia: [
+            { nhan: "DIY", soTien: "170.000đ"}
+        ],
+        GioiThieu: "Bộ bài Fanmade nổi tiếng giúp thay đổi lối chơi.",
+        ThanhPhan: "Bao gồm 1 bộ bài in chất lượng cao.",
+        anh: "images/deckThuatSuRungDen.png"
+    },
+    {
+        ten: "Root: Deck Tân Binh & Phản Bội",
+        tags: ["Fanmade", "Deck"],
+        bienTheGia: [
+            { nhan: "DIY", soTien: "200.000đ"}
+        ],
+        GioiThieu: "Bộ bài Fanmade nổi tiếng giúp thay đổi lối chơi.",
+        ThanhPhan: "Bao gồm 1 bộ bài in chất lượng cao.",
+        anh: "images/deckUpstartsRenegades.png"
+    },
+    {
+        ten: "Root: Dark Deck",
+        tags: ["Fanmade", "Deck"],
+        bienTheGia: [
+            { nhan: "DIY", soTien: "500.000đ"}
+        ],
+        GioiThieu: "Bộ bài Fanmade nổi tiếng giúp thay đổi lối chơi.",
+        ThanhPhan: "Bao gồm 1 bộ bài in chất lượng cao.",
+        anh: "images/DarkDeck.png"
+    },
+    // Các phe Fanmade
+    {
+        ten: "Root FanFaction: Sứ Đồ Axololt",
+        tags: ["Fanmade", "FanFaction"],
+        bienTheGia: [
+            { nhan: "Bản VIP", soTien: "100.000đ"},            
+            { nhan: "Bản thường", soTien: "85.000đ"}
+
+        ],
+        GioiThieu: "<br>Tiết lộ lá bài bạn đã chế tạo để làm hành động. <br>Buff cho các phe khác để nhận vp. <br>KHÔNG THỂ chiến đấu.<br><strong>Thích hợp cho: </strong>Ai muốn chơi phe chill để thắng, giúp đỡ mọi người.",
+        ThanhPhan: "Bao gồm thành phần và minibox phe Sứ đồ Axolotl.",
+        anh: "images/axolotl.png"
+    },
+    {
+        ten: "Root FanFaction: Nam Tước Cá Sấu",
+        tags: ["Fanmade", "FanFaction"],
+        bienTheGia: [
+            { nhan: "Bản VIP", soTien: "200.000đ"},            
+            { nhan: "Bản thường", soTien: "150.000đ"}
+        ],
+        GioiThieu: "<br>Tăng slot xây dựng cho vùng đất.<br>Chiếm đóng đất, đứa nào dám đặt nhà hay token zô là xác định chịu khổ sai bởi quy tắc làm việc.<br>Lên điểm dễ dàng bằng việc cuối lượt rút bao nhiêu lá thì nhận bấy nhiêu VP, nhưng bị giới hạn bởi quy tắc làm việc.<br><strong>Thích hợp cho:</strong> Ai muốn chơi phe đi xây dựng chill chill, chiếm đất mà không cần đổ máu, khiến kẻ thù ngậm ngùi chịu thiệt.",
+        ThanhPhan: "Bao gồm thành phần và minibox phe Nam Tước Cá Sấu.",
+        anh: "images/CaSau.png"
+    },
+    {
+        ten: "Root FanFaction: Tiên Tri Gật Gù",
+        tags: ["Fanmade", "FanFaction"],
+        bienTheGia: [
+            { nhan: "Bản VIP", soTien: "200.000đ"},            
+            { nhan: "Bản thường", soTien: "150.000đ"}
+        ],
+        GioiThieu: "<br>Thay đổi cách chiến đấu theo mỗi vòng, tạo đột biến cho toàn bản đồ khi chiến đấu.<br>Phe này luôn phòng thủ (lấy xúc xắc nhỏ).<br>Chiến binh mất càng nhiều thì càng mạnh.<br><strong>Thích hợp cho:</strong> Ai muốn chơi phe ít đánh nhau, nhưng thích tạo đột biến. Phá chiến thuật cực mạnh khi thay đổi lối chiến đấu.",
+        ThanhPhan: "Bao gồm thành phần và minibox phe Tiên Tri Gật Gù.",
+        anh: "images/Koala.png"
+    },
+    {
+        ten: "Root FanFaction: Đấu Trường Chân Lý (TFT)",
+        tags: ["Fanmade", "FanFaction"],
+        bienTheGia: [
+            { nhan: "Bản VIP", soTien: "250.000đ"},            
+            { nhan: "Bản thường", soTien: "200.000đ"}
+        ],
+        GioiThieu: "<br>Có các điểm độc đáo của thể loại game Auto chess.<br>Chiến binh chiêu mộ khắp nơi.<br>Cơ chế thăng cấp: 2 chiến binh 1 sao -> 1 chiến binh 2 sao.<br>Mỗi chiến binh 2-3 sao có skill riêng.<br>Chiến binh chết sẽ đặt lại bản đồ trong lượt sau.<br><strong>Thích hợp cho:</strong> Ai muốn chơi phe đánh nhau lẻ tẻ, gây khó chịu phe khác. Ai thích thể loại game Auto chess.",
+        ThanhPhan: "Bao gồm thành phần và minibox phe Đấu Trường Chân Lý.",
+        anh: "images/TFT.png"
+    },
+    {
+        ten: "Root FanFaction: Đảng Phái Nhím Bờm",
+        tags: ["Fanmade", "FanFaction"],
+        bienTheGia: [
+            { nhan: "Bản VIP", soTien: "250.000đ"},            
+            { nhan: "Bản thường", soTien: "200.000đ"}
+        ],
+        GioiThieu: "<br>Điều khiển 1 lúc 2 loại chiến binh khác nhau (trắng và đen).<br>Trắng: là của tất cả phe phòng thủ, VP chạy ngược từ 30 về 0. Có các token buff cho phe phòng thủ.trừ điểm càng nhanh càng tốt.<br>Đen: Cố gắng xây nhà để lấy VP.<br>Khi VP trắng = đen: bỏ VP trắng, buff điểm cho VP đen. Từ giờ Trắng chỉ buff cho Đen, không cho mọi người.Cơ chế đặt chiến binh lên bảng chơi vào lá bài hành động nào, sau đó mới được làm hành động đó. <br>Thứ tự hành động thay đổi, vừa ép phải làm như chim nhưng có thể thay đổi thứ tự <br><strong>Thích hợp cho:</strong> Ai muốn thử phe độ phức tạp cao, cân bằng cả 2 phe 1 lúc.Ai muốn phe siêu độc đáo.",
+        ThanhPhan: "Bao gồm thành phần và minibox phe Đảng Phái Nhím Bờm.",
+        anh: "images/Nhim.png"
     }
 ];
-// Hàm hiển thị sản phẩm chính (có thêm tham số 'loaiCanLoc')
-function hienThiTheoLoai(loaiCanLoc = 'tat-ca') {
+
+function hienThiTheoLoai(tagCanLoc = 'tat-ca') {
     const container = document.getElementById('product-grid');
     let htmlContent = "";
 
-    // Lọc danh sách dựa trên loại
-    const danhSachDaLoc = loaiCanLoc === 'tat-ca' 
+    const danhSachDaLoc = tagCanLoc === 'tat-ca' 
         ? danhSachSanPham 
-        : danhSachSanPham.filter(sp => sp.loai === loaiCanLoc);
+        : danhSachSanPham.filter(sp => sp.tags.includes(tagCanLoc));
 
-    danhSachDaLoc.forEach((sp, index) => {
+    danhSachDaLoc.forEach((sp) => {
         let giaHTML = "";
         sp.bienTheGia.forEach(g => {
-            let colorClass = g.nhan.toLowerCase();
+            let colorClass = g.nhan.toLowerCase()
+                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Lệnh loại bỏ dấu Tiếng Việt
+                            .replace(/đ/g, "d")
+                            .replace(/\s+/g, '-');
             giaHTML += `
                 <div class="price-row">
                     <span class="price-label ${colorClass}">${g.nhan}</span>
@@ -164,12 +331,13 @@ function hienThiTheoLoai(loaiCanLoc = 'tat-ca') {
                 </div>
             `;
         });
+        let tagsHTML = sp.tags.map(t => `<span class="category">${t}</span>`).join(' ');
 
         htmlContent += `
             <div class="product-card">
                 <img src="${sp.anh}" alt="${sp.ten}">
                 <div class="product-info">
-                    <span class="category">${sp.loai}</span>
+                    <div class="tag-container">${tagsHTML}</div>
                     <h3>${sp.ten}</h3>
                     <div class="price-container">${giaHTML}</div>
                     <button class="btn-buy" onclick="openModal('${sp.ten}')">Chi tiết</button>
@@ -181,26 +349,23 @@ function hienThiTheoLoai(loaiCanLoc = 'tat-ca') {
     container.innerHTML = htmlContent;
 }
 
-// Hàm xử lý khi nhấn nút lọc
-function locSanPham(loai) {
-    // 1. Cập nhật giao diện nút bấm (active)
+function locSanPham(tag) {
     const buttons = document.querySelectorAll('.filter-btn');
     buttons.forEach(btn => {
         btn.classList.remove('active');
-        if(btn.innerText === loai || (loai === 'tat-ca' && btn.innerText === 'Tất cả')) {
+        if(btn.innerText === tag || (tag === 'tat-ca' && btn.innerText === 'Tất cả')) {
             btn.classList.add('active');
         }
     });
 
-    // 2. Gọi hàm hiển thị lại với loại đã chọn
-    hienThiTheoLoai(loai);
+    hienThiTheoLoai(tag);
 }
+
 function openModal(tenSp) {
     const sp = danhSachSanPham.find(item => item.ten === tenSp);
     const modal = document.getElementById('product-modal');
     const body = document.getElementById('modal-body');
 
-    // Cấu trúc mới: Chia làm 2 phần left và right
     body.innerHTML = `
         <div class="modal-flex-container">
             <div class="modal-left">
@@ -217,16 +382,20 @@ function openModal(tenSp) {
     `;
     
     modal.style.display = "block";
-}
-function closeModal() {
-    document.getElementById('product-modal').style.display = "none";
+    document.body.classList.add('modal-open');
 }
 
-// Đóng khi click ra ngoài khung
+function closeModal() {
+    document.getElementById('product-modal').style.display = "none";
+    document.body.classList.remove('modal-open');
+}
+
 window.onclick = function(event) {
     const modal = document.getElementById('product-modal');
     if (event.target == modal) {
         modal.style.display = "none";
+        document.body.classList.remove('modal-open');
     }
 }
+
 window.onload = () => hienThiTheoLoai('tat-ca');
