@@ -1,0 +1,413 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+h2, h3, .price-value {
+    font-family: 'Montserrat', sans-serif;
+}
+/* Reset cơ bản */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f1ea; 
+    background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); /* Thêm vân giấy nhẹ */
+    margin: 0;
+}
+
+/* Phần Hero (Nền trang chủ) */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+.hero-section h1 {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* Khu vực chứa các nút */
+.button-group {
+    display: flex;
+    gap: 20px; /* Khoảng cách giữa 2 nút */
+}
+
+/* Định dạng chung cho các nút */
+.btn {
+    padding: 15px 30px;
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Nút Luật chơi ROOT (Bên trái) */
+.btn-rules {
+    background-color: #747d8c; /* Màu xám trung tính */
+    color: white;
+    border: 2px solid #747d8c;
+}
+
+.btn-rules:hover {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+/* Nút Sản phẩm (Bên phải) */
+.btn-store {
+    background-color: #ff4757; /* Màu đỏ nổi bật */
+    color: white;
+    border: 2px solid #ff4757;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+}
+
+.btn-store:hover {
+    background-color: transparent;
+    transform: translateY(-3px);
+}
+
+.top-nav {
+    padding: 20px 5%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.main-header {
+    background-color: #ffffff;
+    border-bottom: 2px solid #e0d9c5;
+    padding: 15px 5%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between; /* Đẩy các thành phần sang 2 bên và giữa */
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Tên Shop */
+.shop-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px;
+    color: #4a6741; /* Màu xanh rừng đặc trưng */
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+/* Nút quay lại gọn hơn để nằm trên header */
+.btn-back {
+    text-decoration: none;
+    color: #57606f;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.btn-back:hover {
+    color: #4a6741;
+}
+
+/* Khoảng trống để giữ tên shop ở chính giữa */
+.header-spacer {
+    width: 100px; /* Độ rộng tương đương với nút quay lại */
+}
+
+/* Ẩn spacer trên điện thoại để tránh lệch */
+@media (max-width: 600px) {
+    .header-spacer { display: none; }
+    .shop-name { font-size: 18px; }
+}
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Tổng thể trang sản phẩm */
+#product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Tăng kích thước ô */
+    gap: 15px;
+    background-color: transparent; /* Để lộ nền body bên dưới */
+    padding: 30px 2%;
+}
+
+/* Thẻ sản phẩm */
+.product-card {
+    background: #ffffff;
+    border-radius: 15px; /* Bo góc tròn hơn */
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hiệu ứng khi di chuột vào thẻ */
+.product-card:hover {
+    transform: translateY(-10px); /* Nhấc nhẹ thẻ lên */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+}
+
+/* Hình ảnh sản phẩm */
+.product-card img {
+    width: 100%;
+    height: 150px; /* Giảm chiều cao ảnh từ 250px xuống 150px */
+    object-fit: cover;
+    object-fit:scale-down;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.05); /* Phóng to ảnh nhẹ khi hover */
+}
+
+/* Nội dung thông tin */
+.product-info {
+    padding: 12px;
+    text-align: left; /* Căn trái cho chuyên nghiệp */
+}
+
+.category {
+    display: inline-block;
+    background: #f1f2f6;
+    color: #57606f;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.product-info h3 {
+    margin: 5px 0;
+    font-size: 15px;
+    color: #2f3542;
+    height: 40px; /* Giới hạn chiều cao tiêu đề */
+    overflow: hidden;
+}
+
+/* Phần giá cả */
+.price {
+    color: #ff4757;
+    font-weight: 800;
+    font-size: 20px;
+    margin-top: 10px;
+    display: block;
+}
+
+/* Nút giả lập (Mua ngay) để trang trí thêm */
+.btn-buy {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px;
+    background-color: #2f3542;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    transition: 0.3s;
+}
+
+.btn-buy:hover {
+    background-color: #ff4757;
+}
+
+/* Khung chứa danh sách giá */
+.price-container {
+    margin: 10px 0;
+    padding-top: 10px;
+    border-top: 1px dashed #ddd; /* Đường gạch đứt ngăn cách */
+}
+
+/* Từng dòng giá (Ví dụ: Real - 2tr) */
+.price-row {
+    display: flex;
+    justify-content: space-between; /* Đẩy nhãn sang trái, giá sang phải */
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+/* Nhãn (Real, Fake, DIY) */
+.price-label {
+    background: #eccc68; /* Màu vàng gỗ nhẹ */
+    color: #2f3542;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 9px;
+    text-transform: uppercase;
+}
+
+/* Con số tiền cụ thể */
+.price-value {
+    color: #ff4757;
+    font-weight: bold;
+}
+
+/* Làm nổi bật dòng giá đầu tiên (thường là bản Real/Đắt nhất) */
+.price-row:first-child .price-value {
+    font-size: 18px;
+}
+
+.price-label.real { background-color: #27ae60; color: white; } /* Xanh lá cho hàng Real */
+.price-label.fake { background-color: #e67e22; color: white; } /* Cam cho hàng Fake */
+.price-label.diy  { background-color: #95a5a6; color: white; } /* Xám cho DIY */
+
+.filter-container {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.filter-btn {
+    padding: 10px 25px;
+    margin: 5px;
+    border: 1px solid #e0d9c5;
+    background-color: white;
+    color: #57606f;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #f1f2f6;
+    border-color: #4a6741;
+}
+
+/* Trạng thái nút đang được chọn */
+.filter-btn.active {
+    background-color: #4a6741; /* Màu xanh rừng giống nút Buy */
+    color: white;
+    border-color: #4a6741;
+    box-shadow: 0 4px 10px rgba(74, 103, 65, 0.3);
+}
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.7); /* Làm mờ nền sau */
+    backdrop-filter: blur(5px); /* Làm nhòe nền trông rất hiện đại */
+}
+
+/* Khung nội dung trắng ở giữa */
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; 
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: slideDown 0.4s ease; /* Hiệu ứng bay xuống */
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Nút đóng (X) */
+.close-btn {
+    position: absolute;
+    right: 20px; top: 10px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-btn:hover { color: #000; }
+
+#modal-body h2 { color: #4a6741; margin-top: 0; }
+#modal-body p { line-height: 1.6; color: #333; }
+/* 1. Thiết lập khung Modal rộng hơn một chút cho đẹp */
+.modal-content {
+    max-width: 850px; /* Tăng chiều rộng để đủ chỗ cho 2 cột */
+    width: 95%;
+    padding: 20px;
+}
+
+/* 2. Thiết lập Flexbox cho màn hình ngang (Laptop/PC) */
+.modal-flex-container {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+}
+
+.modal-left {
+    flex: 1; /* Chiếm khoảng 45-50% chiều rộng */
+}
+
+.modal-left img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+}
+
+.modal-right {
+    flex: 1; /* Chiếm phần còn lại */
+    text-align: left;
+}
+
+/* Tạo vùng cuộn nếu văn bản quá dài để không làm tràn Modal */
+.modal-info-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* 3. Media Query: Xử lý cho màn hình dọc (Điện thoại) */
+@media (max-width: 768px) {
+    .modal-flex-container {
+        flex-direction: column; /* Xếp chồng lại như cũ */
+    }
+    
+    .modal-left, .modal-right {
+        flex: none;
+        width: 100%;
+    }
+    
+    .modal-info-scroll {
+        max-height: none; /* Trên điện thoại để cuộn cả trang cho dễ */
+    }
+}
