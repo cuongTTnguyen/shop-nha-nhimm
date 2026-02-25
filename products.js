@@ -405,6 +405,7 @@ window.onclick = function(event) {
     if (event.target.classList.contains('modal')) {
         closeModal();       // Đóng popup thông tin
         closeConfigModal(); // Đóng popup cấu hình
+        closeInfoModal();
     }
 }
 

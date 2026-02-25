@@ -54,32 +54,65 @@ function xoaSanPham(index) {
     renderGioHang();
 }
 
-function xoaToanBoGiỏ() {
+function xoaToanBoGio() {
     if(confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) {
         localStorage.removeItem('cart');
         renderGioHang();
     }
 }
 
-function sendOrderZalo() {
+// Hàm mở và đóng Popup thông tin
+function openInfoModal() {
     const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
-    if (gioHang.length === 0) return;
+    if (gioHang.length === 0) {
+        alert("Giỏ hàng của bạn đang trống!");
+        return;
+    }
+    document.getElementById('info-modal').style.display = 'block';
+}
 
-    let message = "Chào Shop Nhà Nhimm, mình muốn đặt hàng:\n";
+function closeInfoModal() {
+    document.getElementById('info-modal').style.display = 'none';
+}
+
+// Hàm chính: Gom dữ liệu và gửi đi
+function sendToMessenger() {
+    const name = document.getElementById('cus-name').value;
+    const phone = document.getElementById('cus-phone').value;
+    const address = document.getElementById('cus-address').value;
+
+    if (!name || !phone || !address) {
+        alert("Vui lòng điền đầy đủ thông tin để Shop giao hàng nhé!");
+        return;
+    }
+
+    const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+    let message = `Mình là: ${name}\n`;
+    message += `📞 SĐT: ${phone}\n`;
+    message += `📍 Địa chỉ: ${address}\n`;
+    message += `Mình muốn đặt:\n`;
+
     let tongTien = 0;
-
     gioHang.forEach((item, index) => {
         const giaSo = parseInt(item.gia.replace(/\./g, '').replace('đ', '')) || 0;
         tongTien += giaSo * item.soLuong;
-        // Thêm ngôn ngữ vào tin nhắn gửi đi
-        message += `\n${index + 1}. ${item.ten} [${item.ngonNgu}]\n   Loại: ${item.loai} - SL: ${item.soLuong}`;
+        message += `${index + 1}. ${item.ten} [${item.ngonNgu}]\n   Loại: ${item.loai} - SL: ${item.soLuong}\n`;
     });
 
-    message += `\n\nTổng cộng: ${tongTien.toLocaleString('vi-VN')}đ`;
-    
-    const phone = "0375772302"; 
-    window.open(`https://zalo.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-}
+    message += `\n💰 TỔNG CỘNG: ${tongTien.toLocaleString('vi-VN')}đ`;
 
+    // Copy toàn bộ thông tin
+    navigator.clipboard.writeText(message).then(() => {
+        alert("Đã sao chép đơn hàng và thông tin! Bạn chỉ cần 'Dán' vào Messenger.");
+        const fbUsername = "cuong.nguyen.687207";
+        window.open(`https://m.me/${fbUsername}`, '_blank');
+        closeInfoModal();
+    });
+}
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        closeInfoModal();
+    }
+}
 // Chạy hàm render khi trang web load xong
 window.onload = renderGioHang;
