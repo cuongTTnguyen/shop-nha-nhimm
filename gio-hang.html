@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - Shop Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <a href="san-pham.html" class="btn-back"><span>&larr;</span> Tiếp tục mua sắm</a>
+            <h1 class="shop-name">Giỏ hàng của bạn</h1>
+        </div>
+    </header>
+
+    <main class="cart-container">
+        <div id="cart-empty-message" style="display:none; text-align: center; margin-top: 50px;">
+            <p>Giỏ hàng đang trống!</p>
+            <a href="san-pham.html" class="btn-confirm-add" style="display:inline-block; width:auto; padding:10px 20px;">Đi mua sắm ngay</a>
+        </div>
+
+        <div id="cart-list">
+            </div>
+
+        <div class="cart-summary" id="cart-summary">
+            <div class="total-price">Tổng cộng: <span id="total-amount">0đ</span></div>
+            <button class="btn-checkout" onclick="checkoutZalo()">Gửi đơn hàng qua Zalo</button>
+            <button class="btn-clear" onclick="xoaToanBoGiỏ()">Xóa tất cả</button>
+        </div>
+    </main>
+
+    <script src="cart.js"></script>
+</body>
+</html>

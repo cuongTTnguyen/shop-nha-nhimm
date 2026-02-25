@@ -5,15 +5,38 @@
     <title>Trưng bày sản phẩm</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<header class="main-header">
-    <div class="header-content">
-        <a href="index.html" class="btn-back">
-            <span class="arrow">&larr;</span> Quay lại
-        </a>
-        <h1 class="shop-name">Shop Nhà Nhimm</h1>
-        <div class="header-spacer"></div> </div>
-</header>
+
 <body>
+    <header class="main-header">
+        <div class="header-content">
+            <a href="index.html" class="btn-back"><span>&larr;</span> Quay lại</a>
+            <h1 class="shop-name">Shop Nhà Nhimm</h1>
+
+            <div class="cart-icon-container" onclick="toggleCart()">
+                <div class="cart-icon">
+                    🛒
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
+
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>Giỏ hàng của bạn</h2>
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+        </div>
+        <div id="cart-items" class="cart-items-list"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Tổng cộng:</span>
+                <span id="cart-total">0đ</span>
+            </div>
+            <button class="btn-checkout-zalo" onclick="sendOrderZalo()">Gửi đơn hàng qua Zalo</button>
+        </div>
+    </div>
     <h2 style="text-align: center;">DANH SÁCH SẢN PHẨM</h2>
     <div class="filter-container">
         <button class="filter-btn active" onclick="locSanPham('tat-ca')">Tất cả</button>
@@ -30,11 +53,36 @@
 
     <script src="products.js"></script>
     <div id="product-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div id="modal-body">
-            </div>
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body"> </div>
+        </div>
     </div>
-</div>
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeConfigModal()">&times;</span>
+            <div class="config-container">
+                <img id="config-img" src="" alt="">
+                <div class="config-details">
+                    <h2 id="config-name"></h2>
+                    
+                    <label>Chọn loại sản phẩm:</label>
+                    <div id="config-variants" class="variant-options">
+                        </div>
+
+                    <div class="quantity-control">
+                        <label>Số lượng:</label>
+                        <div class="q-btns">
+                            <button onclick="changeQty(-1)">-</button>
+                            <input type="number" id="config-qty" value="1" min="1">
+                            <button onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+
+                    <button class="btn-confirm-add" onclick="confirmAddToCart()">Thêm vào giỏ hàng</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

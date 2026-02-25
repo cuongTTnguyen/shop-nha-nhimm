@@ -312,6 +312,7 @@ const danhSachSanPham = [
 function hienThiTheoLoai(tagCanLoc = 'tat-ca') {
     const container = document.getElementById('product-grid');
     let htmlContent = "";
+    let currentProduct = null;
 
     const danhSachDaLoc = tagCanLoc === 'tat-ca' 
         ? danhSachSanPham 
@@ -335,12 +336,21 @@ function hienThiTheoLoai(tagCanLoc = 'tat-ca') {
 
         htmlContent += `
             <div class="product-card">
-                <img src="${sp.anh}" alt="${sp.ten}">
+                <img src="${sp.anh}" alt="${sp.ten}" 
+                    onclick="openModal('${sp.ten.replace(/'/g, "\\'")}')" 
+                    style="cursor:pointer">
+                
                 <div class="product-info">
-                    <div class="tag-container">${tagsHTML}</div>
-                    <h3>${sp.ten}</h3>
-                    <div class="price-container">${giaHTML}</div>
-                    <button class="btn-buy" onclick="openModal('${sp.ten}')">Chi tiết</button>
+                    <div onclick="openModal('${sp.ten.replace(/'/g, "\\'")}')" style="cursor:pointer">
+                        <div class="tag-container">${tagsHTML}</div>
+                        <h3>${sp.ten}</h3>
+                        <div class="price-container">${giaHTML}</div>
+                    </div>
+
+                    <button class="btn-buy" 
+                            onclick="event.stopPropagation(); openConfigModal('${sp.ten.replace(/'/g, "\\'")}')">
+                        Thêm vào giỏ hàng
+                    </button>
                 </div>
             </div>
         `;
@@ -391,11 +401,117 @@ function closeModal() {
 }
 
 window.onclick = function(event) {
-    const modal = document.getElementById('product-modal');
-    if (event.target == modal) {
-        modal.style.display = "none";
-        document.body.classList.remove('modal-open');
+    // Nếu click vào bất kỳ phần tử nào có class là 'modal' (vùng nền đen)
+    if (event.target.classList.contains('modal')) {
+        closeModal();       // Đóng popup thông tin
+        closeConfigModal(); // Đóng popup cấu hình
     }
 }
 
+// Khai báo biến toàn cục ở đầu file hoặc trước các hàm
+let currentProduct = null;
+
+// Hàm mở Modal cấu hình
+function openConfigModal(tenSp) {
+    const sp = danhSachSanPham.find(p => p.ten === tenSp);
+    if (!sp) return;
+    
+    currentProduct = sp;
+
+    // Đổ dữ liệu vào giao diện Modal
+    document.getElementById('config-img').src = sp.anh;
+    document.getElementById('config-name').innerText = sp.ten;
+    document.getElementById('config-qty').value = 1;
+
+    let variantHTML = '';
+    sp.bienTheGia.forEach((bt, index) => {
+        variantHTML += `
+            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
+                    onclick="selectVariant(this, '${bt.nhan}', '${bt.soTien}')">
+                ${bt.nhan} - ${bt.soTien}
+            </button>
+        `;
+    });
+    document.getElementById('config-variants').innerHTML = variantHTML;
+    currentProduct.selectedVariant = sp.bienTheGia[0];
+
+    document.getElementById('config-modal').style.display = 'block';
+    document.body.classList.add('modal-open'); // Khóa cuộn trang nền
+}
+
+function selectVariant(el, nhan, gia) {
+    document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentProduct.selectedVariant = { nhan, soTien: gia };
+}
+
+function changeQty(num) {
+    let input = document.getElementById('config-qty');
+    let val = parseInt(input.value) + num;
+    if (val >= 1) input.value = val;
+}
+
+function confirmAddToCart() {
+    if (!currentProduct || !currentProduct.selectedVariant) return;
+
+    const qtyInput = document.getElementById('config-qty');
+    const qty = parseInt(qtyInput.value);
+
+    const cartItem = {
+        ten: currentProduct.ten,
+        loai: currentProduct.selectedVariant.nhan,
+        gia: currentProduct.selectedVariant.soTien,
+        soLuong: qty,
+        anh: currentProduct.anh
+    };
+
+    let gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingIndex = gioHang.findIndex(i => i.ten === cartItem.ten && i.loai === cartItem.loai);
+    
+    if (existingIndex > -1) {
+        gioHang[existingIndex].soLuong += qty;
+    } else {
+        gioHang.push(cartItem);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(gioHang));
+    
+    // Đóng modal trước
+    closeConfigModal();
+    
+    // Cập nhật số lượng trên icon ngay lập tức
+    updateCartCount();
+    
+    const cartIcon = document.querySelector('.cart-icon-container');
+    if (cartIcon) {
+        cartIcon.classList.add('cart-shake');
+        setTimeout(() => cartIcon.classList.remove('cart-shake'), 500);
+    }
+}
+
+function closeConfigModal() {
+    document.getElementById('config-modal').style.display = 'none';
+    document.body.classList.remove('modal-open');
+}
+
+function updateCartCount() {
+    const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+    const tongSoLuong = gioHang.reduce((total, item) => total + item.soLuong, 0);
+    const countElement = document.getElementById('cart-count');
+    if (countElement) {
+        countElement.innerText = tongSoLuong;
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const cartBtn = document.querySelector('.cart-icon-container');
+    if (cartBtn) {
+        cartBtn.addEventListener('click', () => {
+            window.location.href = 'gio-hang.html';
+        });
+    }
+});
+window.addEventListener('load', () => {
+    hienThiTheoLoai('tat-ca');
+    updateCartCount();
+});
 window.onload = () => hienThiTheoLoai('tat-ca');
