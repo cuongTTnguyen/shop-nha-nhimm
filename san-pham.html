@@ -38,6 +38,32 @@
         </div>
     </div>
     <h2 style="text-align: center;">DANH SÁCH SẢN PHẨM</h2>
+    <div class="legend-container">
+        <div class="legend-item">
+            <span class="price-label real">Real</span> 
+            <span class="legend-text">Hàng chính hãng, chất lượng cao nhất.</span>
+        </div>
+        <div class="legend-item">
+            <span class="price-label fake">Fake</span> 
+            <span class="legend-text">Giống REAL nhưng chất lượng kém, bản copy của Trung Quốc.</span>
+        </div>
+        <div class="legend-item">
+            <span class="price-label diy">DIY</span> 
+            <span class="legend-text">Hàng tự làm, in ấn thủ công, warrior in nhựa 3d.</span>
+        </div>
+        <div class="legend-item">
+            <span class="price-label le-tieng-viet">Tiếng Việt</span> 
+            <span class="legend-text">Chỉ gồm Lá bài/bảng chơi đã được dịch sang Tiếng Việt.</span>
+        </div>
+        <div class="legend-item">
+            <span class="price-label ban-thuong">Fanmade Bản thường</span> 
+            <span class="legend-text">Là DIY nhưng warrior in nhựa 3d không đẹp như VIP.</span>
+        </div>
+        <div class="legend-item">
+            <span class="price-label ban-vip">Fanmade Bản Vip</span> 
+            <span class="legend-text">Là DIY nhưng warrior in nhựa 3d xịn.</span>
+        </div>
+    </div>
     <div class="filter-container">
         <button class="filter-btn active" onclick="locSanPham('tat-ca')">Tất cả</button>
         <button class="filter-btn" onclick="locSanPham('Board Game')">Board Game</button>
@@ -47,6 +73,7 @@
         <button class="filter-btn" onclick="locSanPham('Deck')">Bộ bài</button>
         <button class="filter-btn" onclick="locSanPham('FanFaction')">FanFaction</button>
     </div>
+    
     <div id="product-grid" class="container"></div>
 
     <div id="product-grid" class="container"></div>
@@ -59,27 +86,36 @@
         </div>
     </div>
     <div id="config-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeConfigModal()">&times;</span>
-            <div class="config-container">
+        <div class="modal-content config-content">
+            <span class="close" onclick="closeConfigModal()">&times;</span>
+            <div class="config-flex">
                 <img id="config-img" src="" alt="">
-                <div class="config-details">
+                <div class="config-info">
                     <h2 id="config-name"></h2>
                     
-                    <label>Chọn loại sản phẩm:</label>
-                    <div id="config-variants" class="variant-options">
+                    <div class="config-section">
+                        <p>Ngôn ngữ:</p>
+                        <div class="language-options">
+                            <button class="lang-btn active" onclick="selectLanguage(this, 'Tiếng Việt')">Tiếng Việt</button>
+                            <button class="lang-btn" onclick="selectLanguage(this, 'Tiếng Anh')">Tiếng Anh</button>
                         </div>
+                    </div>
 
-                    <div class="quantity-control">
-                        <label>Số lượng:</label>
-                        <div class="q-btns">
+                    <div class="config-section">
+                        <p>Loại hàng:</p>
+                        <div id="config-variants" class="variant-options"></div>
+                    </div>
+
+                    <div class="config-section">
+                        <p>Số lượng:</p>
+                        <div class="qty-input">
                             <button onclick="changeQty(-1)">-</button>
                             <input type="number" id="config-qty" value="1" min="1">
                             <button onclick="changeQty(1)">+</button>
                         </div>
                     </div>
-
-                    <button class="btn-confirm-add" onclick="confirmAddToCart()">Thêm vào giỏ hàng</button>
+                    
+                    <button class="btn-confirm-add" onclick="confirmAddToCart()">Xác nhận thêm</button>
                 </div>
             </div>
         </div>

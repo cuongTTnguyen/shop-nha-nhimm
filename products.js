@@ -450,23 +450,37 @@ function changeQty(num) {
     let val = parseInt(input.value) + num;
     if (val >= 1) input.value = val;
 }
+let selectedLang = "Tiếng Việt";
 
+// Hàm chọn ngôn ngữ
+function selectLanguage(el, lang) {
+    // Xóa class active ở các nút ngôn ngữ khác
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    // Thêm class active vào nút vừa chọn
+    el.classList.add('active');
+    selectedLang = lang;
+}
 function confirmAddToCart() {
     if (!currentProduct || !currentProduct.selectedVariant) return;
 
-    const qtyInput = document.getElementById('config-qty');
-    const qty = parseInt(qtyInput.value);
-
+    const qty = parseInt(document.getElementById('config-qty').value);
+    
     const cartItem = {
         ten: currentProduct.ten,
         loai: currentProduct.selectedVariant.nhan,
+        ngonNgu: selectedLang, // Lưu ngôn ngữ vào đây
         gia: currentProduct.selectedVariant.soTien,
         soLuong: qty,
         anh: currentProduct.anh
     };
 
     let gioHang = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingIndex = gioHang.findIndex(i => i.ten === cartItem.ten && i.loai === cartItem.loai);
+    // Kiểm tra trùng cả Tên + Loại + Ngôn ngữ
+    const existingIndex = gioHang.findIndex(i => 
+        i.ten === cartItem.ten && 
+        i.loai === cartItem.loai && 
+        i.ngonNgu === cartItem.ngonNgu
+    );
     
     if (existingIndex > -1) {
         gioHang[existingIndex].soLuong += qty;
@@ -475,20 +489,19 @@ function confirmAddToCart() {
     }
 
     localStorage.setItem('cart', JSON.stringify(gioHang));
-    
-    // Đóng modal trước
     closeConfigModal();
-    
-    // Cập nhật số lượng trên icon ngay lập tức
     updateCartCount();
-    
+
+    // Hiệu ứng rung nhẹ icon giỏ hàng (như đã làm ở bước trước)
     const cartIcon = document.querySelector('.cart-icon-container');
     if (cartIcon) {
         cartIcon.classList.add('cart-shake');
         setTimeout(() => cartIcon.classList.remove('cart-shake'), 500);
     }
+    
+    // Reset lại ngôn ngữ mặc định cho lần sau
+    selectedLang = "Tiếng Việt"; 
 }
-
 function closeConfigModal() {
     document.getElementById('config-modal').style.display = 'none';
     document.body.classList.remove('modal-open');

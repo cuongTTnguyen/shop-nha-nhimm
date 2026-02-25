@@ -628,3 +628,67 @@ body.modal-open {
         align-items: center;
     }
 }
+
+.legend-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding: 15px 5%;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    margin: 10px auto 20px;
+    max-width: 1200px;
+    border: 1px dashed #e0d9c5;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-text {
+    font-size: 13px;
+    color: #57606f;
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .legend-container {
+        flex-direction: column; /* Xếp dọc trên điện thoại để dễ đọc */
+        align-items: flex-start;
+        gap: 10px;
+        padding: 15px 20px;
+    }
+}
+.language-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.lang-btn {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.lang-btn.active {
+    border-color: #4a6741;
+    background: #4a6741;
+    color: white;
+}
+
+.config-section {
+    margin-bottom: 15px;
+}
+
+.config-section p {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
