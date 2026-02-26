@@ -1030,3 +1030,70 @@ body.modal-open {
     font-size: 16px;
     margin-top: 10px;
 }
+.rule-page {
+    background-color: #fdfaf3; /* Màu giấy hơi vàng cũ */
+    font-family: 'Segoe UI', sans-serif;
+    line-height: 1.7;
+    color: #333;
+}
+
+.rules-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 40px;
+    padding: 0 20px;
+}
+
+/* Mục lục cố định bên trái */
+.rules-toc {
+    position: sticky;
+    top: 90px;
+    height: fit-content;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.rules-toc h4 { margin-top: 0; color: var(--primary); }
+.rules-toc nav a {
+    display: block;
+    padding: 8px 0;
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+.rules-toc nav a:hover { color: var(--secondary); }
+
+/* Nội dung luật */
+.rules-content {
+    background: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.rules-main-header { text-align: center; margin-bottom: 50px; }
+.rules-main-header h1 { font-family: 'Crimson Text', serif; font-size: 2.5rem; color: #4a6741; margin-bottom: 5px; }
+.chapter-title { 
+    background: #4a6741; color: #fff; 
+    padding: 10px 20px; border-radius: 5px; 
+    font-family: 'Crimson Text', serif;
+    margin-top: 40px;
+}
+
+.rule-block { margin: 25px 0; padding-bottom: 15px; border-bottom: 1px dashed #ddd; }
+.rule-block h3 { color: #8b4513; font-size: 1.2rem; margin-bottom: 10px; }
+.rule-block p { margin-bottom: 10px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rules-container { grid-template-columns: 1fr; }
+    .rules-toc { display: none; } /* Ẩn mục lục trên mobile */
+    .rules-content { padding: 20px; }
+    .action-grid { grid-template-columns: 1fr; }
+}
