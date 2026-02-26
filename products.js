@@ -40,7 +40,7 @@ const danhSachSanPham = [
         tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
-            { nhan: "Fake", soTien: "1.100.000đ" },
+            { nhan: "Fake", soTien: "850.000đ" },
             { nhan: "DIY", soTien: "500.000đ" },
             { nhan: "Lẻ tiếng việt", soTien: "350.000đ" }
         ],
@@ -96,6 +96,18 @@ const danhSachSanPham = [
         GioiThieu: "Bổ sung thêm Hireling (Lính đánh thuê). Giúp cho nhóm chơi từ 2-3 người trở lên thú vị hơn. Bạn sẽ thuê các chiến binh ngoại lai và họ sẽ chiến đấu, hỗ trợ bạn. Tuy nhiên thời gian thuê có hạn nên nếu hết thời hạn thuê, bạn sẽ phải đưa Hireling bạn thuê cho người khác.",
         ThanhPhan: "Bản này sẽ bao gồm có tổng cộng 4 Pack khác nhau. Mỗi Pack sẽ gồm 3 Hireling (tổng 12 Hireling).",
         anh: "https://ledergames.com/cdn/shop/products/Root_Hirelings-DeluxeBox-RetailWrap_Left_newangle.png?v=1646237750"
+    },
+    {
+        ten: "Landmark (Phong cảnh)",
+        tags: ["Pack lẻ"],
+        bienTheGia: [
+            { nhan: "Real", soTien: "500.000đ" },
+            { nhan: "Fake", soTien: "100.000đ" },
+            { nhan: "DIY", soTien: "25.000đ" }
+        ],
+        GioiThieu: "Bổ sung các mô hình tạo ra sự thay đổi trong 1 vùng đất nhất định. Ví dụ Bè giúp bạn đi trên sông,...",
+        ThanhPhan: "Gồm bộ mô hình nhựa cao cấp.",
+        anh: "https://cf.geekdo-images.com/VvEGNGf5DoMTjqwdH2aRpg__itemrep/img/XRU0U9crf9Ti5Fvg7sePrZokcqA=/fit-in/246x300/filters:strip_icc()/pic6818641.png"
     },
     {
         ten: "Đánh dấu vùng đất",
@@ -527,5 +539,4 @@ window.addEventListener('load', () => {
     hienThiTheoLoai('tat-ca');
     updateCartCount();
 });
-
 window.onload = () => hienThiTheoLoai('tat-ca');
