@@ -1,19 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
 
+:root {
+    --primary: #4a6741;
+    --secondary: #ff4757;
+    --bg: #f4f1ea;
+    --white: #ffffff;
+    --header-h: 70px;
+}
+
+* { box-sizing: border-box; } /* Ép mọi phần tử tính toán kích thước chuẩn */
+
 html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f1ea;
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg);
     background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
 }
-body {
-    padding-top: 70px; /* Chỉnh con số này bằng với chiều cao Header của bạn */
-}
-h2, h3, .price-value, .shop-name {
-    font-family: 'Montserrat', sans-serif;
-}
+
+body { padding-top: var(--header-h); }
+h1, h2, h3, .price-value, .shop-name { font-family: 'Montserrat', sans-serif; }
 /* Header cho trang Index */
 .index-header {
     display: flex;
@@ -52,28 +57,40 @@ h2, h3, .price-value, .shop-name {
 }
 
 /* Logo ở giữa */
+header, .index-header, .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px; /* Giảm padding để tiết kiệm diện tích */
+    background-color: var(--white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; /* Sẽ không bị tràn nhờ box-sizing ở trên */
+    z-index: 1100;
+    height: var(--header-h);
+}
+
+.header-left, .header-right {
+    width: 80px; /* Thu hẹp độ rộng mặc định */
+    display: flex;
+    align-items: center;
+    flex-shrink: 0; /* Ngăn không cho 2 khối này bị bóp méo */
+}
+
+.header-right { justify-content: flex-end; }
+
 .header-center {
     flex: 1;
     display: flex;
     justify-content: center;
+    min-width: 0; /* Cho phép co lại nếu cần */
 }
 
 .root-logo {
-    height: 50px; /* Điều chỉnh kích thước logo cho vừa mắt */
-    width: auto;
+    height: 45px;
+    max-width: 100%;
     object-fit: contain;
-}
-
-/* Phần bên phải */
-.header-right {
-    width: 35px; /* Giữ độ rộng bằng phần bên trái để logo luôn ở giữa tuyệt đối */
-    display: flex;
-    justify-content: flex-end;
-}
-
-.header-icon-placeholder {
-    width: 30px;
-    height: 30px;
 }
 
 /* Đẩy nội dung Hero Section xuống để không bị Header che */
@@ -496,7 +513,7 @@ body.modal-open {
     position: relative;
     z-index: 1001;
     cursor: pointer !important;
-    padding: 10px;
+    padding: 5px;
     transition: transform 0.2s;
 }
 
@@ -513,12 +530,11 @@ body.modal-open {
     position: absolute;
     top: -8px;
     right: -10px;
+    background: var(--secondary); color: white;
+    font-size: 10px; padding: 2px 5px; border-radius: 50%;
     background-color: #ff4757; /* Màu đỏ nổi bật */
     color: white;
-    font-size: 12px;
     font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 50%;
     min-width: 15px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -743,12 +759,38 @@ body.modal-open {
 }
 
 @media (max-width: 600px) {
-    .legend-container {
-        flex-direction: column; /* Xếp dọc trên điện thoại để dễ đọc */
-        align-items: flex-start;
-        gap: 10px;
-        padding: 15px 20px;
+    /* Thu hẹp 2 bên để dành chỗ cho trung tâm */
+    .header-left, .header-right { 
+        width: 50px; /* Giảm từ 100px xuống 50px */
     }
+
+    /* Thu nhỏ logo để không chiếm diện tích */
+    .root-logo {
+        height: 35px; /* Giảm từ 45px xuống 35px */
+    }
+
+    /* Tăng kích thước vùng bấm giỏ hàng cho dễ chạm */
+    .cart-icon-container {
+        padding: 5px;
+    }
+
+    .cart-icon {
+        font-size: 20px; /* Thu nhỏ icon 🛒 một chút */
+    }
+
+    /* Đảm bảo Sidebar giỏ hàng không quá rộng trên đt */
+    .cart-sidebar {
+        width: 85%; /* Chiếm 85% chiều ngang điện thoại */
+    }
+
+    /* Giữ Grid sản phẩm 2 cột */
+    #product-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 8px; 
+        padding: 15px 8px;
+    }
+
+    .hero-section h1 { font-size: 2.2rem; }
 }
 .language-options {
     display: flex;
