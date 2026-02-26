@@ -2,24 +2,61 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trưng bày sản phẩm</title>
+    <title>Shop Nhà Nhimm</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="header-content">
-            <a href="index.html" class="btn-back"><span>&larr;</span> Quay lại</a>
-            <h1 class="shop-name">Shop Nhà Nhimm</h1>
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebarMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
 
+        <div class="header-center">
+            <a href="index.html" class="logo-link">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
+            </a>
+        </div>
+
+        <div class="header-right">
             <div class="cart-icon-container" onclick="toggleCart()">
                 <div class="cart-icon">
-                    🛒
-                    <span id="cart-count">0</span>
+                    🛒<span id="cart-count">0</span>
                 </div>
             </div>
         </div>
     </header>
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
+
+    <div id="left-sidebar" class="left-sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">MENU</span>
+            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li><a href="index.html">🏠 Menu chính</a></li>
+            
+            <li class="has-submenu">
+                <div class="submenu-header" onclick="toggleSubmenu(this)">
+                    📜 Luật chơi <span class="arrow">▼</span>
+                </div>
+                <ul class="submenu">
+                    <li><a href="luat-choi-root.html">· Luật chơi ROOT</a></li>
+                    <li><a href="luat-choi-fort.html">· Luật chơi Fort</a></li>
+                    <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
+                </ul>
+            </li>
+            
+            <li><a href="san-pham.html">🛒 Tiếp tục mua sắm</a></li>
+            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
+        </ul>
+    </div>
+    <script src="script.js"></script>
 
     <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
 
@@ -120,5 +157,42 @@
             </div>
         </div>
     </div>
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>THÔNG TIN LIÊN HỆ</h3>
+                <ul class="footer-links">
+                    <li>
+                        <a href="https://www.facebook.com/cuong.nguyen.687207" target="_blank">
+                            🔵 Facebook: Cường Nguyễn
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://zalo.me/0375772302" target="_blank">
+                            🟢 Zalo: 0375772302
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.youtube.com/@Meo_Munn" target="_blank">
+                            🔴 Youtube: Bá Tước Mèo Mun
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>HỖ TRỢ KHÁCH HÀNG</h3>
+                <ul class="footer-links">
+                    <li><a href="huong-dan-mua-hang.html">📋 Hướng dẫn mua hàng</a></li>
+                    <li><a href="huong-dan-thanh-toan.html">💳 Hướng dẫn thanh toán</a></li>
+                    <li><a href="dieu-khoan-dich-vu.html">⚖️ Điều khoản dịch vụ</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Shop Nhà Nhimm - Thế giới Woodland trong tay bạn.</p>
+        </div>
+    </footer>
 </body>
 </html>
