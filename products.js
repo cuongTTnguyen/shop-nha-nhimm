@@ -40,7 +40,7 @@ const danhSachSanPham = [
         tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
-            { nhan: "Fake", soTien: "850.000đ" },
+            { nhan: "Fake", soTien: "1.100.000đ" },
             { nhan: "DIY", soTien: "500.000đ" },
             { nhan: "Lẻ tiếng việt", soTien: "350.000đ" }
         ],
@@ -527,4 +527,5 @@ window.addEventListener('load', () => {
     hienThiTheoLoai('tat-ca');
     updateCartCount();
 });
+
 window.onload = () => hienThiTheoLoai('tat-ca');
