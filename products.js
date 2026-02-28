@@ -40,7 +40,7 @@ const danhSachSanPham = [
         tags: ["Mở rộng"],
         bienTheGia: [
             { nhan: "Real", soTien: "2.000.000đ" },
-            { nhan: "Fake", soTien: "850.000đ" },
+            { nhan: "Fake", soTien: "1.100.000đ" },
             { nhan: "DIY", soTien: "500.000đ" },
             { nhan: "Lẻ tiếng việt", soTien: "350.000đ" }
         ],
@@ -102,8 +102,8 @@ const danhSachSanPham = [
         tags: ["Pack lẻ"],
         bienTheGia: [
             { nhan: "Real", soTien: "500.000đ" },
-            { nhan: "Fake", soTien: "100.000đ" },
-            { nhan: "DIY", soTien: "25.000đ" }
+            { nhan: "DIY", soTien: "100.000đ" },
+            { nhan: "Lẻ tiếng việt", soTien: "25.000đ" }
         ],
         GioiThieu: "Bổ sung các mô hình tạo ra sự thay đổi trong 1 vùng đất nhất định. Ví dụ Bè giúp bạn đi trên sông,...",
         ThanhPhan: "Gồm bộ mô hình nhựa cao cấp.",
