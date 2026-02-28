@@ -9,7 +9,8 @@ const danhSachSanPham = [
         ],
         GioiThieu: "Bộ cơ bản, bắt buộc phải mua nếu bạn chưa có bộ ROOT nào cả.",
         ThanhPhan: "Gồm 4 phe: Nữ Bá Tước Mèo, Vương Triều Tổ Chim, Liên Minh Khu Rừng, Vagabond.",
-        anh: "https://ledergames.com/cdn/shop/products/1-RootGameBox-Edit-Web.png?height=1024&v=1595294735"
+        anh: "https://ledergames.com/cdn/shop/products/1-RootGameBox-Edit-Web.png?height=1024&v=1595294735",
+        anhChiTiet: ["https://ledergames.com/cdn/shop/products/1-RootGameBox-Edit-Web.png?height=1024&v=1595294735", "https://ledergames.com/cdn/shop/products/50-RootBaseGameBoxwGameSetup-Editv2-Web.png?height=1024&v=1617976948"]
     },
     {
         ten: "Root: Riverfolk Expansion",
@@ -383,21 +384,91 @@ function locSanPham(tag) {
     hienThiTheoLoai(tag);
 }
 
+let currentProduct = null;
+let selectedLang = "Tiếng Việt";
+
 function openModal(tenSp) {
     const sp = danhSachSanPham.find(item => item.ten === tenSp);
+    if (!sp) return;
+    
+    currentProduct = sp;
     const modal = document.getElementById('product-modal');
     const body = document.getElementById('modal-body');
+    const dsAnh = sp.anhChiTiet || [sp.anh];
+
+    let thumbHTML = '';
+    dsAnh.forEach((imgSrc, index) => {
+        thumbHTML += `
+            <img src="${imgSrc}" 
+                 class="thumb-img ${index === 0 ? 'active' : ''}" 
+                 onclick="changeMainImage(this, '${imgSrc}')"
+                 alt="thumbnail">
+        `;
+    });
+    let variantHTML = '';
+    sp.bienTheGia.forEach((bt, index) => {
+        variantHTML += `
+            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
+                    onclick="selectVariant(this, '${bt.nhan}', '${bt.soTien}')">
+                ${bt.nhan}: ${bt.soTien.toLocaleString()}đ
+            </button>
+        `;
+    });
+    
+    // Gán biến thể mặc định là cái đầu tiên
+    currentProduct.selectedVariant = sp.bienTheGia[0];
 
     body.innerHTML = `
         <div class="modal-flex-container">
             <div class="modal-left">
-                <img src="${sp.anh}" alt="${sp.ten}">
+                <div class="main-image-container">
+                    <img src="${sp.anh}" alt="${sp.ten}" id="config-img" class="main-display-img" onclick="openFullscreen()">
+                </div>
+                <div class="thumbnail-container">
+                    ${thumbHTML}
+                </div>
             </div>
+
             <div class="modal-right">
                 <h2>${sp.ten}</h2>
                 <div class="modal-info-scroll">
-                    <p><strong>Giới thiệu:</strong> ${sp.GioiThieu}</p>
-                    <p><strong>Thành phần:</strong> ${sp.ThanhPhan}</p>
+                    <div class="info-section">
+                        <p><strong>Giới thiệu:</strong> ${sp.GioiThieu}</p>
+                        <p><strong>Thành phần:</strong> ${sp.ThanhPhan}</p>
+                    </div>
+                    
+                    <hr style="border: 0; border-top: 1px dashed #ddd; margin: 15px 0;">
+
+                    <div class="config-section">
+                        <p><strong>Ngôn ngữ:</strong></p>
+                        <div class="language-options">
+                            <button class="lang-btn active" onclick="selectLanguage(this, 'Tiếng Việt')">Tiếng Việt</button>
+                            <button class="lang-btn" onclick="selectLanguage(this, 'Tiếng Anh')">Tiếng Anh</button>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <p><strong>Loại hàng:</strong></p>
+                        <div id="config-variants" class="variant-options">
+                            ${variantHTML}
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <p><strong>Số lượng:</strong></p>
+                        <div class="q-btns">
+                            <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                            <input type="number" id="config-qty" value="1" min="1" readonly 
+                                   style="width: 50px; text-align: center; border:none; font-weight:bold;">
+                            <button class="qty-btn" onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer-action">
+                    <button class="btn-confirm-add" onclick="confirmAddToCart()">
+                        🛒 THÊM VÀO GIỎ HÀNG
+                    </button>
                 </div>
             </div>
         </div>
@@ -406,6 +477,14 @@ function openModal(tenSp) {
     modal.style.display = "block";
     document.body.classList.add('modal-open');
 }
+function changeMainImage(el, imgSrc) {
+    // Đổi link ảnh chính
+    document.getElementById('config-img').src = imgSrc;
+    
+    // Xử lý class active cho ảnh nhỏ
+    document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active'));
+    el.classList.add('active');
+}
 
 function closeModal() {
     document.getElementById('product-modal').style.display = "none";
@@ -413,42 +492,10 @@ function closeModal() {
 }
 
 window.onclick = function(event) {
-    // Nếu click vào bất kỳ phần tử nào có class là 'modal' (vùng nền đen)
     if (event.target.classList.contains('modal')) {
-        closeModal();       // Đóng popup thông tin
-        closeConfigModal(); // Đóng popup cấu hình
+        closeModal(); 
+        closeConfigModal();
     }
-}
-
-// Khai báo biến toàn cục ở đầu file hoặc trước các hàm
-let currentProduct = null;
-
-// Hàm mở Modal cấu hình
-function openConfigModal(tenSp) {
-    const sp = danhSachSanPham.find(p => p.ten === tenSp);
-    if (!sp) return;
-    
-    currentProduct = sp;
-
-    // Đổ dữ liệu vào giao diện Modal
-    document.getElementById('config-img').src = sp.anh;
-    document.getElementById('config-name').innerText = sp.ten;
-    document.getElementById('config-qty').value = 1;
-
-    let variantHTML = '';
-    sp.bienTheGia.forEach((bt, index) => {
-        variantHTML += `
-            <button class="variant-btn ${index === 0 ? 'active' : ''}" 
-                    onclick="selectVariant(this, '${bt.nhan}', '${bt.soTien}')">
-                ${bt.nhan} - ${bt.soTien}
-            </button>
-        `;
-    });
-    document.getElementById('config-variants').innerHTML = variantHTML;
-    currentProduct.selectedVariant = sp.bienTheGia[0];
-
-    document.getElementById('config-modal').style.display = 'block';
-    document.body.classList.add('modal-open'); // Khóa cuộn trang nền
 }
 
 function selectVariant(el, nhan, gia) {
@@ -457,41 +504,34 @@ function selectVariant(el, nhan, gia) {
     currentProduct.selectedVariant = { nhan, soTien: gia };
 }
 
+function selectLanguage(el, lang) {
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    el.classList.add('active');
+    selectedLang = lang;
+}
+
 function changeQty(num) {
     let input = document.getElementById('config-qty');
     let val = parseInt(input.value) + num;
     if (val >= 1) input.value = val;
 }
-let selectedLang = "Tiếng Việt";
 
-// Hàm chọn ngôn ngữ
-function selectLanguage(el, lang) {
-    // Xóa class active ở các nút ngôn ngữ khác
-    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-    // Thêm class active vào nút vừa chọn
-    el.classList.add('active');
-    selectedLang = lang;
-}
 function confirmAddToCart() {
     if (!currentProduct || !currentProduct.selectedVariant) return;
 
     const qty = parseInt(document.getElementById('config-qty').value);
-    
     const cartItem = {
         ten: currentProduct.ten,
         loai: currentProduct.selectedVariant.nhan,
-        ngonNgu: selectedLang, // Lưu ngôn ngữ vào đây
+        ngonNgu: selectedLang,
         gia: currentProduct.selectedVariant.soTien,
         soLuong: qty,
         anh: currentProduct.anh
     };
 
     let gioHang = JSON.parse(localStorage.getItem('cart')) || [];
-    // Kiểm tra trùng cả Tên + Loại + Ngôn ngữ
     const existingIndex = gioHang.findIndex(i => 
-        i.ten === cartItem.ten && 
-        i.loai === cartItem.loai && 
-        i.ngonNgu === cartItem.ngonNgu
+        i.ten === cartItem.ten && i.loai === cartItem.loai && i.ngonNgu === cartItem.ngonNgu
     );
     
     if (existingIndex > -1) {
@@ -501,22 +541,35 @@ function confirmAddToCart() {
     }
 
     localStorage.setItem('cart', JSON.stringify(gioHang));
-    closeConfigModal();
+    closeModal(); // Đóng modal gộp
     updateCartCount();
 
-    // Hiệu ứng rung nhẹ icon giỏ hàng (như đã làm ở bước trước)
+    // Hiệu ứng rung icon giỏ hàng
     const cartIcon = document.querySelector('.cart-icon-container');
     if (cartIcon) {
         cartIcon.classList.add('cart-shake');
         setTimeout(() => cartIcon.classList.remove('cart-shake'), 500);
     }
-    
-    // Reset lại ngôn ngữ mặc định cho lần sau
-    selectedLang = "Tiếng Việt"; 
 }
-function closeConfigModal() {
-    document.getElementById('config-modal').style.display = 'none';
-    document.body.classList.remove('modal-open');
+function openFullscreen() {
+    const mainImg = document.getElementById('config-img'); // Lấy ảnh đang hiển thị ở popup
+    const fullModal = document.getElementById('fullscreen-modal');
+    const fullImg = document.getElementById('img-full');
+
+    if (mainImg && fullModal && fullImg) {
+        fullModal.style.display = "flex";
+        fullImg.src = mainImg.src; // Lấy nguồn từ ảnh hiện tại
+        document.body.style.overflow = "hidden"; // Chặn cuộn trang nền
+    }
+}
+
+// Hàm đóng ảnh toàn màn hình
+function closeFullscreen() {
+    const fullModal = document.getElementById('fullscreen-modal');
+    if (fullModal) {
+        fullModal.style.display = "none";
+        document.body.style.overflow = "auto"; // Mở lại cuộn trang
+    }
 }
 
 function updateCartCount() {

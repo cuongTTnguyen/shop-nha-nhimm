@@ -548,6 +548,151 @@ body.modal-open {
     animation: slideDown 0.4s ease;
 }
 
+/* ------------- Modal popup ------------------- */
+.modal-info-scroll {
+    max-height: 65vh; /* Chiều cao tối đa bằng 65% chiều cao màn hình */
+    overflow-y: auto; /* Kích hoạt cuộn dọc khi nội dung vượt quá chiều cao */
+    padding-right: 15px; /* Tạo khoảng trống để thanh cuộn không đè lên chữ */
+    margin-bottom: 10px;
+}
+
+/* Tùy chỉnh thanh cuộn cho đẹp và đồng bộ với phong cách Root */
+.modal-info-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-info-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-info-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary); /* Màu xanh #4a6741 */
+    border-radius: 10px;
+}
+
+.modal-info-scroll::-webkit-scrollbar-thumb:hover {
+    background: #364d30;
+}
+
+/* Đảm bảo modal-right là một flex container để nút bấm nằm dưới cùng */
+.modal-right {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.modal-footer-action {
+    margin-top: auto; /* Đẩy nút xác nhận xuống cuối cùng */
+    padding-top: 15px;
+}
+
+/* ---------- gallery trong popup -----------------*/
+/* Gallery ảnh trong Modal */
+.modal-left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.main-image-container {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    position: relative;
+}
+.main-image-container:hover .main-display-img {
+    transform: scale(1.05); /* Phóng nhẹ ảnh khi hover */
+}
+.main-display-img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important; 
+    max-height: none !important;
+    object-fit:contain !important;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+.fullscreen-modal {
+    display: none; /* Ẩn mặc định */
+    position: fixed;
+    z-index: 9999; /* Cao hơn tất cả các modal khác */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9); /* Nền đen mờ đậm */
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+}
+
+/* Ảnh khổng lồ */
+.fullscreen-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    animation: zoomAnimation 0.3s ease;
+}
+
+/* Nút đóng */
+.close-fullscreen {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Hiệu ứng hiện hình ảnh */
+@keyframes zoomAnimation {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.thumbnail-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Cho phép cuộn ngang nếu nhiều ảnh */
+    padding-bottom: 5px;
+}
+
+.thumb-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.2s;
+    opacity: 0.7;
+}
+
+.thumb-img:hover {
+    opacity: 1;
+}
+
+.thumb-img.active {
+    border-color: var(--primary); /* Màu xanh #4a6741 */
+    opacity: 1;
+}
+
+/* Tùy chỉnh thanh cuộn ảnh nhỏ */
+.thumbnail-container::-webkit-scrollbar {
+    height: 4px;
+}
+.thumbnail-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
 @keyframes slideDown {
     from { transform: translateY(-30px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
