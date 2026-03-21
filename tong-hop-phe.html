@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Shop Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="index-header">
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebarMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+        <div class="header-center">
+            <a href="index.html" class="logo-link">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
+            </a>
+        </div>
+
+        <div class="header-right">
+            <nav class="header-nav">
+                <a href="index.html" class="nav-item">Trang chủ</a>
+                <a href="tong-hop-phe.html" class="nav-item">Tổng hợp phe</a>
+                <a href="luat-choi-root.html" class="nav-item">Luật chơi</a>
+                <a href="san-pham.html" class="nav-item">ShopNhaNhimm</a>
+                <div class="cart-icon-container" onclick="toggleCart()">
+                <button class="search-btn" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <div id="search-bar-container" class="search-bar-hidden">
+        <input type="text" placeholder="Tìm kiếm phe, luật chơi...">
+        <button type="button">Tìm</button>
+    </div>
+
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
+
+    <div id="left-sidebar" class="left-sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">MENU</span>
+            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li><a href="index.html">🏠 Menu chính</a></li>
+            
+            <li class="has-submenu">
+                <div class="submenu-header" onclick="toggleSubmenu(this)">
+                    📜 Luật chơi <span class="arrow">▼</span>
+                </div>
+                <ul class="submenu">
+                    <li><a href="luat-choi-root.html">· Luật chơi ROOT</a></li>
+                    <li><a href="luat-choi-fort.html">· Luật chơi Fort</a></li>
+                    <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
+                </ul>
+            </li>
+            
+            <li><a href="san-pham.html">🛒 Tiếp tục mua sắm</a></li>
+            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
+        </ul>
+    </div>
+    <script src="script.js"></script>
+
+    <h2 style="text-align: center;">DANH SÁCH PHE PHÁI</h2>
+    <div class="legend-container">
+        <div class="legend-item">
+            <span class="price-label real">Gốc</span> 
+            <span class="legend-text">Các phe được tạo ra từ Nhà Phát Hành.</span>
+        </div>
+        <div class="legend-item">
+            <span class="price-label fake">Fanmade</span> 
+            <span class="legend-text">Các phe được tạo ra từ fan.</span>
+        </div>
+    </div>
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="locSanPham('tat-ca')">Tất cả</button>
+        <button class="filter-btn" onclick="locSanPham('Goc')">Phe chính gốc</button>
+        <button class="filter-btn" onclick="locSanPham('Fanmade')">Phe Fanmade</button>
+    </div>
+    <div id="product-grid" class="container"></div>
+
+    <script src="factions.js"></script>
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body"> </div>
+        </div>
+    </div>
+    <div id="config-modal" class="modal">
+        <div class="modal-content config-content">
+            <span class="close" onclick="closeConfigModal()">&times;</span>
+            <div class="config-flex">
+                <img id="config-img" src="" alt="">
+                <div class="config-info">
+                    <h2 id="config-name"></h2>
+                    
+                    <div class="config-section">
+                        <p>Ngôn ngữ:</p>
+                        <div class="language-options">
+                            <button class="lang-btn active" onclick="selectLanguage(this, 'Tiếng Việt')">Tiếng Việt</button>
+                            <button class="lang-btn" onclick="selectLanguage(this, 'Tiếng Anh')">Tiếng Anh</button>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <p>Loại hàng:</p>
+                        <div id="config-variants" class="variant-options"></div>
+                    </div>
+
+                    <div class="config-section">
+                        <p>Số lượng:</p>
+                        <div class="qty-input">
+                            <button onclick="changeQty(-1)">-</button>
+                            <input type="number" id="config-qty" value="1" min="1">
+                            <button onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-confirm-add" onclick="confirmAddToCart()">Xác nhận thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>THÔNG TIN LIÊN HỆ</h3>
+                <ul class="footer-links">
+                    <li>
+                        <a href="https://www.facebook.com/cuong.nguyen.687207" target="_blank">
+                            🔵 Facebook: Cường Nguyễn
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://zalo.me/0375772302" target="_blank">
+                            🟢 Zalo: 0375772302
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.youtube.com/@Meo_Munn" target="_blank">
+                            🔴 Youtube: Bá Tước Mèo Mun
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>HỖ TRỢ KHÁCH HÀNG</h3>
+                <ul class="footer-links">
+                    <li><a href="huong-dan-mua-hang.html">📋 Hướng dẫn mua hàng</a></li>
+                    <li><a href="huong-dan-thanh-toan.html">💳 Hướng dẫn thanh toán</a></li>
+                    <li><a href="dieu-khoan-dich-vu.html">⚖️ Điều khoản dịch vụ</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Shop Nhà Nhimm - Thế giới Woodland trong tay bạn.</p>
+        </div>
+    </footer>
+    <div id="fullscreen-modal" class="fullscreen-modal" onclick="closeFullscreen()">
+    <span class="close-fullscreen">&times;</span>
+    <img class="fullscreen-content" id="img-full">
+</div>
+</body>
+</html>

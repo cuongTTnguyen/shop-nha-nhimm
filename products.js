@@ -22,7 +22,8 @@ const danhSachSanPham = [
         ],
         GioiThieu: "<br><strong>Số người chơi:</strong> Tốt nhất cho nhóm đông (5-6 người). <br><strong> Đặc điểm:</strong> Bổ sung 2 phe Insurgents (ít chiếm đóng), giúp ván đấu nhẹ nhàng, ít va chạm trực tiếp. <br><strong>Điểm cộng:</strong> Thêm bảng Vagabond và 3 nhân vật mới (dễ chơi, ít luật mới). Có thêm chế độ đấu với máy (Mèo Máy).",
         ThanhPhan: "Gồm 2 phe mới - Thương Hội Hải Ly, Giáo Phái Thằn Lằn. Bổ sung 1 Vagabond và Mèo máy 1.",
-        anh: "https://ledergames.com/cdn/shop/products/20-RootRiverfolkBox-Edit-Web.png?v=1595306138" 
+        anh: "https://ledergames.com/cdn/shop/products/20-RootRiverfolkBox-Edit-Web.png?v=1595306138", 
+        anhChiTiet: ["https://ledergames.com/cdn/shop/products/20-RootRiverfolkBox-Edit-Web.png?v=1595306138","images/riverfolkRF.png", "images/riverfolkL.png"]
     },
     {
         ten: "Root: Underworld Expansion",
@@ -34,7 +35,9 @@ const danhSachSanPham = [
         ],
         GioiThieu: "<br><strong>Số người chơi:</strong> Phù hợp nhóm trung bình (4-5 người). <br><strong> Đặc điểm:</strong> Có Chuột Chũi (Militants) giúp thay thế Mèo/Chim, và Quạ tạo ra nhiều tổ hợp chiến thuật mới. <br><strong>Điểm cộng:</strong> Cực kỳ đáng tiền nhờ có thêm 2 Bản đồ mới và 2 Landmark (Phong cảnh) tạo điểm nhấn cho bàn chơi.",
         ThanhPhan: "Gồm 2 phe mới - Công Quốc Chuột Chũi, Âm Mưu của Bầy Quạ. Bổ sung 2 bản đồ mới và 2 Landmark mới (Phong cảnh).",
-        anh: "https://ledergames.com/cdn/shop/products/10-RootUnderworldBox-Edit-Web.png?height=1024&v=1595310452"
+        anh: "https://ledergames.com/cdn/shop/products/10-RootUnderworldBox-Edit-Web.png?height=1024&v=1595310452",
+        anhChiTiet: ["https://ledergames.com/cdn/shop/products/10-RootUnderworldBox-Edit-Web.png?height=1024&v=1595310452", "https://ledergames.com/cdn/shop/products/13-RootUnderworldComponentsLake-Edit-Web.png?height=1024&v=1617977143","https://victorypointlgs.com/cdn/shop/products/91vHasof_-L._AC_SL1500_868x700.jpg?v=1600370412"]
+
     },
     {
         ten: "Root: Marauder Expansion",
@@ -60,6 +63,16 @@ const danhSachSanPham = [
         GioiThieu: "Nên mua khi đã có 1 trong 3 bộ mở rộng",
         ThanhPhan: "Gồm có 3 phe mới - Ếch Bèo Hải Ngoại, Hội Dơi Chạng Vạng, Chồn Sọc Bất Lương. Bổ sung thêm 2 bản đồ mới.",
         anh: "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTWVROBPgvBljmWHKcP8J1qYpLL_AmoOTgmp7HGXoiuYIXcMA6d"
+    },
+    {
+        ten: "Root: Schism Expansion",
+        tags: ["Mở rộng"],
+        bienTheGia: [
+            { nhan: "DIY", soTien: "2.000.000đ" }
+        ],
+        GioiThieu: "Bản Expansion đầu tiên của Việt Nam, đảm bảo thay đổi rất nhiều lối chơi và biến động cho khu rừng.",
+        ThanhPhan: "Gồm có 4 phe Fanmade mới - Đảng Phái Nhím Bờm, Đấu Trường Chân Lý, Tiên Tri Gật Gù, Nam Tước Cá Sấu.<br> Có thêm 3 hireling và 1 landmark mới. <br><strong>Bổ sung 2 cơ chế mới:</strong> Nịnh thần và Kẻ Thống trị.",
+        anh: "images/SchismExpansionBox.png"
     },
     {
         ten: "Root: Clockwork 1",

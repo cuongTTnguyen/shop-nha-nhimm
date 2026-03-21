@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Chủ</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="index-page">
     <header class="index-header">
@@ -23,10 +24,22 @@
         </div>
 
         <div class="header-right">
-            <div class="header-icon-placeholder"></div>
-            
-            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-item">Trang chủ</a>
+                <a href="tong-hop-phe.html" class="nav-item">Tổng hợp phe</a>
+                <a href="luat-choi-root.html" class="nav-item">Luật chơi</a>
+                <a href="san-pham.html" class="nav-item">ShopNhaNhimm</a>
+                <button class="search-btn" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </nav>
+        </div>
     </header>
+
+    <div id="search-bar-container" class="search-bar-hidden">
+        <input type="text" placeholder="Tìm kiếm phe, luật chơi...">
+        <button type="button">Tìm</button>
+    </div>
 
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
     <div id="left-sidebar" class="left-sidebar">
