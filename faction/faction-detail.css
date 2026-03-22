@@ -10,12 +10,14 @@
 .theme-orange { --f-color: #e67e22; }
 .theme-blue { --f-color: #2980b9; }
 .theme-light-green { --f-color: #27ae60; }
+.theme-green { --f-color: #007430; }
 .theme-light-gray { --f-color: #7f8c8d; }
 .theme-yellow { --f-color: #f1c40f; }
 .theme-tan { --f-color: #efbf7f; }
 .theme-purple { --f-color: #8f00af; }
 .theme-red { --f-color: #c0392b; }
-.theme-gray { --f-color: #484848; }
+.theme-gray { --f-color: #636363; }
+.theme-black { --f-color: #090909; }
 .faction-detail-body {
     max-width: 1100px;
     margin: 30px auto;

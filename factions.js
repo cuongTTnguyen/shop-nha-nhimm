@@ -29,6 +29,48 @@ const danhSachPhe = [
         minhHoa: "Kyle Ferrin"
     },
     {
+        ten: "Thương Hội Hải Ly",
+        tags: ["Goc"],
+        anh: "images/factionImage/thuong-hoi-hai-ly.png",
+        taoBoi: "Cole Wehrle",
+        minhHoa: "Kyle Ferrin"
+    },
+    {
+        ten: "Giáo Phái Thằn Lằn",
+        tags: ["Goc"],
+        anh: "images/factionImage/giao-phai-than-lan.png",
+        taoBoi: "Cole Wehrle",
+        minhHoa: "Kyle Ferrin"
+    },
+    {
+        ten: "Công Quốc Chuột Chũi",
+        tags: ["Goc"],
+        anh: "images/factionImage/cong-quoc-chuot-chui.png",
+        taoBoi: "Cole Wehrle",
+        minhHoa: "Kyle Ferrin"
+    },
+    {
+        ten: "Âm Mưu của Bầy Quạ",
+        tags: ["Goc"],
+        anh: "images/factionImage/am-muu-bay-qua.png",
+        taoBoi: "Cole Wehrle",
+        minhHoa: "Kyle Ferrin"
+    },
+    {
+        ten: "Binh Đoàn Lửng Sắt",
+        tags: ["Goc"],
+        anh: "images/factionImage/binh-doan-lung-sat.png",
+        taoBoi: "Cole Wehrle",
+        minhHoa: "Kyle Ferrin"
+    },
+    {
+        ten: "Chúa Tể Tộc Chuột",
+        tags: ["Goc"],
+        anh: "images/factionImage/chua-te-toc-chuot.png",
+        taoBoi: "Cole Wehrle",
+        minhHoa: "Kyle Ferrin"
+    },
+    {
         ten: "Đấu Trường Chân Lý",
         tags: ["Fanmade"],
         anh: "images/factionImage/dau-truong-chan-ly.png",

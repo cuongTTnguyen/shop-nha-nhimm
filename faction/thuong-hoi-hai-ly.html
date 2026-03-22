@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang tải...</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="faction-detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="index-page">
+    <script>
+        const factionData = {
+            ten: "Thương Hội Hải Ly",
+            slogan: "Sẵn sàng cung cấp dịch vụ cho bất kỳ ai trả giá xứng đáng.",
+            tacGia: "Cole Wehrle",
+            hoaSi: "Kyle Ferrin",
+            trangThai: "Cân bằng", // "Cân bằng" hoặc "Testing"
+            loaiPhe: "Phe Nổi Dậy", // "Phe thiện chiến" hoặc "Phe nổi dậy"
+            tamAnhHuong: 5,
+            chuDe: "theme-blue", // theme
+            icon: "../images/factionImage/thuong-hoi-hai-ly.png",
+            
+            stats: {
+                complexity: { percent: "90%", text: "Cao" },
+                cards:      { percent: "90%", text: "Cao" },
+                aggression: { percent: "30%", text: "Thấp" },
+                crafting:   { percent: "60%", text: "Vừa phải" }
+            },
+
+            // Đường dẫn ảnh
+            images: {
+                front: "../faction/HaiLy/front.png",
+                back:  "../faction/HaiLy/back.png",
+                adset: "../faction/HaiLy/adset.png",
+                cards: ""
+            }
+        };
+    </script>
+
+    <header class="index-header">
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebarMenu()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <div class="header-center">
+            <a href="../index.html" class="logo-link">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
+            </a>
+        </div>
+        <div class="header-right">
+            <nav class="header-nav">
+                <a href="../index.html" class="nav-item">Trang chủ</a>
+                <a href="../tong-hop-phe.html" class="nav-item">Tổng hợp phe</a>
+                <a href="../luat-choi-root.html" class="nav-item">Luật chơi</a>
+                <a href="../san-pham.html" class="nav-item">ShopNhaNhimm</a>
+                <button class="search-btn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="faction-detail-body">
+        <!-- Khung 1 -->
+        <section class="faction-frame frame-1">
+            <img id="f-icon" src="" alt="Icon" class="faction-icon-small">
+            <div class="info-content">
+                <h1 id="f-name"></h1>
+                <div class="author-row">
+                    <p class="author-info"><i class="fas fa-hammer"></i> Bởi: <strong id="f-author"></strong></p>
+                    <p class="author-info"><i class="fas fa-paint-brush"></i> Họa sĩ: <strong id="f-artist"></strong></p>
+                </div>
+                <p id="f-slogan" class="faction-slogan"></p>
+                <span id="f-status" class="status-badge"></span>
+            </div>
+        </section>
+
+        <!-- Khung 2 -->
+        <section class="faction-frame frame-2">
+            <nav class="breadcrumb">
+                <a href="../index.html">Trang chủ</a> <span>/</span>
+                <a href="../tong-hop-phe.html">Tổng hợp phe</a> <span>/</span>
+                <strong id="f-breadcrumb"></strong>
+            </nav>
+        </section>
+
+        <!-- Khung 3 -->
+        <section class="faction-frame frame-3">
+            <h2 id="f-reach-title" class="reach-header"></h2>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Độ phức tạp</div>
+                    <div class="stat-bar-bg"><div id="s-comp-bar" class="stat-bar-fill"></div></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Số lượng lá bài</div>
+                    <div class="stat-bar-bg"><div id="s-card-bar" class="stat-bar-fill"></div></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Độ hiếu chiến</div>
+                    <div class="stat-bar-bg"><div id="s-aggr-bar" class="stat-bar-fill"></div></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Khả năng chế tạo</div>
+                    <div class="stat-bar-bg"><div id="s-craft-bar" class="stat-bar-fill"></div></div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div id="f-gallery" class="faction-gallery">
+            </div>
+        </section>
+    </main>
+
+    <div id="fullscreen-modal" class="fullscreen-modal" onclick="this.style.display='none'">
+        <img class="fullscreen-content" id="img-full">
+    </div>
+
+    <script src="../script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const d = factionData;
+            
+            document.title = d.ten + " - ROOT Việt Nam";
+            document.body.classList.add(d.chuDe);
+            document.getElementById('f-name').innerText = d.ten;
+            document.getElementById('f-breadcrumb').innerText = d.ten;
+            document.getElementById('f-author').innerText = d.tacGia;
+            document.getElementById('f-artist').innerText = d.hoaSi;
+            document.getElementById('f-slogan').innerText = `"${d.slogan}"`;
+            document.getElementById('f-icon').src = d.icon;
+            
+            const statusEl = document.getElementById('f-status');
+            statusEl.innerText = d.trangThai;
+            statusEl.classList.add(d.trangThai === "Cân bằng" ? "status-balanced" : "status-testing");
+
+            document.getElementById('f-reach-title').innerText = `${d.loaiPhe} (Tầm ảnh hưởng: ${d.tamAnhHuong})`;
+
+            const updateBar = (id, data) => {
+                const el = document.getElementById(id);
+                el.style.width = data.percent;
+                el.innerText = data.text;
+            };
+            updateBar('s-comp-bar', d.stats.complexity);
+            updateBar('s-card-bar', d.stats.cards);
+            updateBar('s-aggr-bar', d.stats.aggression);
+            updateBar('s-craft-bar', d.stats.crafting);
+
+            // Gallery
+            const gallery = document.getElementById('f-gallery');
+            const addImg = (src, label, fullWidth = false) => {
+                if(!src) return;
+                const div = document.createElement('div');
+                div.className = `gallery-item ${fullWidth ? 'full-width' : ''}`;
+                div.innerHTML = `
+                    <img src="${src}" alt="${label}" onclick="openFull('${src}')">
+                    <p class="img-caption">${label}</p>
+                `;
+                gallery.appendChild(div);
+            };
+
+            addImg(d.images.front, "Bảng mặt trước", true);
+            addImg(d.images.back, "Bảng mặt sau", true);
+            addImg(d.images.cards, "Lá bài (nếu có)");
+            addImg(d.images.adset, "Advanced Setup (Adset)");
+        });
+
+        function openFull(src) {
+            const modal = document.getElementById('fullscreen-modal');
+            document.getElementById('img-full').src = src;
+            modal.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
