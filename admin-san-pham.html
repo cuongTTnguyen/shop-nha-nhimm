@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Trị Sản Phẩm - Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f1ea; }
+        .admin-wrapper { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 250px; background: #2c3e50; color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
+        .admin-logo { padding: 20px; text-align: center; background: #1a252f; font-weight: bold; font-size: 18px; border-bottom: 1px solid #34495e; }
+        .admin-nav { display: flex; flex-direction: column; padding: 15px 0; }
+        .admin-nav-item { padding: 15px 20px; color: #bdc3c7; text-decoration: none; font-size: 15px; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
+        .admin-nav-item:hover, .admin-nav-item.active { background: #4a6741; color: white; border-left: 4px solid #a3d977; }
+        .admin-nav-item i { width: 20px; text-align: center; }
+        .admin-main { flex: 1; margin-left: 250px; padding: 30px; }
+        .admin-container { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; margin-bottom: 40px; }
+        .admin-title { color: #4a6741; text-align: center; margin-bottom: 20px; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: bold; color: #333; margin-bottom: 8px; }
+        .form-group input[type="text"], .form-group input[type="number"], .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box; }
+        .form-group textarea { resize: vertical; height: 80px; }
+        
+        .tags-container { display: flex; flex-wrap: wrap; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+        .tag-item { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .variant-box { background: #fdfaf3; border: 1px dashed #4a6741; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .variant-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .variant-row input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn-remove-variant { background: #ff4757; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; }
+        .btn-add-variant { background: #e8f5e9; color: #2e7d32; border: 1px dashed #2e7d32; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; }
+        
+        .btn-submit { width: 100%; padding: 15px; background: #4a6741; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: background 0.3s; }
+        .btn-submit:hover { background: #ff4757; }
+        .action-buttons { display: flex; gap: 15px; margin-top: 30px; }
+        .btn-reset { width: 100%; padding: 15px; background: #f1f2f6; color: #555; border: 1px solid #ccc; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        #status-message { text-align: center; margin-top: 15px; font-weight: bold; }
+        
+        .list-section-title { color: #2c3e50; margin: 40px 0 20px 0; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
+        .item-list-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .manage-item-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; border: 1px solid #eee; }
+        .manage-item-card img { width: 70px; height: 70px; object-fit: contain; border-radius: 5px; background: #f9f9f9; }
+        .manage-item-info { flex: 1; }
+        .manage-item-name { font-weight: bold; color: #333; margin-bottom: 5px; }
+        .manage-item-actions { display: flex; flex-direction: column; gap: 5px; }
+        .btn-edit-mini { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-delete-mini { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        
+        @media (max-width: 768px) { .admin-sidebar { width: 60px; } .admin-nav-item span { display: none; } .admin-main { margin-left: 60px; padding: 15px; } .item-list-container, .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        <div id="global-admin-sidebar"></div>
+
+        <main class="admin-main" id="admin-main-content" style="display:none;">
+            <div class="admin-container">
+                <h2 class="admin-title" id="form-title"><i class="fas fa-box-open"></i> THÊM SẢN PHẨM MỚI VÀO CỬA HÀNG</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tên Sản Phẩm</label>
+                        <input type="text" id="sp-name" placeholder="Ví dụ: Root: Marauder Expansion">
+                    </div>
+                    <div class="form-group">
+                        <label>Thứ tự hiển thị (Số nhỏ đứng trước)</label>
+                        <input type="number" id="sp-order" placeholder="Ví dụ: 1, 2, 3..." value="100">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Phân loại (Có thể chọn nhiều)</label>
+                    <div class="tags-container" id="sp-tags">
+                        <label class="tag-item"><input type="checkbox" value="Board Game"> Board Game</label>
+                        <label class="tag-item"><input type="checkbox" value="Mở rộng"> Mở rộng</label>
+                        <label class="tag-item"><input type="checkbox" value="Pack lẻ"> Pack lẻ</label>
+                        <label class="tag-item"><input type="checkbox" value="Fanmade"> Fanmade</label>
+                        <label class="tag-item"><input type="checkbox" value="Deck"> Bộ bài (Deck)</label>
+                        <label class="tag-item"><input type="checkbox" value="FanFaction"> FanFaction</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Link Ảnh Chính (Bắt buộc)</label>
+                    <input type="text" id="sp-img" placeholder="Ví dụ: https://link-anh.com/anh.png">
+                </div>
+
+                <div class="form-group">
+                    <label>Các ảnh bổ sung (Mỗi link cách nhau bằng dấu phẩy)</label>
+                    <textarea id="sp-sub-imgs" placeholder="Link ảnh 1, Link ảnh 2, Link ảnh 3..."></textarea>
+                    <small style="color: #666; font-style: italic;">* Không bắt buộc. Để trống nếu chỉ có 1 ảnh.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Giới thiệu (Hỗ trợ thẻ HTML)</label>
+                    <textarea id="sp-desc" placeholder="Nhập giới thiệu ngắn về sản phẩm..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Thành phần</label>
+                    <textarea id="sp-components" placeholder="Ví dụ: Gồm 2 phe mới, 3 hireling..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Các mức giá (Biến thể hàng hóa)</label>
+                    <div class="variant-box" id="variants-container">
+                        <div class="variant-row">
+                            <input type="text" class="var-label" placeholder="Loại (VD: Real, Fake)" value="Real">
+                            <input type="text" class="var-price" placeholder="Giá tiền (VD: 2.000.000đ)">
+                            <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <button class="btn-add-variant" onclick="addVariantRow()"><i class="fas fa-plus"></i> Thêm mức giá mới</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-submit" id="btn-save" style="flex: 2;">LƯU SẢN PHẨM</button>
+                    <button class="btn-reset" id="btn-clear" style="flex: 1;">HUỶ / LÀM MỚI</button>
+                </div>
+                <div id="status-message"></div>
+            </div>
+
+            <h2 class="list-section-title"><i class="fas fa-list"></i> DANH SÁCH SẢN PHẨM HIỆN CÓ</h2>
+            <div class="item-list-container" id="manage-list">
+                <!-- Danh sách sản phẩm load từ Firebase -->
+            </div>
+        </main>
+    </div>
+
+    <script src="admin-layout-helper.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let dangSuaId = null;
+        let danhSachLocal = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === "meomun@gmail.com") {
+                document.getElementById('admin-main-content').style.display = 'block';
+                loadItems();
+            } else {
+                document.body.innerHTML = `<div style="text-align:center; padding:100px; font-family:sans-serif;"><i class="fas fa-lock" style="font-size:50px; color:#e74c3c;"></i><h2>Truy cập bị từ chối!</h2></div>`;
+            }
+        });
+
+        window.addVariantRow = function() {
+            const container = document.getElementById('variants-container');
+            const row = document.createElement('div');
+            row.className = 'variant-row';
+            row.innerHTML = `
+                <input type="text" class="var-label" placeholder="Loại (VD: Real, Fake)">
+                <input type="text" class="var-price" placeholder="Giá tiền (VD: 2.000.000đ)">
+                <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
+            container.appendChild(row);
+        };
+
+        async function loadItems() {
+            const container = document.getElementById('manage-list');
+            container.innerHTML = "Đang tải danh sách...";
+            try {
+                const snapshot = await getDocs(collection(db, "san-pham"));
+                danhSachLocal = [];
+                let html = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    danhSachLocal.push({ id: doc.id, ...data });
+                    
+                    html += `
+                        <div class="manage-item-card">
+                            <img src="${data.anh}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'">
+                            <div class="manage-item-info">
+                                <div class="manage-item-name">${data.ten}</div>
+                                <div style="font-size:12px; color:#666;">Thứ tự: ${data.thuTu !== undefined ? data.thuTu : 'Chưa set'} | Phân loại: ${data.tags ? data.tags.join(', ') : ''}</div>
+                            </div>
+                            <div class="manage-item-actions">
+                                <button class="btn-edit-mini" onclick="window.prepareEdit('${doc.id}')"><i class="fas fa-edit"></i> Sửa</button>
+                                <button class="btn-delete-mini" onclick="window.confirmDelete(this, '${doc.id}')"><i class="fas fa-trash"></i> Xóa</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html || "Chưa có sản phẩm nào.";
+            } catch(e) {
+                container.innerHTML = "Lỗi tải danh sách: " + e.message;
+            }
+        }
+
+        // HÀM CHUẨN ĐỒNG BỘ ĐỂ TRÁNH LỖI NGẦM DO DỮ LIỆU RỖNG
+        window.prepareEdit = function(id) {
+            const item = danhSachLocal.find(x => x.id === id);
+            if(!item) return;
+            
+            dangSuaId = id;
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit"></i> ĐANG SỬA SẢN PHẨM: ${item.ten}`;
+            document.getElementById('btn-save').innerText = "CẬP NHẬT SẢN PHẨM";
+            
+            const safeSet = (elId, val) => {
+                const el = document.getElementById(elId);
+                if(el) el.value = (val !== undefined && val !== null) ? val : '';
+            };
+
+            safeSet('sp-name', item.ten);
+            safeSet('sp-img', item.anh);
+            safeSet('sp-desc', item.GioiThieu);
+            safeSet('sp-components', item.ThanhPhan);
+            safeSet('sp-order', item.thuTu !== undefined ? item.thuTu : 100);
+
+            const subImgs = document.getElementById('sp-sub-imgs');
+            if (subImgs) {
+                subImgs.value = (item.anhBoSung && Array.isArray(item.anhBoSung)) ? item.anhBoSung.join(', ') : '';
+            }
+
+            document.querySelectorAll('#sp-tags input[type="checkbox"]').forEach(cb => {
+                cb.checked = item.tags && item.tags.includes(cb.value);
+            });
+
+            const varContainer = document.getElementById('variants-container');
+            varContainer.innerHTML = "";
+            if(item.bienTheGia && item.bienTheGia.length > 0) {
+                item.bienTheGia.forEach(v => {
+                    const row = document.createElement('div');
+                    row.className = 'variant-row';
+                    row.innerHTML = `
+                        <input type="text" class="var-label" value="${v.nhan}">
+                        <input type="text" class="var-price" value="${v.soTien}">
+                        <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    `;
+                    varContainer.appendChild(row);
+                });
+            } else {
+                window.addVariantRow();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.confirmDelete = async function(btn, id) {
+            if(!btn.dataset.confirmed) {
+                btn.dataset.confirmed = "true"; btn.innerText = "Chắc chắn?"; btn.style.background = "#d35400";
+                setTimeout(() => { btn.removeAttribute("data-confirmed"); btn.innerHTML = `<i class="fas fa-trash"></i> Xóa`; btn.style.background = "#e74c3c"; }, 4000);
+            } else {
+                btn.innerText = "...";
+                try { await deleteDoc(doc(db, "san-pham", id)); loadItems(); } catch(e) { alert("Lỗi khi xóa!"); }
+            }
+        };
+
+        document.getElementById('btn-clear').addEventListener('click', resetForm);
+
+        function resetForm() {
+            dangSuaId = null;
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-box-open"></i> THÊM SẢN PHẨM MỚI VÀO CỬA HÀNG`;
+            document.getElementById('btn-save').innerText = "LƯU SẢN PHẨM";
+            document.getElementById('sp-name').value = '';
+            document.getElementById('sp-order').value = '100';
+            document.getElementById('sp-img').value = '';
+            document.getElementById('sp-sub-imgs').value = '';
+            document.getElementById('sp-desc').value = '';
+            document.getElementById('sp-components').value = '';
+            document.querySelectorAll('#sp-tags input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('variants-container').innerHTML = `
+                <div class="variant-row">
+                    <input type="text" class="var-label" placeholder="Loại (VD: Real, Fake)" value="Real">
+                    <input type="text" class="var-price" placeholder="Giá tiền (VD: 2.000.000đ)">
+                    <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+        }
+
+        document.getElementById('btn-save').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-save');
+            const statusMsg = document.getElementById('status-message');
+            
+            const ten = document.getElementById('sp-name').value.trim();
+            const anh = document.getElementById('sp-img').value.trim();
+            const gioiThieu = document.getElementById('sp-desc').value.trim();
+            const thanhPhan = document.getElementById('sp-components').value.trim();
+            
+            const thuTuInput = parseInt(document.getElementById('sp-order').value);
+            const thuTu = isNaN(thuTuInput) ? 100 : thuTuInput;
+
+            const chuoiAnhPhu = document.getElementById('sp-sub-imgs').value;
+            const anhBoSung = chuoiAnhPhu.split(',').map(link => link.trim()).filter(link => link !== "");
+
+            const tags = [];
+            document.querySelectorAll('#sp-tags input[type="checkbox"]:checked').forEach(cb => tags.push(cb.value));
+
+            const bienTheGia = [];
+            document.querySelectorAll('.variant-row').forEach(row => {
+                const label = row.querySelector('.var-label').value.trim();
+                const price = row.querySelector('.var-price').value.trim();
+                if(label && price) bienTheGia.push({ nhan: label, soTien: price });
+            });
+
+            if(!ten || !anh || tags.length === 0 || bienTheGia.length === 0) {
+                statusMsg.style.color = "#ff4757";
+                statusMsg.innerText = "Vui lòng nhập đầy đủ thông tin, phân loại và mức giá!";
+                return;
+            }
+
+            const data = { ten, tags, anh, anhBoSung, GioiThieu: gioiThieu, ThanhPhan: thanhPhan, bienTheGia, thuTu: thuTu };
+
+            btn.innerText = "ĐANG LƯU...";
+            btn.disabled = true;
+
+            try {
+                if(dangSuaId) {
+                    await updateDoc(doc(db, "san-pham", dangSuaId), data);
+                    statusMsg.style.color = "#27ae60";
+                    statusMsg.innerText = "Cập nhật sản phẩm thành công!";
+                } else {
+                    await addDoc(collection(db, "san-pham"), data);
+                    statusMsg.style.color = "#27ae60";
+                    statusMsg.innerText = "Thêm sản phẩm thành công!";
+                }
+                resetForm();
+                loadItems();
+            } catch (error) {
+                statusMsg.style.color = "#ff4757";
+                statusMsg.innerText = "Lỗi hệ thống: " + error.message;
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

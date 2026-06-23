@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập / Đăng ký - ROOT Việt Nam</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 100px auto 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e0d9c5;
+            text-align: center;
+        }
+        .auth-container h2 {
+            color: #4a6741;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        .input-group input:focus {
+            border-color: #4a6741;
+        }
+        
+        /* CSS cho nút Quên mật khẩu */
+        .forgot-pw {
+            text-align: right;
+            font-size: 13px;
+            margin-top: -5px;
+            margin-bottom: 15px;
+        }
+        .forgot-pw span {
+            color: #4a6741;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .forgot-pw span:hover {
+            color: #ff4757;
+        }
+
+        .btn-auth {
+            width: 100%;
+            padding: 12px;
+            background: #4a6741;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 5px;
+        }
+        .btn-auth:hover {
+            background: #ff4757;
+        }
+        .toggle-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        .toggle-text span {
+            color: #4a6741;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #error-message {
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="index-page">
+
+    <!-- Thanh header rút gọn -->
+    <header class="index-header">
+        <div class="header-center" style="justify-content: center; width: 100%;">
+            <a href="index.html" class="logo-link">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
+            </a>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <h2 id="auth-title">ĐĂNG NHẬP</h2>
+        
+        <div class="input-group">
+            <label>Email của bạn</label>
+            <input type="email" id="email" placeholder="ví dụ: meomun@gmail.com">
+        </div>
+        
+        <div class="input-group">
+            <label>Mật khẩu</label>
+            <input type="password" id="password" placeholder="Từ 6 ký tự trở lên">
+        </div>
+
+        <!-- Vùng hiển thị nút Quên mật khẩu -->
+        <div class="forgot-pw" id="forgot-pw-container">
+            <span id="btn-forgot-pw">Quên mật khẩu?</span>
+        </div>
+
+        <div id="error-message"></div>
+
+        <button class="btn-auth" id="btn-submit">Đăng nhập ngay</button>
+
+        <p class="toggle-text">
+            <span id="toggle-prompt" style="color: #666; font-weight: normal;">Chưa có tài khoản? </span>
+            <span id="toggle-action">Đăng ký ngay</span>
+        </p>
+    </div>
+
+    <!-- Script kết nối Firebase để Xử lý Đăng Nhập/Đăng Ký/Quên Mật Khẩu -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // Khởi tạo Firebase trực tiếp
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e",
+            measurementId: "G-5P1GKG6TTT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let isLoginMode = true;
+        const errorDiv = document.getElementById('error-message');
+
+        // Hàm hỗ trợ hiển thị lỗi/thông báo
+        function showMessage(msg, isSuccess = false) {
+            errorDiv.innerText = msg;
+            errorDiv.style.color = isSuccess ? "#27ae60" : "#ff4757"; // Xanh lá nếu thành công, đỏ nếu lỗi
+        }
+
+        // 1. Chuyển đổi giao diện Đăng nhập / Đăng ký
+        document.getElementById('toggle-action').addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "ĐĂNG NHẬP" : "ĐĂNG KÝ TÀI KHOẢN MỚI";
+            document.getElementById('btn-submit').innerText = isLoginMode ? "Đăng nhập ngay" : "Tạo tài khoản";
+            
+            // Ẩn nút Quên mật khẩu khi ở chế độ Đăng ký
+            document.getElementById('forgot-pw-container').style.display = isLoginMode ? "block" : "none";
+            
+            document.getElementById('toggle-prompt').innerText = isLoginMode ? "Chưa có tài khoản? " : "Đã có tài khoản? ";
+            document.getElementById('toggle-action').innerText = isLoginMode ? "Đăng ký ngay" : "Đăng nhập";
+            
+            showMessage(""); // Xóa dòng thông báo cũ
+        });
+
+        // 2. Xử lý Quên mật khẩu (Reset Password)
+        document.getElementById('btn-forgot-pw').addEventListener('click', () => {
+            const email = document.getElementById('email').value.trim();
+            
+            if(!email) {
+                showMessage("Vui lòng nhập Email của bạn vào ô trên để đặt lại mật khẩu!");
+                return;
+            }
+
+            showMessage("Đang gửi email đặt lại mật khẩu...", true); // Hiện chữ xanh tạm thời
+
+            // Gọi hàm Firebase để gửi email
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    showMessage("Đã gửi link đặt lại mật khẩu! Vui lòng kiểm tra email của bạn (kể cả mục Thư rác).", true);
+                })
+                .catch((error) => {
+                    if(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
+                        showMessage("Không tìm thấy tài khoản nào được đăng ký với email này!");
+                    } else {
+                        showMessage("Lỗi: " + error.message);
+                    }
+                });
+        });
+
+        // 3. Xử lý khi bấm nút Đăng nhập / Đăng ký
+        document.getElementById('btn-submit').addEventListener('click', () => {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if(!email || !password) {
+                showMessage("Vui lòng nhập đủ Email và Mật khẩu!");
+                return;
+            }
+
+            showMessage("Đang xử lý...", true);
+
+            if (isLoginMode) {
+                // ĐĂNG NHẬP
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        alert("Đăng nhập thành công! Chào mừng trở lại Woodland.");
+                        window.location.href = "index.html"; 
+                    })
+                    .catch(() => {
+                        showMessage("Lỗi: Sai email hoặc mật khẩu!");
+                    });
+            } else {
+                // ĐĂNG KÝ
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        alert("Đăng ký thành công! Bạn có thể bắt đầu mua sắm.");
+                        window.location.href = "index.html";
+                    })
+                    .catch((error) => {
+                        if(error.code === 'auth/email-already-in-use') {
+                            showMessage("Email này đã được sử dụng!");
+                        } else if(error.code === 'auth/weak-password') {
+                            showMessage("Mật khẩu quá yếu, ít nhất phải 6 ký tự!");
+                        } else {
+                            showMessage("Lỗi đăng ký: " + error.message);
+                        }
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

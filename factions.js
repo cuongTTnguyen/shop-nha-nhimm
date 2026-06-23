@@ -1,138 +1,40 @@
-// 1. Danh sách dữ liệu các phe phái
-const danhSachPhe = [
-    {
-        ten: "Nữ Bá Tước Mèo",
-        tags: ["Goc"],
-        anh: "images/factionImage/nu-ba-tuoc-meo.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Vương Triều Tổ Chim",
-        tags: ["Goc"],
-        anh: "images/factionImage/vuong-trieu-to-chim.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Liên Minh Khu Rừng",
-        tags: ["Goc"],
-        anh: "images/factionImage/lien-minh-khu-rung.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Vagabond",
-        tags: ["Goc"],
-        anh: "images/factionImage/vagabond.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Thương Hội Hải Ly",
-        tags: ["Goc"],
-        anh: "images/factionImage/thuong-hoi-hai-ly.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Giáo Phái Thằn Lằn",
-        tags: ["Goc"],
-        anh: "images/factionImage/giao-phai-than-lan.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Công Quốc Chuột Chũi",
-        tags: ["Goc"],
-        anh: "images/factionImage/cong-quoc-chuot-chui.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Âm Mưu của Bầy Quạ",
-        tags: ["Goc"],
-        anh: "images/factionImage/am-muu-bay-qua.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Binh Đoàn Lửng Sắt",
-        tags: ["Goc"],
-        anh: "images/factionImage/binh-doan-lung-sat.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Chúa Tể Tộc Chuột",
-        tags: ["Goc"],
-        anh: "images/factionImage/chua-te-toc-chuot.png",
-        taoBoi: "Cole Wehrle",
-        minhHoa: "Kyle Ferrin"
-    },
-    {
-        ten: "Đấu Trường Chân Lý",
-        tags: ["Fanmade"],
-        anh: "images/factionImage/dau-truong-chan-ly.png",
-        taoBoi: "Cường Nguyễn",
-        minhHoa: "Shop Nhà Nhimm"
-    },
-    {
-        ten: "Nam Tước Cá Sấu",
-        tags: ["Fanmade"],
-        anh: "images/factionImage/nam-tuoc-ca-sau.png",
-        taoBoi: "Cường Nguyễn",
-        minhHoa: "Shop Nhà Nhimm"
-    },
-    {
-        ten: "Tiên Tri Gật Gù",
-        tags: ["Fanmade"],
-        anh: "images/factionImage/tien-tri-gat-gu.png",
-        taoBoi: "Cường Nguyễn",
-        minhHoa: "Shop Nhà Nhimm"
-    },
-    {
-        ten: "Đảng Phái Nhím Bờm",
-        tags: ["Fanmade"],
-        anh: "images/factionImage/dang-phai-nhim-bom.png",
-        taoBoi: "Cường Nguyễn",
-        minhHoa: "Shop Nhà Nhimm"
-    }
-    
-];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-function xoaDauTiengViet(str) {
-    return str
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d")          
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-"); 
-}
-
-window.xemChiTietPhe = function(tenPhe) {
-   
-    const slug = xoaDauTiengViet(tenPhe);
-    
-    window.location.href = `faction/${slug}.html`;
+// Cấu hình Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+    authDomain: "rootvn-3eeca.firebaseapp.com",
+    projectId: "rootvn-3eeca",
+    storageBucket: "rootvn-3eeca.firebasestorage.app",
+    messagingSenderId: "92355209659",
+    appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
 };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Đưa mảng ra toàn cục
+window.danhSachPhe = [];
 
 window.hienThiPhe = function(tagCanLoc = 'tat-ca') {
     const container = document.getElementById('product-grid');
     if (!container) return;
 
     const danhSachDaLoc = tagCanLoc === 'tat-ca' 
-        ? danhSachPhe 
-        : danhSachPhe.filter(phe => phe.tags.includes(tagCanLoc));
+        ? window.danhSachPhe 
+        : window.danhSachPhe.filter(phe => phe.tags && phe.tags.includes(tagCanLoc));
+
+    if (danhSachDaLoc.length === 0) {
+        container.innerHTML = "<p style='text-align:center; width:100%;'>Chưa có phe phái nào trong danh mục này.</p>";
+        return;
+    }
 
     let htmlContent = "";
-
     danhSachDaLoc.forEach((phe) => {
-        let tagClass = phe.tags.includes("Goc") ? "real" : "fake";
-        let displayTagName = phe.tags.includes("Goc") ? "Gốc" : "Fanmade";
+        let isGoc = phe.tags && phe.tags.includes("Goc");
+        let tagClass = isGoc ? "real" : "fake";
+        let displayTagName = isGoc ? "Gốc" : "Fanmade";
 
         htmlContent += `
             <div class="product-card">
@@ -145,10 +47,10 @@ window.hienThiPhe = function(tagCanLoc = 'tat-ca') {
                     <h3 onclick="xemChiTietPhe('${phe.ten.replace(/'/g, "\\'")}')" style="cursor:pointer; margin: 10px 0;">${phe.ten}</h3>
                     
                     <div style="font-size: 13px; color: #666; margin-bottom: 5px;">
-                        <i class="fas fa-hammer"></i> <strong>Tạo bởi:</strong> ${phe.taoBoi}
+                        <i class="fas fa-hammer"></i> <strong>Tạo bởi:</strong> ${phe.taoBoi || 'Đang cập nhật'}
                     </div>
                     <div style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                        <i class="fas fa-paint-brush"></i> <strong>Minh họa:</strong> ${phe.minhHoa}
+                        <i class="fas fa-paint-brush"></i> <strong>Minh họa:</strong> ${phe.minhHoa || 'Đang cập nhật'}
                     </div>
 
                     <button class="btn-buy" style="background-color: #4a6741; border:none; color:white; width:100%; padding:10px; border-radius:8px; cursor:pointer;" 
@@ -159,11 +61,14 @@ window.hienThiPhe = function(tagCanLoc = 'tat-ca') {
             </div>
         `;
     });
-
     container.innerHTML = htmlContent;
 };
 
-window.locSanPham = function(tag) {
+window.xemChiTietPhe = function(tenPhe) {
+    window.location.href = `phe-chi-tiet.html?name=${encodeURIComponent(tenPhe)}`;
+};
+
+window.locPhe = function(tag) { 
     const buttons = document.querySelectorAll('.filter-btn');
     buttons.forEach(btn => {
         btn.classList.remove('active');
@@ -176,33 +81,68 @@ window.locSanPham = function(tag) {
 
 window.timKiemPhe = function() {
     const input = document.getElementById('faction-search-input').value.toLowerCase();
-    const filtered = danhSachPhe.filter(phe => 
-        phe.ten.toLowerCase().includes(input) || 
-        phe.moTa.toLowerCase().includes(input)
-    );
-    
     const container = document.getElementById('product-grid');
     if (!container) return;
 
+    const filtered = window.danhSachPhe.filter(phe => 
+        (phe.ten && phe.ten.toLowerCase().includes(input)) || 
+        (phe.moTa && phe.moTa.toLowerCase().includes(input))
+    );
+    
+    if (filtered.length === 0) {
+        container.innerHTML = "<p style='text-align:center; width:100%;'>Không tìm thấy phe nào phù hợp.</p>";
+        return;
+    }
+
     let htmlContent = "";
     filtered.forEach((phe) => {
-        let tagClass = phe.tags.includes("Goc") ? "real" : "fake";
+        let isGoc = phe.tags && phe.tags.includes("Goc");
+        let tagClass = isGoc ? "real" : "fake";
         htmlContent += `
             <div class="product-card">
                 <img src="${phe.anh}" alt="${phe.ten}" onclick="xemChiTietPhe('${phe.ten.replace(/'/g, "\\'")}')" style="cursor:pointer">
                 <div class="product-info">
-                    <span class="price-label ${tagClass}">${phe.tags[0] === 'Goc' ? 'Gốc' : 'Fanmade'}</span>
+                    <span class="price-label ${tagClass}">${isGoc ? 'Gốc' : 'Fanmade'}</span>
                     <h3 onclick="xemChiTietPhe('${phe.ten.replace(/'/g, "\\'")}')" style="cursor:pointer; margin-top:10px;">${phe.ten}</h3>
-                    <div style="font-size: 12px; color:#666;"><i class="fas fa-hammer"></i> ${phe.taoBoi}</div>
-                    <button class="btn-buy" style="margin-top: 15px; background:#4a6741; color:white; border:none; padding:8px; border-radius:5px; width:100%;" onclick="xemChiTietPhe('${phe.ten.replace(/'/g, "\\'")}')">Xem chi tiết</button>
+                    <div style="font-size: 12px; color:#666;"><i class="fas fa-hammer"></i> ${phe.taoBoi || 'Đang cập nhật'}</div>
+                    <button class="btn-buy" style="margin-top: 15px; background:#4a6741; color:white; border:none; padding:8px; border-radius:5px; width:100%;" onclick="xemChiTietPhe('${phe.replace(/'/g, "\\'")}')">Xem chi tiết</button>
                 </div>
             </div>`;
     });
     container.innerHTML = htmlContent;
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('product-grid')) {
-        window.hienThiPhe('tat-ca');
+// Tự động tải dữ liệu khi trang web được mở
+document.addEventListener('DOMContentLoaded', async () => {
+    const container = document.getElementById('product-grid');
+    if (container) {
+        container.innerHTML = "<div style='text-align:center; width:100%; padding:20px;'><i class='fas fa-spinner fa-spin' style='font-size: 24px; color: #4a6741;'></i> Đang tải dữ liệu từ máy chủ...</div>";
+        try {
+            const querySnapshot = await getDocs(collection(db, "phe-phai"));
+            window.danhSachPhe = [];
+            querySnapshot.forEach((doc) => {
+                window.danhSachPhe.push({ id: doc.id, ...doc.data() });
+            });
+
+            // LOGIC SẮP XẾP CHUẨN XÁC: Ép kiểu dữ liệu về số nguyên
+            window.danhSachPhe.sort((a, b) => {
+                let orderA = parseInt(a.thuTu);
+                if (isNaN(orderA)) orderA = 1000; // Nếu chưa điền thứ tự, đẩy xuống cuối cùng
+                
+                let orderB = parseInt(b.thuTu);
+                if (isNaN(orderB)) orderB = 1000;
+
+                // Ưu tiên xếp theo số thứ tự
+                if (orderA !== orderB) return orderA - orderB;
+                
+                // Nếu cùng số thứ tự, xếp theo bảng chữ cái
+                return (a.ten || '').localeCompare(b.ten || '');
+            });
+
+            window.hienThiPhe('tat-ca');
+        } catch (error) {
+            console.error("Lỗi lấy dữ liệu:", error);
+            container.innerHTML = "<p style='text-align:center; width:100%; color:red;'>Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối mạng.</p>";
+        }
     }
 });

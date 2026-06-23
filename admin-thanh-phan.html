@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Thành Phần Game - Admin Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f1ea; }
+        .admin-wrapper { display: flex; min-height: 100vh; }
+        .admin-main { flex: 1; margin-left: 250px; padding: 30px; }
+        
+        .admin-container {
+            background: #fff; padding: 30px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e0d9c5;
+        }
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+            background: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .admin-header h1 { margin: 0; font-size: 20px; color: #333; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: bold; color: #4a6741; margin-bottom: 8px; font-size: 15px;}
+        .form-group select, .form-group textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box;
+        }
+        .form-group textarea { resize: vertical; height: 80px; }
+        
+        .components-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            background: #fdfaf3; padding: 20px; border-radius: 10px; border: 1px dashed #4a6741;
+        }
+
+        .btn-submit {
+            width: 100%; padding: 15px; background: #4a6741; color: white; border: none; 
+            border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 20px;
+        }
+        .btn-submit:hover { background: #ff4757; }
+
+        @media (max-width: 768px) { 
+            .admin-main { margin-left: 60px; padding: 15px; } 
+            .components-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        <div id="global-admin-sidebar"></div>
+
+        <main class="admin-main" id="admin-main-content" style="display:none;">
+            <div class="admin-header">
+                <h1><i class="fas fa-puzzle-piece"></i> Khai báo Thành phần chi tiết Game</h1>
+            </div>
+
+            <div class="admin-container">
+                <div class="form-group">
+                    <label>1. Chọn Sản phẩm cần khai báo thành phần:</label>
+                    <select id="select-product" onchange="window.loadComponentData()">
+                        <option value="">-- Đang tải danh sách sản phẩm --</option>
+                    </select>
+                </div>
+
+                <div id="components-section" style="display: none;">
+                    <div style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                        <i>* Ghi chú: Nhập số lượng và tên thành phần. Mỗi thành phần xuống dòng. Nếu không có thì để trống.</i><br>
+                        <i>Ví dụ: "1x Bảng người chơi", "54x Lá bài hành động"</i>
+                    </div>
+
+                    <div class="components-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-chess-board"></i> Bảng chơi</label>
+                            <textarea id="comp-bang" placeholder="VD: 1x Bảng Marquise de Cat&#10;1x Bảng Eyrie"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-clone"></i> Lá bài (Cards)</label>
+                            <textarea id="comp-bai" placeholder="VD: 54x Base Deck&#10;4x Thẻ nhân vật"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-coins"></i> Token / Building</label>
+                            <textarea id="comp-token" placeholder="VD: 18x Xưởng cưa&#10;15x Roost"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-book-open"></i> Adset (Setup nâng cao)</label>
+                            <textarea id="comp-adset" placeholder="VD: 1x Card Adset Mèo&#10;1x Card Adset Chim"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-chess-knight"></i> Warrior (Quân cờ)</label>
+                            <textarea id="comp-warrior" placeholder="VD: 25x Chiến binh Mèo&#10;20x Chiến binh Chim"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-box"></i> Minibox (Hộp nhỏ)</label>
+                            <textarea id="comp-minibox" placeholder="VD: 1x Hộp đựng Mèo&#10;1x Hộp đựng Chim"></textarea>
+                        </div>
+                    </div>
+
+                    <button class="btn-submit" id="btn-save" onclick="window.saveComponents()">LƯU THÀNH PHẦN GAME</button>
+                    <div id="status-message" style="text-align:center; margin-top:15px; font-weight:bold;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin-layout-helper.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let allProducts = [];
+
+        // Kiểm tra quyền Admin
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === "meomun@gmail.com") {
+                document.getElementById('admin-main-content').style.display = 'block';
+                loadProductsList();
+            } else {
+                document.body.innerHTML = `<div style="text-align:center; padding:100px;"><i class="fas fa-lock" style="font-size:50px; color:#e74c3c;"></i><h2>Truy cập bị từ chối!</h2></div>`;
+            }
+        });
+
+        // 1. Tải danh sách sản phẩm vào Dropdown
+        async function loadProductsList() {
+            const selectEl = document.getElementById('select-product');
+            try {
+                const querySnapshot = await getDocs(collection(db, "san-pham"));
+                allProducts = [];
+                let optionsHTML = '<option value="">-- Vui lòng chọn một Sản phẩm --</option>';
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    allProducts.push({ id: doc.id, ...data });
+                });
+
+                // Sắp xếp theo tên A-Z
+                allProducts.sort((a, b) => (a.ten || '').localeCompare(b.ten || ''));
+
+                allProducts.forEach(sp => {
+                    optionsHTML += `<option value="${sp.id}">${sp.ten}</option>`;
+                });
+
+                selectEl.innerHTML = optionsHTML;
+            } catch (error) {
+                console.error("Lỗi:", error);
+                selectEl.innerHTML = '<option value="">Lỗi tải dữ liệu!</option>';
+            }
+        }
+
+        // 2. Khi chọn sản phẩm -> Nạp dữ liệu thành phần (nếu đã từng lưu) vào form
+        window.loadComponentData = async function() {
+            const productId = document.getElementById('select-product').value;
+            const section = document.getElementById('components-section');
+            const statusMsg = document.getElementById('status-message');
+            statusMsg.innerText = "";
+
+            if (!productId) {
+                section.style.display = "none";
+                return;
+            }
+
+            section.style.display = "block";
+            
+            // Xóa form tạm thời
+            const fields = ['bang', 'bai', 'token', 'adset', 'warrior', 'minibox'];
+            fields.forEach(f => document.getElementById(`comp-${f}`).value = '');
+
+            // Lấy dữ liệu chi tiết của sản phẩm đó từ Firebase
+            try {
+                const docSnap = await getDoc(doc(db, "san-pham", productId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.thanhPhanChiTiet) {
+                        const tp = data.thanhPhanChiTiet;
+                        if(tp.bangChoi) document.getElementById('comp-bang').value = tp.bangChoi;
+                        if(tp.laBai) document.getElementById('comp-bai').value = tp.laBai;
+                        if(tp.tokenBuilding) document.getElementById('comp-token').value = tp.tokenBuilding;
+                        if(tp.adset) document.getElementById('comp-adset').value = tp.adset;
+                        if(tp.warrior) document.getElementById('comp-warrior').value = tp.warrior;
+                        if(tp.minibox) document.getElementById('comp-minibox').value = tp.minibox;
+                    }
+                }
+            } catch (error) {
+                console.error("Lỗi lấy chi tiết:", error);
+            }
+        };
+
+        // 3. Lưu Thành Phần Chi Tiết vào thẳng Document của Sản phẩm
+        window.saveComponents = async function() {
+            const productId = document.getElementById('select-product').value;
+            if (!productId) return;
+
+            const btn = document.getElementById('btn-save');
+            const statusMsg = document.getElementById('status-message');
+
+            const thanhPhanChiTiet = {
+                bangChoi: document.getElementById('comp-bang').value.trim(),
+                laBai: document.getElementById('comp-bai').value.trim(),
+                tokenBuilding: document.getElementById('comp-token').value.trim(),
+                adset: document.getElementById('comp-adset').value.trim(),
+                warrior: document.getElementById('comp-warrior').value.trim(),
+                minibox: document.getElementById('comp-minibox').value.trim()
+            };
+
+            btn.innerText = "ĐANG LƯU DỮ LIỆU...";
+            btn.disabled = true;
+
+            try {
+                // Cập nhật trường thanhPhanChiTiet vào sản phẩm tương ứng
+                await updateDoc(doc(db, "san-pham", productId), {
+                    thanhPhanChiTiet: thanhPhanChiTiet
+                });
+
+                statusMsg.style.color = "#27ae60";
+                statusMsg.innerText = "Đã lưu thành phần thành công!";
+            } catch (error) {
+                console.error("Lỗi lưu:", error);
+                statusMsg.style.color = "#ff4757";
+                statusMsg.innerText = "Lỗi khi lưu dữ liệu!";
+            } finally {
+                btn.innerText = "LƯU THÀNH PHẦN GAME";
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soạn Đơn Hàng - Admin Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f1ea; }
+        .admin-wrapper { display: flex; min-height: 100vh; }
+        .admin-main { flex: 1; margin-left: 250px; padding: 20px; } /* Đã thu gọn padding */
+        
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+            background: #fff; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .admin-header h1 { margin: 0; font-size: 18px; color: #333; }
+
+        /* DÀN TRANG DẠNG LƯỚI (GRID) GIÚP HIỂN THỊ NHIỀU ĐƠN CẠNH NHAU */
+        #soan-don-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            align-items: start; /* Không kéo giãn chiều cao các thẻ */
+        }
+        
+        /* Thiết kế lại Thẻ Đơn Hàng cho nhỏ gọn */
+        .order-soan-card {
+            background: #fff; padding: 15px; border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e0d9c5;
+        }
+        .order-soan-card h3 { 
+            color: #4a6741; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 12px;
+            font-size: 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        /* Khối hiển thị Sản Phẩm */
+        .sp-soan-block {
+            background: #fdfaf3; border: 1px solid #e0d9c5; border-radius: 8px; padding: 10px; margin-bottom: 10px;
+        }
+        .sp-soan-block h4 { 
+            margin-top: 0; color: #333; font-size: 14px; 
+            border-bottom: 1px dashed #ddd; padding-bottom: 6px; margin-bottom: 8px; 
+        }
+        
+        .cat-title { font-weight: bold; color: #666; margin: 10px 0 5px 0; font-size: 12px; text-transform: uppercase; }
+        
+        /* Nút Check-list 3 Trạng thái làm mỏng lại */
+        .btn-state {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 8px 10px; margin-bottom: 5px;
+            border: none; border-radius: 6px; cursor: pointer;
+            font-weight: 600; font-size: 13px; transition: all 0.2s; text-align: left;
+            user-select: none;
+        }
+        
+        /* Trạng thái 0: Trắng/Xám (Chưa làm) */
+        .state-0 { background: #f8f9fa; color: #555; border: 1px solid #ddd; }
+        .state-0:hover { background: #e2e4eb; }
+        /* Trạng thái 1: Xanh Dương (Đã in) */
+        .state-1 { background: #3498db; color: white; border: 1px solid #2980b9; }
+        .state-1:hover { background: #2980b9; }
+        /* Trạng thái 2: Tím (Đã đóng gói) */
+        .state-2 { background: #9b59b6; color: white; border: 1px solid #8e44ad; }
+        .state-2:hover { background: #8e44ad; }
+        
+        .state-icon { 
+            font-size: 11px; font-weight: bold; background: rgba(0,0,0,0.15); 
+            padding: 3px 8px; border-radius: 12px; white-space: nowrap;
+        }
+
+        .btn-hoan-thanh-nhanh {
+            background: #27ae60; color: white; border: none; padding: 6px 12px;
+            border-radius: 5px; font-size: 12px; font-weight: bold; cursor: pointer;
+        }
+        .btn-hoan-thanh-nhanh:hover { background: #219653; }
+        
+        @media (max-width: 768px) { 
+            .admin-main { margin-left: 60px; padding: 15px; } 
+            #soan-don-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div id="global-admin-sidebar"></div>
+
+        <main class="admin-main" id="admin-main-content" style="display:none;">
+            <div class="admin-header">
+                <h1><i class="fas fa-tasks"></i> Bảng Theo Dõi Soạn Đơn Hàng</h1>
+            </div>
+
+            <div id="soan-don-container">
+                <div style="text-align:center; padding: 50px; grid-column: 1 / -1;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 30px; color:#4a6741;"></i>
+                    <p>Đang tải danh sách đơn cần soạn (Đang chuẩn bị)...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="admin-layout-helper.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, getDoc, query } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Kiểm tra quyền Admin
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === "meomun@gmail.com") {
+                document.getElementById('admin-main-content').style.display = 'block';
+                loadOrders();
+            } else {
+                document.body.innerHTML = `<div style="text-align:center; padding:100px;"><i class="fas fa-lock" style="font-size:50px; color:#e74c3c;"></i><h2>Truy cập bị từ chối!</h2></div>`;
+            }
+        });
+
+        async function loadOrders() {
+            const container = document.getElementById('soan-don-container');
+            try {
+                // 1. Lấy toàn bộ Sản phẩm để làm từ điển (map) chứa các thành phần
+                const productsSnap = await getDocs(collection(db, "san-pham"));
+                const productsDict = {};
+                productsSnap.forEach(doc => {
+                    const data = doc.data();
+                    productsDict[data.ten] = data.thanhPhanChiTiet || null;
+                });
+
+                // 2. Lấy đơn hàng từ Firestore
+                const q = query(collection(db, "don-hang"));
+                const ordersSnap = await getDocs(q);
+                let orders = [];
+                ordersSnap.forEach(doc => {
+                    const data = doc.data();
+                    // CHỈ lấy các đơn hàng đang ở trạng thái "Đang chuẩn bị"
+                    if(data.trangThai === "Đang chuẩn bị") {
+                        orders.push({ id: doc.id, ...data });
+                    }
+                });
+
+                if(orders.length === 0) {
+                    container.innerHTML = "<div style='text-align:center; padding:50px; background:#fff; border-radius:10px; grid-column: 1 / -1;'><i class='fas fa-check-circle' style='font-size:40px; color:#27ae60; margin-bottom:10px;'></i><br>Tuyệt vời! Không có đơn hàng nào đang chờ soạn.</div>";
+                    return;
+                }
+
+                // Sắp xếp đơn cũ (đặt trước) lên đầu để ưu tiên soạn trước
+                orders.sort((a, b) => {
+                    let timeA = a.ngayDat ? a.ngayDat.toMillis() : 0;
+                    let timeB = b.ngayDat ? b.ngayDat.toMillis() : 0;
+                    return timeA - timeB; 
+                });
+
+                let html = "";
+                orders.forEach(order => {
+                    let tienDo = order.tienDoSoan || {}; 
+                    
+                    html += `
+                        <div class="order-soan-card">
+                            <h3>
+                                <span><i class="fas fa-box-open"></i> #${order.id.substring(0,8).toUpperCase()} - ${order.khachHang.ten}</span>
+                            </h3>
+                    `;
+                    
+                    if(order.sanPham && order.sanPham.length > 0) {
+                        order.sanPham.forEach((sp, spIdx) => {
+                            html += `<div class="sp-soan-block">
+                                <h4>${sp.soLuong}x ${sp.ten} (${sp.loai})</h4>
+                            `;
+                            
+                            const tp = productsDict[sp.ten]; 
+                            if(!tp) {
+                                html += `<p style="color:#e74c3c; font-size:12px; font-weight:bold;">⚠️ Chưa khai báo thành phần!</p>`;
+                            } else {
+                                const categories = [
+                                    {key: 'bangChoi', label: 'Bảng chơi', icon: 'fa-chess-board'},
+                                    {key: 'laBai', label: 'Lá bài', icon: 'fa-clone'},
+                                    {key: 'tokenBuilding', label: 'Token', icon: 'fa-coins'},
+                                    {key: 'adset', label: 'Adset', icon: 'fa-book-open'},
+                                    {key: 'warrior', label: 'Warrior', icon: 'fa-chess-knight'},
+                                    {key: 'minibox', label: 'Minibox', icon: 'fa-box'}
+                                ];
+                                
+                                categories.forEach(cat => {
+                                    if(tp[cat.key] && tp[cat.key].trim() !== '') {
+                                        html += `<div class="cat-title"><i class="fas ${cat.icon}"></i> ${cat.label}</div>`;
+                                        const items = tp[cat.key].split('\n').filter(i => i.trim() !== '');
+                                        
+                                        items.forEach((item, itemIdx) => {
+                                            const stateKey = `${spIdx}_${cat.key}_${itemIdx}`;
+                                            let state = tienDo[stateKey] || 0; 
+                                            let stateClass = `state-${state}`;
+                                            let stateText = state === 0 ? "Chưa làm" : (state === 1 ? "Đã in" : "Đóng gói");
+                                            let stateIcon = state === 0 ? "fa-circle-notch" : (state === 1 ? "fa-print" : "fa-check-circle");
+                                            
+                                            html += `<button class="btn-state ${stateClass}" onclick="window.toggleState('${order.id}', '${stateKey}', this)">
+                                                <span>${item}</span>
+                                                <span class="state-icon"><i class="fas ${stateIcon}"></i> <span class="state-text">${stateText}</span></span>
+                                            </button>`;
+                                        });
+                                    }
+                                });
+                            }
+                            html += `</div>`;
+                        });
+                    }
+                    html += `</div>`;
+                });
+                
+                container.innerHTML = html;
+
+            } catch(e) {
+                console.error(e);
+                container.innerHTML = "<p style='color:red; grid-column: 1 / -1;'>Lỗi tải dữ liệu!</p>";
+            }
+        }
+
+        window.toggleState = async function(orderId, stateKey, btnEl) {
+            let currentState = 0;
+            if(btnEl.classList.contains('state-1')) currentState = 1;
+            if(btnEl.classList.contains('state-2')) currentState = 2;
+            
+            let newState = (currentState + 1) % 3;
+            
+            btnEl.classList.remove(`state-${currentState}`);
+            btnEl.classList.add(`state-${newState}`);
+            
+            let stateText = newState === 0 ? "Chưa làm" : (newState === 1 ? "Đã in" : "Đóng gói");
+            let stateIcon = newState === 0 ? "fa-circle-notch" : (newState === 1 ? "fa-print" : "fa-check-circle");
+            btnEl.querySelector('.state-icon').innerHTML = `<i class="fas ${stateIcon}"></i> <span class="state-text">${stateText}</span>`;
+
+            try {
+                const orderRef = doc(db, "don-hang", orderId);
+                const orderSnap = await getDoc(orderRef);
+                
+                if (orderSnap.exists()) {
+                    let orderData = orderSnap.data();
+                    let tienDoSoan = orderData.tienDoSoan || {};
+                    
+                    tienDoSoan[stateKey] = newState; 
+                    await updateDoc(orderRef, { tienDoSoan: tienDoSoan }); 
+                }
+            } catch(e) {
+                console.error("Lỗi lưu trạng thái:", e);
+            }
+        };
+    </script>
+</body>
+</html>

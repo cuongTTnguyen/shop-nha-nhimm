@@ -2,47 +2,20 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Shop Nhà Nhimm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng Hợp Phe - Shop Nhà Nhimm</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-    <header class="index-header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebarMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-
-        <div class="header-center">
-            <a href="index.html" class="logo-link">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
-            </a>
-        </div>
-
-        <div class="header-right">
-            <nav class="header-nav">
-                <a href="index.html" class="nav-item">Trang chủ</a>
-                <a href="tong-hop-phe.html" class="nav-item">Tổng hợp phe</a>
-                <a href="luat-choi-root.html" class="nav-item">Luật chơi</a>
-                <a href="san-pham.html" class="nav-item">ShopNhaNhimm</a>
-                <a href="ung-ho.html" class="nav-item">Donate</a></li>
-                <div class="cart-icon-container" onclick="toggleCart()">
-                <button class="search-btn" onclick="toggleSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-            </nav>
-        </div>
-    </header>
-
+    <header id="global-header" class="index-header"></header>
     <div id="search-bar-container" class="search-bar-hidden">
-        <input type="text" placeholder="Tìm kiếm phe, luật chơi...">
-        <button type="button">Tìm</button>
+        <input type="text" id="faction-search-input" placeholder="Tìm kiếm phe..." onkeyup="window.timKiemPhe()">
+        <button type="button" onclick="window.timKiemPhe()">Tìm</button>
     </div>
 
+    <!-- SIDEBAR -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
 
     <div id="left-sidebar" class="left-sidebar">
@@ -53,7 +26,6 @@
         
         <ul class="sidebar-nav">
             <li><a href="index.html">🏠 Menu chính</a></li>
-            
             <li class="has-submenu">
                 <div class="submenu-header" onclick="toggleSubmenu(this)">
                     📜 Luật chơi <span class="arrow">▼</span>
@@ -64,15 +36,15 @@
                     <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
                 </ul>
             </li>
-            
             <li><a href="san-pham.html">🛒 Tiếp tục mua sắm</a></li>
             <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
             <li><a href="ung-ho.html">🎁 Donate</a></li>
         </ul>
     </div>
-    <script src="script.js"></script>
 
-    <h2 style="text-align: center;">DANH SÁCH PHE PHÁI</h2>
+    <!-- NỘI DUNG CHÍNH -->
+    <h2 style="text-align: center; margin-top: 50px;">DANH SÁCH PHE PHÁI</h2>
+    
     <div class="legend-container">
         <div class="legend-item">
             <span class="price-label real">Gốc</span> 
@@ -83,100 +55,164 @@
             <span class="legend-text">Các phe được tạo ra từ fan.</span>
         </div>
     </div>
+
     <div class="filter-container">
-        <button class="filter-btn active" onclick="locSanPham('tat-ca')">Tất cả</button>
-        <button class="filter-btn" onclick="locSanPham('Goc')">Phe chính gốc</button>
-        <button class="filter-btn" onclick="locSanPham('Fanmade')">Phe Fanmade</button>
+        <button class="filter-btn active" onclick="window.locSanPham('tat-ca')">Tất cả</button>
+        <button class="filter-btn" onclick="window.locSanPham('Goc')">Phe chính gốc</button>
+        <button class="filter-btn" onclick="window.locSanPham('Fanmade')">Phe Fanmade</button>
     </div>
+
     <div id="product-grid" class="container"></div>
 
-    <script src="factions.js"></script>
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="modal-body"> </div>
-        </div>
-    </div>
-    <div id="config-modal" class="modal">
-        <div class="modal-content config-content">
-            <span class="close" onclick="closeConfigModal()">&times;</span>
-            <div class="config-flex">
-                <img id="config-img" src="" alt="">
-                <div class="config-info">
-                    <h2 id="config-name"></h2>
-                    
-                    <div class="config-section">
-                        <p>Ngôn ngữ:</p>
-                        <div class="language-options">
-                            <button class="lang-btn active" onclick="selectLanguage(this, 'Tiếng Việt')">Tiếng Việt</button>
-                            <button class="lang-btn" onclick="selectLanguage(this, 'Tiếng Anh')">Tiếng Anh</button>
+    <footer id="global-footer" class="main-footer"></footer>
+
+    <script src="script.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.danhSachPhe = [];
+
+        window.hienThiPhe = function(tagCanLoc = 'tat-ca') {
+            const container = document.getElementById('product-grid');
+            if (!container) return;
+
+            // Bộ lọc an toàn tránh sập code nếu thiếu tags
+            const danhSachDaLoc = tagCanLoc === 'tat-ca' 
+                ? window.danhSachPhe 
+                : window.danhSachPhe.filter(phe => phe.tags && Array.isArray(phe.tags) && phe.tags.includes(tagCanLoc));
+
+            if (danhSachDaLoc.length === 0) {
+                container.innerHTML = "<p style='text-align:center; width:100%; color:#666;'>Chưa có phe phái nào trong danh mục này.</p>";
+                return;
+            }
+
+            let htmlContent = "";
+            danhSachDaLoc.forEach((phe) => {
+                let isGoc = phe.tags && Array.isArray(phe.tags) && phe.tags.includes("Goc");
+                let tagClass = isGoc ? "real" : "fake";
+                let displayTagName = isGoc ? "Gốc" : "Fanmade";
+
+                htmlContent += `
+                    <div class="product-card">
+                        <img src="${phe.anh || 'https://placehold.co/400x300?text=No+Image'}" alt="${phe.ten || 'Không tên'}" onclick="window.xemChiTietPhe('${(phe.ten || '').replace(/'/g, "\\'")}')" 
+                             onerror="this.src='https://placehold.co/400x300?text=No+Image'" style="cursor:pointer">
+                        <div class="product-info">
+                            <div class="tag-container">
+                                <span class="price-label ${tagClass}">${displayTagName}</span>
+                            </div>
+                            <h3 onclick="window.xemChiTietPhe('${(phe.ten || '').replace(/'/g, "\\'")}')" style="cursor:pointer; margin: 10px 0;">${phe.ten || 'Chưa đặt tên'}</h3>
+                            
+                            <div style="font-size: 13px; color: #666; margin-bottom: 5px;">
+                                <i class="fas fa-hammer"></i> <strong>Tạo bởi:</strong> ${phe.taoBoi || 'Đang cập nhật'}
+                            </div>
+                            <div style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                                <i class="fas fa-paint-brush"></i> <strong>Minh họa:</strong> ${phe.minhHoa || 'Đang cập nhật'}
+                            </div>
+
+                            <button class="btn-buy" style="background-color: #4a6741; border:none; color:white; width:100%; padding:10px; border-radius:8px; cursor:pointer;" 
+                                    onclick="window.xemChiTietPhe('${(phe.ten || '').replace(/'/g, "\\'")}')">
+                                Xem chi tiết phe
+                            </button>
                         </div>
                     </div>
+                `;
+            });
+            container.innerHTML = htmlContent;
+        };
 
-                    <div class="config-section">
-                        <p>Loại hàng:</p>
-                        <div id="config-variants" class="variant-options"></div>
-                    </div>
+        // ĐỊNH NGHĨA HÀM CHUYỂN TRANG 
+        window.xemChiTietPhe = function(tenPhe) {
+            window.location.href = `phe-chi-tiet.html?name=${encodeURIComponent(tenPhe)}`;
+        };
 
-                    <div class="config-section">
-                        <p>Số lượng:</p>
-                        <div class="qty-input">
-                            <button onclick="changeQty(-1)">-</button>
-                            <input type="number" id="config-qty" value="1" min="1">
-                            <button onclick="changeQty(1)">+</button>
+        // ĐỊNH NGHĨA HÀM LỌC SẢN PHẨM 
+        window.locSanPham = function(tag) { 
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (tag === 'tat-ca' && btn.innerText.includes('Tất cả')) btn.classList.add('active');
+                if (tag === 'Goc' && btn.innerText.includes('Gốc')) btn.classList.add('active');
+                if (tag === 'Fanmade' && btn.innerText.includes('Fanmade')) btn.classList.add('active');
+            });
+            window.hienThiPhe(tag);
+        };
+
+        // ĐỊNH NGHĨA HÀM TÌM KIẾM
+        window.timKiemPhe = function() {
+            const inputElement = document.getElementById('faction-search-input');
+            if(!inputElement) return;
+            
+            const input = inputElement.value.toLowerCase();
+            const container = document.getElementById('product-grid');
+            if (!container) return;
+
+            const filtered = window.danhSachPhe.filter(phe => 
+                (phe.ten && phe.ten.toLowerCase().includes(input)) || 
+                (phe.moTa && phe.moTa.toLowerCase().includes(input)) ||
+                (phe.taoBoi && phe.taoBoi.toLowerCase().includes(input))
+            );
+            
+            if (filtered.length === 0) {
+                container.innerHTML = "<p style='text-align:center; width:100%;'>Không tìm thấy phe nào phù hợp.</p>";
+                return;
+            }
+
+            let htmlContent = "";
+            filtered.forEach((phe) => {
+                let isGoc = phe.tags && Array.isArray(phe.tags) && phe.tags.includes("Goc");
+                let tagClass = isGoc ? "real" : "fake";
+                htmlContent += `
+                    <div class="product-card">
+                        <img src="${phe.anh || 'https://placehold.co/400x300?text=No+Image'}" alt="${phe.ten || 'Không tên'}" onclick="window.xemChiTietPhe('${(phe.ten || '').replace(/'/g, "\\'")}')" style="cursor:pointer" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                        <div class="product-info">
+                            <span class="price-label ${tagClass}">${isGoc ? 'Gốc' : 'Fanmade'}</span>
+                            <h3 onclick="window.xemChiTietPhe('${(phe.ten || '').replace(/'/g, "\\'")}')" style="cursor:pointer; margin-top:10px;">${phe.ten || 'Chưa đặt tên'}</h3>
+                            <div style="font-size: 12px; color:#666;"><i class="fas fa-hammer"></i> ${phe.taoBoi || 'Đang cập nhật'}</div>
+                            <button class="btn-buy" style="margin-top: 15px; background:#4a6741; color:white; border:none; padding:8px; border-radius:5px; width:100%; cursor:pointer;" onclick="window.xemChiTietPhe('${(phe.ten || '').replace(/'/g, "\\'")}')">Xem chi tiết</button>
                         </div>
-                    </div>
-                    
-                    <button class="btn-confirm-add" onclick="confirmAddToCart()">Xác nhận thêm</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>THÔNG TIN LIÊN HỆ</h3>
-                <ul class="footer-links">
-                    <li>
-                        <a href="https://www.facebook.com/cuong.nguyen.687207" target="_blank">
-                            🔵 Facebook: Cường Nguyễn
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://zalo.me/0375772302" target="_blank">
-                            🟢 Zalo: 0375772302
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.youtube.com/@Meo_Munn" target="_blank">
-                            🔴 Youtube: Bá Tước Mèo Mun
-                        </a>
-                    </li>
-                </ul>
-            </div>
+                    </div>`;
+            });
+            container.innerHTML = htmlContent;
+        };
 
-            <div class="footer-column">
-                <h3>HỖ TRỢ KHÁCH HÀNG</h3>
-                <ul class="footer-links">
-                    <li><a href="huong-dan-mua-hang.html">📋 Hướng dẫn mua hàng</a></li>
-                    <li><a href="huong-dan-thanh-toan.html">💳 Hướng dẫn thanh toán</a></li>
-                    <li><a href="dieu-khoan-dich-vu.html">⚖️ Điều khoản dịch vụ</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-column">
-            <h3>Donate tại đây</h3>
-            <ul class="footer-links">
-                <li><a href="ung-ho.html">Tui mún ủng hộ!!!</a></li>
-            </ul>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Shop Nhà Nhimm - Thế giới Woodland trong tay bạn.</p>
-        </div>
-    </footer>
-    <div id="fullscreen-modal" class="fullscreen-modal" onclick="closeFullscreen()">
-    <span class="close-fullscreen">&times;</span>
-    <img class="fullscreen-content" id="img-full">
-</div>
+        // TỰ ĐỘNG TẢI DỮ LIỆU KHI MỞ TRANG
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('product-grid');
+            if (container) {
+                container.innerHTML = "<div style='text-align:center; width:100%; padding:40px;'><i class='fas fa-spinner fa-spin' style='font-size: 30px; color: #4a6741;'></i><p style='margin-top:15px; color:#4a6741; font-weight:bold;'>Đang tải dữ liệu từ máy chủ Woodland...</p></div>";
+                try {
+                    const querySnapshot = await getDocs(collection(db, "phe-phai"));
+                    window.danhSachPhe = [];
+                    querySnapshot.forEach((doc) => {
+                        window.danhSachPhe.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Sắp xếp danh sách phe theo tên ABC cho đẹp
+                    window.danhSachPhe.sort((a, b) => (a.ten || '').localeCompare(b.ten || ''));
+                    
+                    window.hienThiPhe('tat-ca');
+                } catch (error) {
+                    console.error("Lỗi lấy dữ liệu:", error);
+                    container.innerHTML = "<p style='text-align:center; width:100%; color:red;'>Lỗi tải dữ liệu. Bạn hãy đưa code lên GitHub hoặc dùng Live Server để xem nhé!</p>";
+                }
+            }
+        });
+    </script>
+    <script type="module" src="auth-helper.js"></script>
+    <script src="layout-helper.js"></script>
 </body>
 </html>

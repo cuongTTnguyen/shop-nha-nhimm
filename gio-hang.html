@@ -3,152 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giỏ hàng - Shop Nhà Nhimm</title>
+    <title>Giỏ hàng & Thanh toán - Shop Nhà Nhimm</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .checkout-container {
+            max-width: 1000px;
+            margin: 100px auto 50px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 30px;
+        }
 
+        /* Phần Danh sách Giỏ hàng */
+        .cart-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e0d9c5;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item img {
+            width: 80px; height: 80px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-title { font-weight: bold; color: #4a6741; margin-bottom: 5px; font-size: 16px; }
+        .cart-item-variant { font-size: 13px; color: #666; margin-bottom: 5px; }
+        .cart-item-price { font-weight: bold; color: #ff4757; }
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .qty-controls button {
+            background: none; border: none; cursor: pointer;
+            font-weight: bold; font-size: 16px; padding: 0 5px;
+        }
+        .btn-remove {
+            color: #ff4757; background: none; border: none; cursor: pointer; font-size: 18px;
+        }
+
+        /* Phần Form Thanh toán */
+        .checkout-section {
+            background: #fdfaf3;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px dashed #4a6741;
+            height: fit-content;
+        }
+        .checkout-section h3 { color: #4a6741; margin-top: 0; border-bottom: 2px solid #e0d9c5; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;
+        }
+        .form-group textarea { height: 80px; resize: vertical; }
+        
+        .total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 18px; font-weight: bold; margin: 20px 0; padding-top: 15px; border-top: 2px solid #e0d9c5;
+        }
+        .total-price { color: #ff4757; font-size: 24px; }
+        
+        .btn-confirm-order {
+            width: 100%; padding: 15px; background: #4a6741; color: white; border: none;
+            border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-confirm-order:hover { background: #ff4757; }
+        
+        .empty-cart { text-align: center; padding: 50px 20px; color: #666; }
+
+        @media (max-width: 768px) {
+            .checkout-container { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-<body>
-    <header class="index-header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebarMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
+<body class="index-page">
 
-        <div class="header-center">
-            <a href="index.html" class="logo-link">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
-            </a>
-        </div>
+    <header id="global-header" class="index-header"></header>
 
-        <div class="header-right">
-            <nav class="header-nav">
-                <a href="index.html" class="nav-item">Trang chủ</a>
-                <a href="tong-hop-phe.html" class="nav-item">Tổng hợp phe</a>
-                <a href="luat-choi-root.html" class="nav-item">Luật chơi</a>
-                <a href="san-pham.html" class="nav-item">ShopNhaNhimm</a>
-                <div class="cart-icon-container" onclick="toggleCart()">
-                <div class="cart-icon">
-                    🛒<span id="cart-count">0</span>
-                </div>
+    <div class="checkout-container">
+        <div class="cart-section">
+            <h2 style="margin-top:0; color:#333;"><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+            <div id="cart-list">
             </div>
-                <button class="search-btn" onclick="toggleSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-            </nav>
         </div>
-    </header>
 
-    <div id="search-bar-container" class="search-bar-hidden">
-        <input type="text" placeholder="Tìm kiếm phe, luật chơi...">
-        <button type="button">Tìm</button>
+        <div class="checkout-section">
+            <h3><i class="fas fa-shipping-fast"></i> Thông tin nhận hàng</h3>
+            <div class="form-group">
+                <label>Họ và Tên *</label>
+                <input type="text" id="order-name" placeholder="Nhập tên người nhận">
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại *</label>
+                <input type="text" id="order-phone" placeholder="Nhập số điện thoại liên hệ">
+            </div>
+            <div class="form-group">
+                <label>Địa chỉ giao hàng *</label>
+                <textarea id="order-address" placeholder="Nhập chi tiết số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Ghi chú thêm (Tùy chọn)</label>
+                <textarea id="order-note" placeholder="Ví dụ: yêu cầu shipper xoay 3 vòng, giao hàng bằng drone,..."></textarea>
+            </div>
+
+            <div class="total-row">
+                <span>Tổng thanh toán:</span>
+                <span class="total-price" id="final-total">0đ</span>
+            </div>
+
+            <button class="btn-confirm-order" id="btn-submit-order">CHỐT ĐƠN HÀNG NGAY</button>
+            <div id="order-status" style="text-align:center; margin-top:15px; font-weight:bold;"></div>
+        </div>
     </div>
 
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
+    <!-- FOOTER DÙNG CHUNG -->
+    <footer id="global-footer" class="main-footer"></footer>
 
-    <div id="left-sidebar" class="left-sidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title">MENU</span>
-            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
-        </div>
-        
-        <ul class="sidebar-nav">
-            <li><a href="index.html">🏠 Menu chính</a></li>
-            
-            <li class="has-submenu">
-                <div class="submenu-header" onclick="toggleSubmenu(this)">
-                    📜 Luật chơi <span class="arrow">▼</span>
-                </div>
-                <ul class="submenu">
-                    <li><a href="luat-choi-root.html">· Luật chơi ROOT</a></li>
-                    <li><a href="luat-choi-fort.html">· Luật chơi Fort</a></li>
-                    <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
-                </ul>
-            </li>
-            
-            <li><a href="san-pham.html">🛒 Tiếp tục mua sắm</a></li>
-            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
-        </ul>
-    </div>
     <script src="script.js"></script>
+    <script src="layout-helper.js"></script>
+    <script type="module" src="auth-helper.js"></script>
 
-    <main class="cart-container">
-        <div id="cart-empty-message" style="display:none; text-align: center; margin-top: 50px;">
-            <p>Giỏ hàng đang trống!</p>
-            <a href="san-pham.html" class="btn-confirm-add" style="display:inline-block; width:auto; padding:10px 20px;">Đi mua sắm ngay</a>
-        </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        <div id="cart-list">
-            </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
 
-        <div class="cart-summary" id="cart-summary">
-            <div class="total-price">Tổng cộng: <span id="total-amount">0đ</span></div>
-            <button class="btn-checkout" onclick="openInfoModal()" style="background: #27ae60;">✅ Xác nhận đơn hàng</button>
-            <button class="btn-clear" onclick="xoaToanBoGio()">Xóa tất cả</button>
-        </div>
-    </main>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    <script src="cart.js"></script>
-    <div id="info-modal" class="modal">
-        <div class="modal-content info-content">
-            <span class="close" onclick="closeInfoModal()">&times;</span>
-            <h2>Thông tin nhận hàng</h2>
-            <div class="form-group">
-                <label>Họ và tên:</label>
-                <input type="text" id="cus-name" placeholder="Nhập tên của bạn...">
-            </div>
-            <div class="form-group">
-                <label>Số điện thoại:</label>
-                <input type="tel" id="cus-phone" placeholder="Nhập số điện thoại...">
-            </div>
-            <div class="form-group">
-                <label>Địa chỉ nhận hàng:</label>
-                <textarea id="cus-address" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."></textarea>
-            </div>
-            <button class="btn-final-send" onclick="sendToMessenger()">
-                🚀 Gửi đơn hàng qua Messenger
-            </button>
-        </div>
-    </div>
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>THÔNG TIN LIÊN HỆ</h3>
-                <ul class="footer-links">
-                    <li>
-                        <a href="https://www.facebook.com/cuong.nguyen.687207" target="_blank">
-                            🔵 Facebook: Cường Nguyễn
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://zalo.me/0375772302" target="_blank">
-                            🟢 Zalo: 0375772302
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.youtube.com/@Meo_Munn" target="_blank">
-                            🔴 Youtube: Bá Tước Mèo Mun
-                        </a>
-                    </li>
-                </ul>
-            </div>
+        let currentUserUid = "khach-vang-lai";
 
-            <div class="footer-column">
-                <h3>HỖ TRỢ KHÁCH HÀNG</h3>
-                <ul class="footer-links">
-                    <li><a href="huong-dan-mua-hang.html">📋 Hướng dẫn mua hàng</a></li>
-                    <li><a href="huong-dan-thanh-toan.html">💳 Hướng dẫn thanh toán</a></li>
-                    <li><a href="dieu-khoan-dich-vu.html">⚖️ Điều khoản dịch vụ</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2026 Shop Nhà Nhimm - Thế giới Woodland trong tay bạn.</p>
-        </div>
-    </footer>
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+            }
+        });
+
+        // 1. HÀM RENDER GIỎ HÀNG TỪ LOCAL STORAGE
+        function renderCart() {
+            const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cart-list');
+            
+            if (gioHang.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-box-open" style="font-size: 50px; color:#ddd; margin-bottom:15px;"></i>
+                        <p>Giỏ hàng của bạn đang trống.</p>
+                        <a href="san-pham.html" style="color: #4a6741; font-weight: bold; text-decoration:none;">Quay lại cửa hàng</a>
+                    </div>`;
+                document.getElementById('final-total').innerText = "0đ";
+                document.getElementById('btn-submit-order').disabled = true;
+                document.getElementById('btn-submit-order').style.background = "#ccc";
+                return;
+            }
+
+            document.getElementById('btn-submit-order').disabled = false;
+            document.getElementById('btn-submit-order').style.background = "#4a6741";
+
+            let htmlContent = "";
+            let tongTien = 0;
+
+            gioHang.forEach((sp, index) => {
+                // Xử lý giá
+                let giaHienThi = sp.giaGocChu || (sp.gia.toLocaleString('vi-VN') + "đ");
+                let thanhTien = sp.gia * sp.soLuong;
+                tongTien += thanhTien;
+
+                htmlContent += `
+                    <div class="cart-item">
+                        <img src="${sp.anh || 'https://placehold.co/80x80?text=IMG'}" alt="${sp.ten}">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${sp.ten}</div>
+                            <div class="cart-item-variant">Loại: ${sp.loai}</div>
+                            <div class="cart-item-price">${giaHienThi}</div>
+                        </div>
+                        <div class="qty-controls">
+                            <button onclick="window.changeCartQty(${index}, -1)">-</button>
+                            <span style="font-weight:bold; width: 20px; text-align:center;">${sp.soLuong}</span>
+                            <button onclick="window.changeCartQty(${index}, 1)">+</button>
+                        </div>
+                        <button class="btn-remove" onclick="window.removeCartItem(${index})" title="Xóa sản phẩm">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = htmlContent;
+            document.getElementById('final-total').innerText = tongTien.toLocaleString('vi-VN') + "đ";
+        }
+
+        // 2. CÁC HÀM XỬ LÝ NÚT TĂNG/GIẢM/XÓA
+        window.changeCartQty = function(index, amount) {
+            let gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+            gioHang[index].soLuong += amount;
+            if (gioHang[index].soLuong <= 0) {
+                gioHang.splice(index, 1); // Xóa nếu số lượng về 0
+            }
+            localStorage.setItem('cart', JSON.stringify(gioHang));
+            renderCart();
+            // Hàm updateCartCount từ auth-helper hoặc layout-helper (nếu có)
+        };
+
+        window.removeCartItem = function(index) {
+            let gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+            gioHang.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(gioHang));
+            renderCart();
+        };
+
+        // CHẠY RENDER KHI MỞ TRANG
+        document.addEventListener('DOMContentLoaded', renderCart);
+
+        // 3. XỬ LÝ CHỐT ĐƠN HÀNG LÊN FIREBASE
+        document.getElementById('btn-submit-order').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-submit-order');
+            const statusMsg = document.getElementById('order-status');
+            if (currentUserUid === "khach-vang-lai") {
+                statusMsg.style.color = "#ff4757";
+                statusMsg.innerText = "Bạn cần đăng nhập tài khoản để chốt đơn hàng!";
+                alert("Bạn cần đăng nhập để có thể đặt hàng. Hệ thống sẽ chuyển bạn đến trang đăng nhập nhé!");
+                window.location.href = "dang-nhap.html";
+                return;
+            }
+            const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Lấy thông tin form
+            const ten = document.getElementById('order-name').value.trim();
+            const sdt = document.getElementById('order-phone').value.trim();
+            const diaChi = document.getElementById('order-address').value.trim();
+            const ghiChu = document.getElementById('order-note').value.trim();
+
+            // Validate
+            if (!ten || !sdt || !diaChi) {
+                statusMsg.style.color = "#ff4757";
+                statusMsg.innerText = "Vui lòng nhập đầy đủ Tên, SĐT và Địa chỉ nhận hàng!";
+                return;
+            }
+            if (gioHang.length === 0) return;
+
+            // Tính lại tổng tiền cho chắc chắn
+            const tongTien = gioHang.reduce((total, item) => total + (item.gia * item.soLuong), 0);
+
+            // Đóng gói dữ liệu đơn hàng
+            const donHangMoi = {
+                uidKhachHang: currentUserUid,
+                khachHang: { ten, sdt, diaChi, ghiChu },
+                sanPham: gioHang,
+                tongTien: tongTien,
+                trangThai: "Chờ xác nhận", // Trạng thái mặc định
+                ngayDat: serverTimestamp() // Dùng giờ của máy chủ Firebase cho chuẩn xác
+            };
+
+            btn.innerText = "ĐANG XỬ LÝ...";
+            btn.disabled = true;
+
+            try {
+                // Thêm vào bảng don-hang
+                const docRef = await addDoc(collection(db, "don-hang"), donHangMoi);
+                
+                // Thành công -> Xóa giỏ hàng ảo đi
+                localStorage.removeItem('cart');
+                
+                // Báo thành công và chuyển hướng
+                statusMsg.style.color = "#27ae60";
+                statusMsg.innerText = "Đặt hàng thành công! Mã đơn: " + docRef.id.substring(0,6).toUpperCase();
+                
+                setTimeout(() => {
+                    // Nếu khách đã đăng nhập, đẩy họ sang trang theo dõi đơn (Bước 6)
+                    // Còn tạm thời thì chuyển về trang chủ
+                    alert("Cảm ơn bạn đã đặt hàng. Đơn hàng đang chờ Admin duyệt!");
+                    window.location.href = currentUserUid !== "khach-vang-lai" ? "tai-khoan.html" : "index.html";
+                }, 1500);
+
+            } catch (error) {
+                console.error("Lỗi đặt hàng:", error);
+                statusMsg.style.color = "#ff4757";
+                statusMsg.innerText = "Có lỗi xảy ra, vui lòng thử lại sau!";
+                btn.innerText = "CHỐT ĐƠN HÀNG NGAY";
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>

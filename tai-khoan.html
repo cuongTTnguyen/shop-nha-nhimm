@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản của tôi - Shop Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .account-container { max-width: 1000px; margin: 100px auto 50px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 3fr; gap: 30px; }
+        .account-sidebar { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; height: fit-content; text-align: center; }
+        .account-avatar { font-size: 60px; color: #4a6741; margin-bottom: 15px; }
+        .account-email { font-weight: bold; color: #333; margin-bottom: 20px; word-break: break-all; }
+        .btn-logout { width: 100%; background: #f1f2f6; color: #ff4757; border: 1px solid #ff4757; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-logout:hover { background: #ff4757; color: white; }
+        .order-history-section { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; }
+        .order-history-section h2 { color: #4a6741; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .order-card { border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 10px; margin-bottom: 10px; font-size: 14px; }
+        .order-id { font-weight: bold; color: #555; }
+        .order-date { color: #888; }
+        .order-status { font-weight: bold; padding: 5px 12px; border-radius: 15px; font-size: 12px; }
+        
+        .status-dang-xem-xet { background: #fff3e0; color: #e67e22; border: 1px solid #f39c12; }
+        .status-dang-chuan-bi { background: #f4ecf8; color: #8e44ad; border: 1px solid #9b59b6; }
+        .status-dang-giao { background: #e3f2fd; color: #3498db; border: 1px solid #2980b9; }
+        .status-hoan-thanh { background: #e8f5e9; color: #27ae60; border: 1px solid #2ecc71; }
+        .status-da-huy { background: #ffebee; color: #e74c3c; border: 1px solid #c0392b; }
+
+        .order-products { margin-bottom: 15px; }
+        .product-line { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; }
+        .product-line img { width: 50px; height: 50px; object-fit: contain; border: 1px solid #eee; border-radius: 5px; }
+        .product-info-mini { flex: 1; }
+        .order-footer { display: flex; justify-content: flex-end; align-items: center; font-size: 16px; border-top: 1px solid #eee; padding-top: 10px; }
+        .order-total-price { font-weight: bold; color: #ff4757; font-size: 18px; margin-left: 10px; }
+        .no-orders { text-align: center; padding: 40px; color: #666; }
+        
+        .admin-note-box { background: #fff9e6; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 13px; color: #d35400; border: 1px dashed #f1c40f; display: flex; align-items: center; gap: 10px; }
+        .btn-tracking { background: #3498db; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; transition: opacity 0.3s;}
+        .btn-tracking:hover { opacity: 0.8; }
+        @media (max-width: 768px) { .account-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="index-page">
+
+    <header id="global-header" class="index-header"></header>
+
+    <div class="account-container">
+        <div class="account-sidebar">
+            <div class="account-avatar"><i class="fas fa-user-circle"></i></div>
+            <h3 style="margin-top:0;">Tài khoản của bạn</h3>
+            <div class="account-email" id="user-email">Đang tải...</div>
+            <button onclick="window.location.href='admin-don-hang.html'" id="btn-admin" style="display: none; width: 100%; background: #2c3e50; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                <i class="fas fa-crown"></i> Quản trị hệ thống
+            </button>
+            <button class="btn-logout" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+        </div>
+
+        <div class="order-history-section">
+            <h2><i class="fas fa-history"></i> Lịch sử đơn hàng</h2>
+            <div id="orders-container">
+                <div style="text-align:center; padding: 30px;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="global-footer" class="main-footer"></footer>
+
+    <script src="script.js"></script>
+    <script src="layout-helper.js"></script>
+    <script type="module" src="auth-helper.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-email').innerText = user.email;
+                if (user.email === "meomun@gmail.com") document.getElementById('btn-admin').style.display = "block";
+                taiLichSuDonHang(user.uid);
+            } else {
+                window.location.assign("dang-nhap.html");
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.assign("index.html");
+            });
+        });
+
+        async function taiLichSuDonHang(uid) {
+            const container = document.getElementById('orders-container');
+            const q = query(collection(db, "don-hang"), where("uidKhachHang", "==", uid));
+            const querySnapshot = await getDocs(q);
+            
+            if (querySnapshot.empty) {
+                container.innerHTML = "<div class='no-orders'>Bạn chưa có đơn hàng nào.</div>";
+                return;
+            }
+
+            let orders = [];
+            querySnapshot.forEach((doc) => orders.push({ id: doc.id, ...doc.data() }));
+            orders.sort((a, b) => (b.ngayDat?.toMillis() || 0) - (a.ngayDat?.toMillis() || 0));
+
+            let htmlContent = "";
+            orders.forEach(order => {
+                let statusClass = "status-dang-xem-xet";
+                let statusText = order.trangThai || "Đang xem xét";
+                let adminNote = "";
+
+                if (statusText === "Đang xem xét" || statusText === "Chờ xác nhận") {
+                    statusClass = "status-dang-xem-xet";
+                    statusText = "Đang xem xét";
+                    adminNote = `
+                        <div class="admin-note-box">
+                            <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+                            <div>
+                                Đơn hàng đang chờ duyệt. Nhắn tin Admin để xử lý nhanh nhất!<br>
+                                <div style="margin-top: 8px; display: flex; gap: 10px;">
+                                    <a href="https://www.facebook.com/cuong.nguyen.687207" target="_blank" class="btn-zalo-chat" style="background: #1877f2; text-decoration: none;">
+                                        <i class="fab fa-facebook-messenger"></i> Facebook
+                                    </a>
+                                    <a href="https://zalo.me/0375772302" target="_blank" class="btn-zalo-chat" style="text-decoration: none;">
+                                        <i class="fab fa-whatsapp"></i> Zalo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (statusText === "Đang chuẩn bị") {
+                    statusClass = "status-dang-chuan-bi";
+                    
+                    // HIỂN THỊ THỜI GIAN GIAO HÀNG DO ADMIN NHẬP
+                    if (order.thoiGianGiao && order.thoiGianGiao.trim() !== "") {
+                        adminNote = `
+                            <div class="admin-note-box" style="background: #f4ecf8; border-color: #9b59b6; color: #8e44ad;">
+                                <i class="fas fa-box-open" style="font-size: 20px;"></i>
+                                <div>
+                                    Đơn hàng của bạn đang được đóng gói và chuẩn bị giao đi.<br>
+                                    <div style="margin-top: 5px; font-weight: bold;">
+                                        <i class="far fa-calendar-alt"></i> Thời gian dự kiến giao đến bạn: ${order.thoiGianGiao}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (statusText === "Đang giao") {
+                    statusClass = "status-dang-giao";
+                    
+                    // HIỂN THỊ NÚT THEO DÕI ĐƠN HÀNG DO ADMIN NHẬP LINK
+                    if (order.linkTheoDoi && order.linkTheoDoi.trim() !== "") {
+                        adminNote = `
+                            <div class="admin-note-box" style="background: #e3f2fd; border-color: #3498db; color: #2980b9;">
+                                <i class="fas fa-truck-fast" style="font-size: 20px;"></i>
+                                <div>
+                                    Đơn hàng đang trên đường đến. Theo dõi hành trình tại đây:<br>
+                                    <div style="margin-top: 8px;">
+                                        <a href="${order.linkTheoDoi}" target="_blank" class="btn-tracking">
+                                            <i class="fas fa-map-marker-alt"></i> Theo dõi đơn hàng
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (statusText === "Hoàn thành") {
+                    statusClass = "status-hoan-thanh";
+                } else if (statusText === "Đã hủy") {
+                    statusClass = "status-da-huy";
+                }
+
+                let productsHTML = "";
+                if(order.sanPham && order.sanPham.length > 0) {
+                    order.sanPham.forEach(sp => {
+                        productsHTML += `
+                            <div class="product-line">
+                                <img src="${sp.anh}" onerror="this.src='https://placehold.co/50x50?text=IMG'">
+                                <div class="product-info-mini">
+                                    <strong>${sp.ten}</strong><br>
+                                    <span style="color:#666; font-size:12px;">Loại: ${sp.loai}</span>
+                                </div>
+                                <div style="font-weight:bold; color: #4a6741;">x${sp.soLuong}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                htmlContent += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <span class="order-id">Mã đơn: #${order.id.substring(0, 8).toUpperCase()}</span>
+                            <span class="order-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="order-products">${productsHTML}</div>
+                        <div class="order-footer">
+                            Tổng thanh toán: <span class="order-total-price">${(order.tongTien || 0).toLocaleString('vi-VN')}đ</span>
+                        </div>
+                        ${adminNote}
+                    </div>
+                `;
+            });
+            container.innerHTML = htmlContent;
+        }
+    </script>
+</body>
+</html>
