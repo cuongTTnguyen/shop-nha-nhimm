@@ -43,7 +43,53 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // 2. Tạo và chèn FOOTER
+    // 2. Tạo và chèn MENU BÊN (Sidebar) đồng bộ cho mọi trang
+    let sidebar = document.getElementById('left-sidebar');
+    if (!sidebar) {
+        sidebar = document.createElement('div');
+        sidebar.id = 'left-sidebar';
+        sidebar.className = 'left-sidebar';
+        document.body.appendChild(sidebar);
+    }
+    
+    let sidebarOverlay = document.getElementById('sidebar-overlay');
+    if (!sidebarOverlay) {
+        sidebarOverlay = document.createElement('div');
+        sidebarOverlay.id = 'sidebar-overlay';
+        sidebarOverlay.className = 'sidebar-overlay';
+        sidebarOverlay.setAttribute('onclick', 'toggleSidebarMenu()');
+        document.body.appendChild(sidebarOverlay);
+    }
+
+    // Ghi đè nội dung chuẩn vào Sidebar
+    sidebar.innerHTML = `
+        <div class="sidebar-header">
+            <span class="sidebar-title">MENU</span>
+            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="index.html">🏠 Trang chủ</a></li>
+            <li><a href="tong-hop-phe.html">🐾 Tổng hợp phe</a></li>
+            <li><a href="san-pham.html">🛒 Cửa hàng / Mua sắm</a></li>
+            <li class="has-submenu">
+                <div class="submenu-header" onclick="if(typeof toggleSubmenu === 'function') toggleSubmenu(this)">
+                    📜 Luật chơi <span class="arrow">▼</span>
+                </div>
+                <ul class="submenu">
+                    <li><a href="luat-choi-root.html">· Luật chơi ROOT</a></li>
+                    <li><a href="luat-choi-fort.html">· Luật chơi Fort</a></li>
+                    <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
+                </ul>
+            </li>
+            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
+            <li><a href="ung-ho.html">🎁 Donate / Ủng hộ</a></li>
+            <li style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+                <a href="dang-nhap.html" id="sidebar-auth-btn" style="color: #4a6741; font-weight: bold;"><i class="fas fa-user-circle"></i> Đăng nhập / Đăng ký</a>
+            </li>
+        </ul>
+    `;
+
+    // 3. Tạo và chèn FOOTER
     const footerContainer = document.getElementById('global-footer');
     if (footerContainer) {
         footerContainer.innerHTML = `
@@ -77,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // 3. Tự động đếm và cập nhật số lượng giỏ hàng sau khi tạo Header
+    // 4. Tự động đếm và cập nhật số lượng giỏ hàng sau khi tạo Header
     const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
     const tongSoLuong = gioHang.reduce((total, item) => total + item.soLuong, 0);
     const countElement = document.getElementById('cart-count');

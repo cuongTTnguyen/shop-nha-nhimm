@@ -72,7 +72,7 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
         .form-group input, .form-group textarea {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;
+            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box;
         }
         .form-group textarea { height: 80px; resize: vertical; }
         
@@ -97,15 +97,19 @@
 </head>
 <body class="index-page">
 
+    <!-- HEADER DÙNG CHUNG -->
     <header id="global-header" class="index-header"></header>
 
     <div class="checkout-container">
+        <!-- Cột Trái: Danh sách Giỏ hàng -->
         <div class="cart-section">
             <h2 style="margin-top:0; color:#333;"><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
             <div id="cart-list">
+                <!-- Danh sách sản phẩm sẽ được render ở đây -->
             </div>
         </div>
 
+        <!-- Cột Phải: Form Thông tin Giao hàng -->
         <div class="checkout-section">
             <h3><i class="fas fa-shipping-fast"></i> Thông tin nhận hàng</h3>
             <div class="form-group">
@@ -120,9 +124,16 @@
                 <label>Địa chỉ giao hàng *</label>
                 <textarea id="order-address" placeholder="Nhập chi tiết số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..."></textarea>
             </div>
+            
+            <!-- BỔ SUNG: Phần chọn ngôn ngữ -->
+            <div class="form-group">
+                <label>Ngôn ngữ bản in</label>
+                <input type="text" id="order-language" placeholder="Nếu để trống, tự động chọn Tiếng Việt">
+            </div>
+
             <div class="form-group">
                 <label>Ghi chú thêm (Tùy chọn)</label>
-                <textarea id="order-note" placeholder="Ví dụ: yêu cầu shipper xoay 3 vòng, giao hàng bằng drone,..."></textarea>
+                <textarea id="order-note" placeholder="Ví dụ: Giao giờ hành chính, bọc chống sốc kỹ..."></textarea>
             </div>
 
             <div class="total-row">
@@ -142,6 +153,7 @@
     <script src="layout-helper.js"></script>
     <script type="module" src="auth-helper.js"></script>
 
+    <!-- SCRIPT XỬ LÝ GIỎ HÀNG VÀ GỬI ĐƠN LÊN FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -163,9 +175,7 @@
         let currentUserUid = "khach-vang-lai";
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserUid = user.uid;
-            }
+            if (user) currentUserUid = user.uid;
         });
 
         // 1. HÀM RENDER GIỎ HÀNG TỪ LOCAL STORAGE
@@ -193,7 +203,6 @@
             let tongTien = 0;
 
             gioHang.forEach((sp, index) => {
-                // Xử lý giá
                 let giaHienThi = sp.giaGocChu || (sp.gia.toLocaleString('vi-VN') + "đ");
                 let thanhTien = sp.gia * sp.soLuong;
                 tongTien += thanhTien;
@@ -222,16 +231,13 @@
             document.getElementById('final-total').innerText = tongTien.toLocaleString('vi-VN') + "đ";
         }
 
-        // 2. CÁC HÀM XỬ LÝ NÚT TĂNG/GIẢM/XÓA
         window.changeCartQty = function(index, amount) {
             let gioHang = JSON.parse(localStorage.getItem('cart')) || [];
             gioHang[index].soLuong += amount;
-            if (gioHang[index].soLuong <= 0) {
-                gioHang.splice(index, 1); // Xóa nếu số lượng về 0
-            }
+            if (gioHang[index].soLuong <= 0) gioHang.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(gioHang));
             renderCart();
-            // Hàm updateCartCount từ auth-helper hoặc layout-helper (nếu có)
+            if(typeof updateCartCount === 'function') updateCartCount();
         };
 
         window.removeCartItem = function(index) {
@@ -239,15 +245,16 @@
             gioHang.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(gioHang));
             renderCart();
+            if(typeof updateCartCount === 'function') updateCartCount();
         };
 
-        // CHẠY RENDER KHI MỞ TRANG
         document.addEventListener('DOMContentLoaded', renderCart);
 
         // 3. XỬ LÝ CHỐT ĐƠN HÀNG LÊN FIREBASE
         document.getElementById('btn-submit-order').addEventListener('click', async () => {
             const btn = document.getElementById('btn-submit-order');
             const statusMsg = document.getElementById('order-status');
+            
             if (currentUserUid === "khach-vang-lai") {
                 statusMsg.style.color = "#ff4757";
                 statusMsg.innerText = "Bạn cần đăng nhập tài khoản để chốt đơn hàng!";
@@ -255,6 +262,7 @@
                 window.location.href = "dang-nhap.html";
                 return;
             }
+
             const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
 
             // Lấy thông tin form
@@ -262,6 +270,10 @@
             const sdt = document.getElementById('order-phone').value.trim();
             const diaChi = document.getElementById('order-address').value.trim();
             const ghiChu = document.getElementById('order-note').value.trim();
+            
+            // Xử lý thông tin Ngôn ngữ
+            const ngonNguInput = document.getElementById('order-language').value.trim();
+            const ngonNgu = ngonNguInput !== "" ? ngonNguInput : "Tiếng Việt";
 
             // Validate
             if (!ten || !sdt || !diaChi) {
@@ -271,38 +283,41 @@
             }
             if (gioHang.length === 0) return;
 
-            // Tính lại tổng tiền cho chắc chắn
             const tongTien = gioHang.reduce((total, item) => total + (item.gia * item.soLuong), 0);
+
+            // Gộp ngôn ngữ vào ghi chú để Admin và Khách hàng tiện theo dõi ở các trang khác mà không cần sửa code cũ
+            const ghiChuMoi = `Ngôn ngữ: ${ngonNgu} | ${ghiChu}`;
 
             // Đóng gói dữ liệu đơn hàng
             const donHangMoi = {
                 uidKhachHang: currentUserUid,
-                khachHang: { ten, sdt, diaChi, ghiChu },
+                khachHang: { 
+                    ten: ten, 
+                    sdt: sdt, 
+                    diaChi: diaChi, 
+                    ghiChu: ghiChuMoi,
+                    ngonNgu: ngonNgu // Vẫn lưu trường riêng phòng hờ sau này bạn muốn lọc
+                },
+                ngonNgu: ngonNgu,
                 sanPham: gioHang,
                 tongTien: tongTien,
-                trangThai: "Chờ xác nhận", // Trạng thái mặc định
-                ngayDat: serverTimestamp() // Dùng giờ của máy chủ Firebase cho chuẩn xác
+                trangThai: "Chờ xác nhận",
+                ngayDat: serverTimestamp()
             };
 
             btn.innerText = "ĐANG XỬ LÝ...";
             btn.disabled = true;
 
             try {
-                // Thêm vào bảng don-hang
                 const docRef = await addDoc(collection(db, "don-hang"), donHangMoi);
-                
-                // Thành công -> Xóa giỏ hàng ảo đi
                 localStorage.removeItem('cart');
                 
-                // Báo thành công và chuyển hướng
                 statusMsg.style.color = "#27ae60";
                 statusMsg.innerText = "Đặt hàng thành công! Mã đơn: " + docRef.id.substring(0,6).toUpperCase();
                 
                 setTimeout(() => {
-                    // Nếu khách đã đăng nhập, đẩy họ sang trang theo dõi đơn (Bước 6)
-                    // Còn tạm thời thì chuyển về trang chủ
                     alert("Cảm ơn bạn đã đặt hàng. Đơn hàng đang chờ Admin duyệt!");
-                    window.location.href = currentUserUid !== "khach-vang-lai" ? "tai-khoan.html" : "index.html";
+                    window.location.href = "tai-khoan.html";
                 }, 1500);
 
             } catch (error) {
