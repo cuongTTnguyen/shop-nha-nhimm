@@ -210,7 +210,18 @@
                     window.danhSachSanPham.push({ id: doc.id, ...doc.data() });
                 });
                 
-                window.danhSachSanPham.sort((a, b) => (a.ten || '').localeCompare(b.ten || ''));
+                // LOGIC SẮP XẾP SẢN PHẨM THEO THỨ TỰ SỐ
+                window.danhSachSanPham.sort((a, b) => {
+                    let orderA = parseInt(a.thuTu);
+                    if (isNaN(orderA)) orderA = 1000; // Nếu không có số thứ tự, gán 1000 đẩy xuống cuối
+                    
+                    let orderB = parseInt(b.thuTu);
+                    if (isNaN(orderB)) orderB = 1000;
+
+                    if (orderA !== orderB) return orderA - orderB;
+                    return (a.ten || '').localeCompare(b.ten || ''); // Trùng số thì xếp theo tên A-Z
+                });
+                
                 window.hienThiTheoLoai('tat-ca');
                 window.updateCartCount();
             } catch (error) {

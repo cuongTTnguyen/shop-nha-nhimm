@@ -3,36 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ</title>
+    <title>Điều khoản dịch vụ - Shop Nhà Nhimm</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="index-page">
+<body>
+    <header id="global-header" class="index-header"></header>
 
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
-    <div id="left-sidebar" class="left-sidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title">MENU</span>
-            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
-        </div>
+    <main style="padding: 40px 20px; max-width: 800px; margin: auto; line-height: 1.6;">
+        <h1>Điều khoản dịch vụ</h1>
         
-        <ul class="sidebar-nav">
-            <li><a href="index.html">🏠 Menu chính</a></li>
-            
-            <li class="has-submenu">
-                <div class="submenu-header" onclick="toggleSubmenu(this)">
-                    📜 Luật chơi <span class="arrow">▼</span>
-                </div>
-                <ul class="submenu">
-                    <li><a href="luat-choi-root.html">· Luật chơi ROOT</a></li>
-                    <li><a href="luat-choi-fort.html">· Luật chơi Fort</a></li>
-                    <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
-                </ul>
-            </li>
-            <li><a href="san-pham.html">🛒 Mua sắm</a></li>
-            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
-        </ul>
-    </div>
-    
+        <h2>1. Giới thiệu</h2>
+        <p>Chào mừng bạn đến với trang web Shop Nhà Nhimm & Cộng đồng ROOT Vietnam. Bằng việc truy cập, bạn đồng ý tuân thủ các điều khoản này.</p>
+        
+        <h2>2. Nội dung cộng đồng</h2>
+        <p><b>Tôn trọng:</b> Chúng tôi khuyến khích thảo luận văn minh, tôn trọng lẫn nhau. Mọi hành vi spam, xúc phạm hoặc truyền bá thông tin sai lệch sẽ bị chặn truy cập.</p>
+        
+        <h2>3. Chính sách bán hàng</h2>
+        <p><b>Sản phẩm:</b> Các sản phẩm board game và phụ kiện được mô tả chi tiết về tình trạng, số lượng và thành phần đi kèm.</p>
+        <p><b>Đặt hàng:</b> Khi đặt hàng qua trang web, bạn xác nhận thông tin giao hàng là chính xác. Chúng tôi sẽ liên hệ lại để xác nhận đơn hàng trước khi vận chuyển.</p>
+        <p><b>Thanh toán:</b> Chúng tôi chấp nhận các hình thức thanh toán được liệt kê tại trang thanh toán (Ví dụ: Chuyển khoản ngân hàng, COD...).</p>
+        <p><b>Đổi trả:</b> Chúng tôi hỗ trợ đổi trả nếu sản phẩm bị lỗi do nhà sản xuất hoặc sai sót trong quá trình đóng gói. Vui lòng quay video khui hàng để được hỗ trợ nhanh nhất.</p>
+        <h2>4. Quyền riêng tư và Bảo mật</h2>
+        <p>Chúng tôi cam kết bảo mật thông tin cá nhân của khách hàng. Thông tin bạn cung cấp chỉ được sử dụng cho mục đích xử lý đơn hàng và liên hệ thông tin liên quan đến cộng đồng.</p>
+        <h2>5. Miễn trừ trách nhiệm</h2>
+        <p>Chúng tôi không chịu trách nhiệm đối với các sự cố khách quan trong quá trình vận chuyển của đơn vị thứ ba.</p>
+        <p>Mọi nội dung hướng dẫn về game chỉ mang tính chất tham khảo dựa trên kinh nghiệm cộng đồng.</p>
+        <h2>6. Thay đổi điều khoản</h2>
+        <p>Chúng tôi có quyền cập nhật hoặc thay đổi điều khoản dịch vụ tùy thời điểm mà không cần thông báo trước. Các thay đổi sẽ có hiệu lực ngay khi được đăng tải lên trang web.</p>
+    </main>
+
+    <footer id="global-footer" class="main-footer"></footer>
     <script src="script.js"></script>
+    <script type="module" src="auth-helper.js"></script>
+    <script src="layout-helper.js"></script>
 </body>
 </html>

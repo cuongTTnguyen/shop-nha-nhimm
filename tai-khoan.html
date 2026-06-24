@@ -91,7 +91,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('user-email').innerText = user.email;
-                if (user.email === "meomun@gmail.com") document.getElementById('btn-admin').style.display = "block";
+                if (user.email === "cuong23022003@gmail.com") document.getElementById('btn-admin').style.display = "block";
                 taiLichSuDonHang(user.uid);
             } else {
                 window.location.assign("dang-nhap.html");
