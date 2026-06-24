@@ -8,34 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="index-page">
-    <header class="index-header">
-        <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebarMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-
-        <div class="header-center">
-            <a href="index.html" class="logo-link">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
-            </a>
-        </div>
-
-        <div class="header-right">
-            <nav class="header-nav">
-                <a href="index.html" class="nav-item">Trang chủ</a>
-                <a href="tong-hop-phe.html" class="nav-item">Tổng hợp phe</a>
-                <a href="luat-choi-root.html" class="nav-item">Luật chơi</a>
-                <a href="san-pham.html" class="nav-item">ShopNhaNhimm</a>
-                <a href="ung-ho.html" class="nav-item">Donate</a></li>
-                <button class="search-btn" onclick="toggleSearch()">
-                    <i class="fas fa-search"></i>
-                </button>
-            </nav>
-        </div>
-    </header>
+    <header id="global-header" class="index-header"></header>
 
     <div id="search-bar-container" class="search-bar-hidden">
         <input type="text" placeholder="Tìm kiếm phe, luật chơi...">
@@ -232,50 +205,9 @@
                 </section>
             </article>
         </main>
-
+    <footer id="global-footer" class="main-footer"></footer>
     <script src="script.js"></script>
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-column">
-                <h3>THÔNG TIN LIÊN HỆ</h3>
-                <ul class="footer-links">
-                    <li>
-                        <a href="https://www.facebook.com/cuong.nguyen.687207" target="_blank">
-                            🔵 Facebook: Cường Nguyễn
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://zalo.me/0375772302" target="_blank">
-                            🟢 Zalo: 0375772302
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.youtube.com/@Meo_Munn" target="_blank">
-                            🔴 Youtube: Bá Tước Mèo Mun
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>HỖ TRỢ KHÁCH HÀNG</h3>
-                <ul class="footer-links">
-                    <li><a href="huong-dan-mua-hang.html">📋 Hướng dẫn mua hàng</a></li>
-                    <li><a href="huong-dan-thanh-toan.html">💳 Hướng dẫn thanh toán</a></li>
-                    <li><a href="dieu-khoan-dich-vu.html">⚖️ Điều khoản dịch vụ</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Donate tại đây</h3>
-                <ul class="footer-links">
-                    <li><a href="ung-ho.html">Tui mún ủng hộ!!!</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2026 Shop Nhà Nhimm - Thế giới Woodland trong tay bạn.</p>
-        </div>
-    </footer>
+    <script type="module" src="auth-helper.js"></script>
+    <script src="layout-helper.js"></script>
 </body>
 </html>

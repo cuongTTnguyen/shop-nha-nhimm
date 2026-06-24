@@ -70,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <ul class="sidebar-nav">
             <li><a href="index.html">🏠 Trang chủ</a></li>
             <li><a href="tong-hop-phe.html">🐾 Tổng hợp phe</a></li>
-            <li><a href="san-pham.html">🛒 Cửa hàng / Mua sắm</a></li>
+            <li><a href="san-pham.html">🏪 Cửa hàng / Mua sắm</a></li>
+            <li><a href="gio-hang.html">🛒 Giỏ hàng</a></li>
             <li class="has-submenu">
                 <div class="submenu-header" onclick="if(typeof toggleSubmenu === 'function') toggleSubmenu(this)">
                     📜 Luật chơi <span class="arrow">▼</span>
