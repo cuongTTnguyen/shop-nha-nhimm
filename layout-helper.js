@@ -82,7 +82,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
                 </ul>
             </li>
-            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
+            <li class="has-submenu">
+                <div class="submenu-header" onclick="if(typeof toggleSubmenu === 'function') toggleSubmenu(this)">
+                    🧊 Tổng hợp<span class="arrow">▼</span>
+                </div>
+                <ul class="submenu">
+                    <li><a href="set-keo.html">· Set kèo</a></li>
+                </ul>
+            </li>
             <li><a href="ung-ho.html">🎁 Donate / Ủng hộ</a></li>
             <li style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
                 <a href="dang-nhap.html" id="sidebar-auth-btn" style="color: #4a6741; font-weight: bold;"><i class="fas fa-user-circle"></i> Đăng nhập / Đăng ký</a>

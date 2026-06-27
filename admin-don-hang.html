@@ -320,6 +320,126 @@
             }
         };
 
+        // ================= XỬ LÝ SỬA ĐƠN HÀNG =================
+        window.openEditModal = function(orderId) {
+            const order = window.allOrders.find(o => o.id === orderId);
+            if(!order) return;
+            
+            currentEditId = orderId;
+            const kh = order.khachHang || {};
+            
+            document.getElementById('edit-cus-name').value = kh.ten || '';
+            document.getElementById('edit-cus-phone').value = kh.sdt || '';
+            document.getElementById('edit-cus-address').value = kh.diaChi || '';
+            document.getElementById('edit-cus-note').value = kh.ghiChu || '';
+            document.getElementById('edit-total-price').value = order.tongTien || 0;
+
+            // Copy mảng sản phẩm ra để sửa tạm
+            currentEditProducts = JSON.parse(JSON.stringify(order.sanPham || []));
+            window.renderEditProducts();
+
+            document.getElementById('edit-order-modal').style.display = 'flex';
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('edit-order-modal').style.display = 'none';
+            currentEditId = null;
+        };
+
+        window.renderEditProducts = function() {
+            const container = document.getElementById('edit-products-container');
+            if(currentEditProducts.length === 0) {
+                container.innerHTML = "<div style='color:#888; text-align:center;'>Đơn hàng hiện không có sản phẩm nào.</div>";
+                return;
+            }
+
+            let html = "";
+            currentEditProducts.forEach((sp, idx) => {
+                html += `
+                    <div class="edit-product-item">
+                        <input type="text" style="flex:2;" placeholder="Tên SP" value="${sp.ten || ''}" onchange="window.updateEditProduct(${idx}, 'ten', this.value)">
+                        <input type="text" style="flex:1;" placeholder="Loại/Biến thể" value="${sp.loai || ''}" onchange="window.updateEditProduct(${idx}, 'loai', this.value)">
+                        <input type="number" style="width:70px;" placeholder="SL" value="${sp.soLuong || 1}" min="1" onchange="window.updateEditProduct(${idx}, 'soLuong', this.value)">
+                        <input type="number" style="flex:1;" placeholder="Giá 1 SP" value="${sp.gia || 0}" onchange="window.updateEditProduct(${idx}, 'gia', this.value)">
+                        <button class="btn-remove-sp" onclick="window.removeEditProduct(${idx})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        };
+
+        window.updateEditProduct = function(idx, field, value) {
+            if(field === 'soLuong' || field === 'gia') {
+                currentEditProducts[idx][field] = parseInt(value) || 0;
+                window.recalcTotal();
+            } else {
+                currentEditProducts[idx][field] = value;
+            }
+        };
+
+        window.addEditProduct = function() {
+            currentEditProducts.push({ ten: "", loai: "Mặc định", soLuong: 1, gia: 0, anh: "" });
+            window.renderEditProducts();
+        };
+
+        window.removeEditProduct = function(idx) {
+            currentEditProducts.splice(idx, 1);
+            window.renderEditProducts();
+            window.recalcTotal();
+        };
+
+        window.recalcTotal = function() {
+            let total = 0;
+            currentEditProducts.forEach(sp => {
+                total += (sp.gia * sp.soLuong);
+            });
+            document.getElementById('edit-total-price').value = total;
+        };
+
+        window.saveOrderEdit = async function() {
+            if(!currentEditId) return;
+            const btn = document.getElementById('btn-save-edit');
+            
+            const updatedKhachHang = {
+                ten: document.getElementById('edit-cus-name').value.trim(),
+                sdt: document.getElementById('edit-cus-phone').value.trim(),
+                diaChi: document.getElementById('edit-cus-address').value.trim(),
+                ghiChu: document.getElementById('edit-cus-note').value.trim()
+            };
+            const updatedTotal = parseInt(document.getElementById('edit-total-price').value) || 0;
+
+            btn.innerText = "ĐANG LƯU LẠI...";
+            btn.style.background = "#f39c12";
+
+            try {
+                // Giữ lại các trường khachHang cũ như ngonNgu nếu có bằng cách gộp
+                const order = window.allOrders.find(o => o.id === currentEditId);
+                const finalKhachHang = { ...order.khachHang, ...updatedKhachHang };
+
+                await updateDoc(doc(db, "don-hang", currentEditId), {
+                    khachHang: finalKhachHang,
+                    sanPham: currentEditProducts,
+                    tongTien: updatedTotal
+                });
+
+                btn.innerText = "ĐÃ LƯU THÀNH CÔNG ✓";
+                btn.style.background = "#27ae60";
+                
+                setTimeout(() => {
+                    window.closeEditModal();
+                    btn.innerText = "LƯU LẠI THAY ĐỔI";
+                    btn.style.background = "#4a6741";
+                    loadOrders(); // Tải lại danh sách
+                }, 1000);
+
+            } catch (error) {
+                console.error("Lỗi sửa đơn:", error);
+                alert("Lỗi khi lưu thay đổi!");
+                btn.innerText = "LƯU LẠI THAY ĐỔI";
+                btn.style.background = "#4a6741";
+            }
+        };
+
         // KIỂM TRA ĐĂNG NHẬP VÀ CHẠY
         document.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, (user) => {

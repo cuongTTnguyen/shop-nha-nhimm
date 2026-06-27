@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Kèo - Tìm Người Chơi ROOT</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .keo-container { max-width: 1200px; margin: 100px auto 50px auto; padding: 0 20px; }
+        .keo-header { text-align: center; margin-bottom: 40px; }
+        .keo-header h1 { color: #d35400; font-size: 36px; margin-bottom: 10px; }
+        .keo-header p { color: #666; font-size: 16px; }
+
+        /* BẢN ĐỒ KHU VỰC & BỘ LỌC */
+        .filter-section { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #e0d9c5; }
+        .map-regions { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center; }
+        .region-btn { padding: 10px 20px; border-radius: 20px; font-weight: bold; border: 2px solid #ddd; background: #f9f9f9; color: #555; cursor: pointer; transition: 0.3s; }
+        .region-btn:hover, .region-btn.active { border-color: #d35400; background: #fff3e0; color: #d35400; }
+        
+        .filter-controls { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; border-top: 1px dashed #eee; padding-top: 20px; }
+        .filter-controls select { padding: 12px 15px; border-radius: 8px; border: 1px solid #ccc; outline: none; font-weight: bold; color: #4a6741; }
+        
+        /* Ô tìm kiếm có kính lúp */
+        .search-wrapper { position: relative; width: 300px; max-width: 100%; }
+        .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; z-index: 2; }
+        /* Sửa lỗi dính chữ bằng cách thêm !important vào padding-left */
+        .search-wrapper input { width: 100%; padding: 12px 15px 12px 40px !important; border-radius: 8px; border: 1px solid #ccc; outline: none; font-weight: bold; color: #d35400; font-family: inherit; box-sizing: border-box; }
+        .search-wrapper input::placeholder { color: #aaa; font-weight: normal; }
+
+        /* NÚT ĐĂNG TIN */
+        .btn-post-keo { display: block; width: fit-content; margin: 0 auto 30px auto; background: #27ae60; color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(39,174,96,0.3); transition: 0.3s; }
+        .btn-post-keo:hover { transform: scale(1.05); background: #2ecc71; }
+
+        /* DANH SÁCH NGƯỜI CHƠI (GRID) */
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .player-card { background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative; overflow: hidden; transition: 0.3s; }
+        .player-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(211,84,0,0.15); border-color: #f39c12; }
+        
+        .p-avatar { width: 50px; height: 50px; background: #f1c40f; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; position: absolute; top: 20px; right: 20px; }
+        .p-name { font-size: 20px; color: #d35400; margin: 0 0 10px 0; padding-right: 60px; font-weight: 800;}
+        .p-info { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; font-size: 14px; color: #555; }
+        .p-info i { width: 15px; color: #4a6741; text-align: center; margin-top: 3px; }
+        .p-note { background: #fdfaf3; padding: 10px; border-radius: 8px; font-size: 13px; color: #666; font-style: italic; margin-top: 10px; border-left: 3px solid #f39c12; }
+        
+        .p-actions { display: flex; gap: 10px; margin-top: 15px; border-top: 1px dashed #eee; padding-top: 15px; }
+        .btn-fb { flex: 1; background: #1877f2; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn-zalo { flex: 1; background: #0068ff; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; transition: 0.3s; }
+        .btn-fb:hover, .btn-zalo:hover { opacity: 0.8; }
+
+        /* Nút công cụ chủ sở hữu (Sửa/Xóa) */
+        .owner-actions { display: flex; gap: 10px; margin-top: 15px; border-top: 1px dashed #f39c12; padding-top: 15px; }
+        .btn-edit-post { flex: 1; background: #f39c12; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.3s; }
+        .btn-delete-post { flex: 1; background: #e74c3c; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.3s; }
+        .btn-edit-post:hover, .btn-delete-post:hover { opacity: 0.8; }
+
+        /* MODAL ĐĂNG TIN */
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #888; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #333; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        /* Checkbox dạng Tags chọn nhiều thời gian */
+        .time-tags-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .time-tags-container label { 
+            display: inline-block; padding: 8px 15px; background: #f1f2f6; border: 1px solid #ddd; 
+            border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: normal; margin-bottom:0; transition: 0.2s;
+        }
+        .time-tags-container input[type="checkbox"] { display: none; }
+        .time-tags-container input[type="checkbox"]:checked + span { color: #d35400; font-weight: bold; }
+        .time-tags-container label:has(input[type="checkbox"]:checked) { background: #fff3e0; border-color: #d35400; }
+
+        .advanced-toggle { color: #2980b9; font-size: 14px; font-weight: bold; cursor: pointer; text-align: center; margin: 15px 0; border-top: 1px dashed #ccc; padding-top: 15px;}
+        .advanced-fields { display: none; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 15px; }
+
+        .btn-save { width: 100%; background: #d35400; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s;}
+        .btn-save:hover { background: #e67e22; }
+        #loading-msg { text-align: center; padding: 50px; font-size: 18px; color: #666; grid-column: 1 / -1; }
+
+        @media (max-width: 600px) { .filter-controls { flex-direction: column; align-items: center; } .search-wrapper { width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <header id="global-header" class="index-header"></header>
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
+    <div id="left-sidebar" class="left-sidebar"></div>
+
+    <div class="keo-container">
+        <div class="keo-header">
+            <h1>🤝 TÌM ĐỒNG ÂM - SET KÈO ROOT</h1>
+            <p>Kết nối với những người chơi Root trên toàn quốc. Đăng thông tin của bạn để mọi người rủ rê nhé!</p>
+        </div>
+
+        <button class="btn-post-keo" onclick="openModal()"><i class="fas fa-plus-circle"></i> THÊM TÊN TÔI VÀO DANH SÁCH</button>
+
+        <!-- Bộ Lọc Tỉnh / Thời gian -->
+        <div class="filter-section">
+            <div class="map-regions" id="region-filters">
+                <button class="region-btn active" onclick="filterData('tat-ca', this)">🌍 Tất cả</button>
+                <button class="region-btn" onclick="filterData('Hà Nội', this)">Hà Nội</button>
+                <button class="region-btn" onclick="filterData('TP. Hồ Chí Minh', this)">TP. Hồ Chí Minh</button>
+                <button class="region-btn" onclick="filterData('Hải Phòng', this)">Hải Phòng</button>
+                <button class="region-btn" onclick="filterData('Tiểu vương quốc Thanh Hóa', this)">Tiểu vương quốc Thanh Hóa</button>
+                <button class="region-btn" onclick="filterData('Khác', this)">Khác</button>
+            </div>
+            <div class="filter-controls">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="filter-city" list="cities-list" placeholder="Gõ tìm Tỉnh/Thành phố..." onchange="applyFilters()">
+                </div>
+                <select id="filter-time" onchange="applyFilters()">
+                    <option value="tat-ca">-- Lọc theo Thời gian chơi --</option>
+                    <option value="Buổi sáng">Buổi sáng</option>
+                    <option value="Buổi chiều">Buổi chiều</option>
+                    <option value="Buổi tối">Buổi tối</option>
+                    <option value="Ngày thường">Ngày thường (T2-T6)</option>
+                    <option value="Cuối tuần">Cuối tuần (T7-CN)</option>
+                    <option value="Ngày lễ">Ngày lễ</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Lưới hiển thị người chơi -->
+        <div class="players-grid" id="players-list">
+            <div id="loading-msg"><i class="fas fa-spinner fa-spin"></i> Đang tải danh sách người chơi...</div>
+        </div>
+    </div>
+
+    <!-- MODAL NHẬP THÔNG TIN (Dùng chung cho cả Thêm mới và Sửa) -->
+    <div id="keo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title" style="color:#d35400; margin-top:0; border-bottom:2px solid #eee; padding-bottom:10px;">ĐĂNG THÔNG TIN TÌM KÈO</h2>
+            
+            <p style="font-size:12px; color:#666; margin-bottom:15px;"><i class="fas fa-info-circle"></i> Thông tin của bạn sẽ hiển thị công khai để mọi người liên lạc.</p>
+
+            <div class="form-group">
+                <label>Biệt danh / Tên gọi *</label>
+                <input type="text" id="k-name" placeholder="VD: Cường Root, Mèo Béo...">
+            </div>
+            
+            <div class="form-group">
+                <label>Tỉnh / Thành phố *</label>
+                <div class="search-wrapper" style="width: 100%;">
+                    <i class="fas fa-map-marker-alt" style="color: #d35400;"></i>
+                    <input type="text" id="k-city" list="cities-list" placeholder="Gõ để tìm hoặc chọn Tỉnh/Thành phố...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Link Facebook cá nhân (Để nhắn tin) *</label>
+                <input type="text" id="k-fb" placeholder="https://facebook.com/...">
+            </div>
+
+            <div class="advanced-toggle" onclick="toggleAdvanced()">
+                <i class="fas fa-chevron-down"></i> Bổ sung thông tin Nâng cao (Tùy chọn)
+            </div>
+
+            <div class="advanced-fields" id="adv-fields">
+                <div class="form-group">
+                    <label>Số điện thoại (Zalo/Gọi điện)</label>
+                    <input type="text" id="k-phone" placeholder="Không bắt buộc">
+                </div>
+                <div class="form-group">
+                    <label>Khu vực hay chơi cụ thể</label>
+                    <input type="text" id="k-location" placeholder="VD: Quán cafe khu Cầu Giấy, Làng sinh viên...">
+                </div>
+                <div class="form-group">
+                    <label>Thời gian rảnh (Có thể chọn nhiều)</label>
+                    <div class="time-tags-container" id="k-time-group">
+                        <label><input type="checkbox" value="Buổi sáng"><span>Buổi sáng</span></label>
+                        <label><input type="checkbox" value="Buổi chiều"><span>Buổi chiều</span></label>
+                        <label><input type="checkbox" value="Buổi tối"><span>Buổi tối</span></label>
+                        <label><input type="checkbox" value="Ngày thường"><span>Ngày thường</span></label>
+                        <label><input type="checkbox" value="Cuối tuần"><span>Cuối tuần</span></label>
+                        <label><input type="checkbox" value="Ngày lễ"><span>Ngày lễ</span></label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Chi tiết thời gian (nếu có)</label>
+                    <input type="text" id="k-time-detail" placeholder="VD: Chỉ rảnh sau 8h tối, sáng T7 rảnh từ 9h...">
+                </div>
+                <div class="form-group">
+                    <label>Ghi chú thêm</label>
+                    <textarea id="k-note" placeholder="VD: Mình có sẵn full board game gốc, nhận dạy luật cho người mới..."></textarea>
+                </div>
+            </div>
+
+            <button class="btn-save" id="btn-save-keo" onclick="saveKeo()">ĐĂNG LÊN BẢNG</button>
+            <div id="modal-status" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
+        </div>
+    </div>
+
+    <!-- Datalist chứa 63 tỉnh thành Việt Nam -->
+    <datalist id="cities-list"></datalist>
+
+    <footer id="global-footer" class="main-footer"></footer>
+
+    <script src="script.js"></script>
+    <script src="layout-helper.js"></script>
+    <script type="module" src="auth-helper.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // Đã bổ sung import deleteDoc để có thể xóa bài viết
+        import { getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
+            authDomain: "rootvn-3eeca.firebaseapp.com",
+            projectId: "rootvn-3eeca",
+            storageBucket: "rootvn-3eeca.firebasestorage.app",
+            messagingSenderId: "92355209659",
+            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let allPlayers = []; 
+        let editingId = null;
+
+        // Cập nhật người dùng hiện tại
+        onAuthStateChanged(auth, (user) => { 
+            currentUser = user; 
+            if(allPlayers.length > 0) renderPlayers(allPlayers); 
+        });
+
+        const provinces = [
+            "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh", "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Tiểu vương quốc Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "TP. Hồ Chí Minh", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+        ];
+        const datalist = document.getElementById('cities-list');
+        provinces.forEach(p => {
+            let option = document.createElement('option');
+            option.value = p;
+            datalist.appendChild(option);
+        });
+
+        // TẢI DỮ LIỆU
+        window.loadPlayers = async function() {
+            const container = document.getElementById('players-list');
+            try {
+                const q = query(collection(db, "set-keo"), orderBy("ngayTao", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                allPlayers = [];
+                querySnapshot.forEach(doc => {
+                    allPlayers.push({ id: doc.id, ...doc.data() });
+                });
+                renderPlayers(allPlayers);
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = "<div style='color:red; text-align:center; width:100%; grid-column:1/-1;'>Lỗi tải dữ liệu.</div>";
+            }
+        }
+
+        // HIỂN THỊ DỮ LIỆU
+        function renderPlayers(list) {
+            const container = document.getElementById('players-list');
+            if (list.length === 0) {
+                container.innerHTML = "<div style='text-align:center; color:#666; grid-column:1/-1; padding:30px;'>Chưa có ai ở khu vực/thời gian này. Bạn hãy là người đầu tiên nhé!</div>";
+                return;
+            }
+
+            let html = "";
+            list.forEach(p => {
+                let initial = p.ten ? p.ten.charAt(0).toUpperCase() : "?";
+                
+                let cleanPhone = p.sdt ? p.sdt.replace(/[^0-9+]/g, '') : '';
+                let phoneHTML = cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" class="btn-zalo"><i class="fas fa-comment-dots"></i> Liên hệ Zalo</a>` : '';
+                let fbUrl = p.fbLink.startsWith('http') ? p.fbLink : `https://${p.fbLink}`;
+                let locationHtml = p.diaDiem ? `<div style="margin-top:4px;"><strong>Cụ thể:</strong> ${p.diaDiem}</div>` : '';
+                let noteHtml = p.ghiChu ? `<div class="p-note">"${p.ghiChu}"</div>` : '';
+
+                let timeStr = "";
+                if (Array.isArray(p.thoiGian)) {
+                    timeStr = p.thoiGian.length > 0 ? p.thoiGian.join(", ") : "Tự do";
+                } else {
+                    timeStr = p.thoiGian || "Tự do";
+                }
+                
+                let timeDetailHtml = p.thoiGianChiTiet ? `<div style="margin-top:4px; font-size:13px; color:#888;">(Chi tiết: ${p.thoiGianChiTiet})</div>` : '';
+
+                // Chuyển nút Sửa/Xóa xuống phía dưới cùng của thẻ bài
+                let ownerActionsHtml = "";
+                if (currentUser && currentUser.uid === p.uid) {
+                    ownerActionsHtml = `
+                        <div class="owner-actions">
+                            <button class="btn-edit-post" onclick="window.editKeo('${p.id}')"><i class="fas fa-edit"></i> Sửa bài</button>
+                            <button class="btn-delete-post" onclick="window.deleteKeo(this, '${p.id}')"><i class="fas fa-trash"></i> Xóa bài</button>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="player-card">
+                        <div class="p-avatar">${initial}</div>
+                        <h3 class="p-name">${p.ten}</h3>
+                        <div class="p-info">
+                            <i class="fas fa-city"></i> 
+                            <div>Tỉnh/TP: <strong>${p.tinhThanh}</strong>${locationHtml}</div>
+                        </div>
+                        <div class="p-info">
+                            <i class="fas fa-clock"></i> 
+                            <div>Thời gian: <strong>${timeStr}</strong>${timeDetailHtml}</div>
+                        </div>
+                        ${noteHtml}
+                        <div class="p-actions">
+                            <a href="${fbUrl}" target="_blank" class="btn-fb"><i class="fab fa-facebook-messenger"></i> Nhắn tin</a>
+                            ${phoneHTML}
+                        </div>
+                        ${ownerActionsHtml}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // BỘ LỌC DỮ LIỆU
+        window.applyFilters = function() {
+            let activeRegionBtn = document.querySelector('.region-btn.active');
+            let quickCity = activeRegionBtn ? activeRegionBtn.innerText.replace('🌍 Tất cả', 'tat-ca').trim() : 'tat-ca';
+            let searchCity = document.getElementById('filter-city').value.trim();
+            let timeFilter = document.getElementById('filter-time').value;
+
+            let finalCity = searchCity !== '' ? searchCity : quickCity;
+
+            let filtered = allPlayers.filter(p => {
+                let matchCity = false;
+                let tTinhThanh = p.tinhThanh ? p.tinhThanh.toLowerCase() : "";
+                let tFinalCity = finalCity.toLowerCase();
+                
+                if (finalCity === 'tat-ca') {
+                    matchCity = true;
+                } else if (finalCity === 'Khác') {
+                    const top4 = ['hà nội', 'hồ chí minh', 'hải phòng', 'thanh hóa'];
+                    matchCity = !top4.some(c => tTinhThanh.includes(c));
+                } else {
+                    if (tFinalCity.includes('thanh hóa')) {
+                         matchCity = tTinhThanh.includes('thanh hóa');
+                    } else {
+                         matchCity = tTinhThanh.includes(tFinalCity);
+                    }
+                }
+
+                let matchTime = false;
+                if (timeFilter === 'tat-ca') {
+                    matchTime = true;
+                } else {
+                    if (Array.isArray(p.thoiGian)) {
+                        matchTime = p.thoiGian.includes(timeFilter);
+                    } else {
+                        matchTime = (p.thoiGian === timeFilter);
+                    }
+                }
+
+                return matchCity && matchTime;
+            });
+
+            renderPlayers(filtered);
+        };
+
+        window.filterData = function(city, btnEl) {
+            document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            document.getElementById('filter-city').value = ''; 
+            window.applyFilters();
+        };
+
+        // MỞ FORM THÊM MỚI
+        window.openModal = function() {
+            if (!currentUser) {
+                alert("Bạn cần Đăng nhập tài khoản để có thể đăng thông tin lên bảng nhé!");
+                window.location.href = "dang-nhap.html";
+                return;
+            }
+            editingId = null;
+            
+            document.getElementById('modal-title').innerText = "ĐĂNG THÔNG TIN TÌM KÈO";
+            document.getElementById('btn-save-keo').innerText = "ĐĂNG LÊN BẢNG";
+            document.getElementById('k-name').value = '';
+            document.getElementById('k-city').value = '';
+            document.getElementById('k-fb').value = '';
+            document.getElementById('k-phone').value = '';
+            document.getElementById('k-location').value = '';
+            document.getElementById('k-note').value = '';
+            document.getElementById('k-time-detail').value = '';
+            document.querySelectorAll('#k-time-group input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+            document.getElementById('keo-modal').style.display = 'flex';
+        };
+
+        // MỞ FORM CHỈNH SỬA
+        window.editKeo = function(id) {
+            const p = allPlayers.find(x => x.id === id);
+            if (!p) return;
+
+            editingId = id; 
+            
+            document.getElementById('modal-title').innerText = "SỬA THÔNG TIN TÌM KÈO";
+            document.getElementById('btn-save-keo').innerText = "CẬP NHẬT LẠI THÔNG TIN";
+
+            document.getElementById('k-name').value = p.ten || '';
+            document.getElementById('k-city').value = p.tinhThanh || '';
+            document.getElementById('k-fb').value = p.fbLink || '';
+            document.getElementById('k-phone').value = p.sdt || '';
+            document.getElementById('k-location').value = p.diaDiem || '';
+            document.getElementById('k-note').value = p.ghiChu || '';
+            document.getElementById('k-time-detail').value = p.thoiGianChiTiet || '';
+
+            document.querySelectorAll('#k-time-group input[type="checkbox"]').forEach(cb => {
+                if (Array.isArray(p.thoiGian)) {
+                    cb.checked = p.thoiGian.includes(cb.value);
+                } else {
+                    cb.checked = (p.thoiGian === cb.value); 
+                }
+            });
+
+            document.getElementById('keo-modal').style.display = 'flex';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('keo-modal').style.display = 'none';
+        };
+
+        window.toggleAdvanced = function() {
+            const adv = document.getElementById('adv-fields');
+            adv.style.display = adv.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // LƯU FORM
+        window.saveKeo = async function() {
+            const ten = document.getElementById('k-name').value.trim();
+            const tinhThanh = document.getElementById('k-city').value.trim();
+            const fbLink = document.getElementById('k-fb').value.trim();
+            const statusMsg = document.getElementById('modal-status');
+            const btn = document.getElementById('btn-save-keo');
+
+            if (!ten || !tinhThanh || !fbLink) {
+                statusMsg.style.color = 'red'; statusMsg.innerText = "Vui lòng nhập Tên, Tỉnh/TP và Link Facebook!"; return;
+            }
+
+            let selectedTimes = [];
+            document.querySelectorAll('#k-time-group input[type="checkbox"]:checked').forEach(cb => {
+                selectedTimes.push(cb.value);
+            });
+
+            const data = {
+                ten: ten,
+                tinhThanh: tinhThanh,
+                fbLink: fbLink,
+                sdt: document.getElementById('k-phone').value.trim(),
+                diaDiem: document.getElementById('k-location').value.trim(),
+                thoiGian: selectedTimes,
+                thoiGianChiTiet: document.getElementById('k-time-detail').value.trim(),
+                ghiChu: document.getElementById('k-note').value.trim()
+            };
+
+            btn.innerText = "ĐANG LƯU DỮ LIỆU..."; btn.disabled = true;
+
+            try {
+                if (editingId) {
+                    await updateDoc(doc(db, "set-keo", editingId), data);
+                    statusMsg.style.color = "green"; 
+                    statusMsg.innerText = "Đã cập nhật bài viết thành công!";
+                } else {
+                    data.uid = currentUser.uid;
+                    data.email = currentUser.email;
+                    data.ngayTao = serverTimestamp();
+                    await addDoc(collection(db, "set-keo"), data);
+                    statusMsg.style.color = "green"; 
+                    statusMsg.innerText = "Đăng thành công!";
+                }
+                
+                setTimeout(() => {
+                    closeModal();
+                    window.loadPlayers();
+                    btn.innerText = editingId ? "CẬP NHẬT LẠI THÔNG TIN" : "ĐĂNG LÊN BẢNG"; 
+                    btn.disabled = false;
+                }, 1500);
+
+            } catch(e) {
+                statusMsg.style.color = 'red'; statusMsg.innerText = "Lỗi: " + e.message;
+                btn.innerText = editingId ? "CẬP NHẬT LẠI THÔNG TIN" : "ĐĂNG LÊN BẢNG"; 
+                btn.disabled = false;
+            }
+        };
+
+        // HÀM XÓA BÀI (Xác nhận 2 bước chống bấm nhầm)
+        window.deleteKeo = async function(btn, id) {
+            if(!btn.dataset.confirmed) {
+                btn.dataset.confirmed = "true";
+                let oldText = btn.innerHTML;
+                btn.innerText = "Chắc chắn xóa?";
+                btn.style.background = "#c0392b";
+                
+                // Sau 3 giây sẽ hoàn tác lại trạng thái nếu không bấm tiếp
+                setTimeout(() => {
+                    if(btn) {
+                        btn.removeAttribute("data-confirmed");
+                        btn.innerHTML = oldText;
+                        btn.style.background = "#e74c3c";
+                    }
+                }, 3000);
+            } else {
+                btn.innerText = "Đang xóa...";
+                try {
+                    await deleteDoc(doc(db, "set-keo", id));
+                    window.loadPlayers(); // Load lại ngay sau khi xóa
+                } catch(e) {
+                    console.error("Lỗi xóa:", e);
+                    alert("Lỗi khi xóa bài viết: " + e.message);
+                }
+            }
+        };
+
+        // Chạy lần đầu
+        document.addEventListener('DOMContentLoaded', window.loadPlayers);
+    </script>
+</body>
+</html>
