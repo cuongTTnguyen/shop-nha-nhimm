@@ -198,6 +198,11 @@
                                 });
                             }
                         });
+                    } else {
+                        // Sản phẩm tùy chỉnh thêm tay (Coi như 1 mục duy nhất)
+                        total++;
+                        let stateKey = `${spIdx}_custom_0`;
+                        if(order.tienDoSoan && order.tienDoSoan[stateKey] === 2) done++;
                     }
                 });
             }
@@ -306,7 +311,20 @@
                         
                         const tp = productsDict[sp.ten]; 
                         if(!tp) {
-                            html += `<p style="color:#e74c3c; font-size:12px; font-weight:bold;">⚠️ Chưa khai báo thành phần!</p>`;
+                            // Tạo nút tích trạng thái riêng cho hàng tùy chỉnh
+                            let stateKey = `${spIdx}_custom_0`;
+                            let state = tienDo[stateKey] || 0; 
+                            let stateClass = `state-${state}`;
+                            let stateText = state === 0 ? "Chưa làm" : (state === 1 ? "Đã in" : "Đóng gói");
+                            let stateIcon = state === 0 ? "fa-circle-notch" : (state === 1 ? "fa-print" : "fa-check-circle");
+                            
+                            html += `
+                                <div class="cat-title"><i class="fas fa-cube"></i> Hàng tùy chỉnh / Bán lẻ</div>
+                                <button class="btn-state ${stateClass}" onclick="window.toggleState('${order.id}', '${stateKey}', this)">
+                                    <span>${sp.ten}</span>
+                                    <span class="state-icon"><i class="fas ${stateIcon}"></i> <span class="state-text">${stateText}</span></span>
+                                </button>
+                            `;
                         } else {
                             const categories = [
                                 {key: 'bangChoi', label: 'Bảng chơi', icon: 'fa-chess-board'},
@@ -420,6 +438,10 @@
                                 });
                             }
                         });
+                    } else {
+                        // Đánh dấu xong luôn cho các món hàng tùy chỉnh
+                        let stateKey = `${spIdx}_custom_0`;
+                        newTienDo[stateKey] = 2;
                     }
                 });
             }
