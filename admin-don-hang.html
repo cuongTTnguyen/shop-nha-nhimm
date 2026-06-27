@@ -59,6 +59,9 @@
         .btn-update:hover { background: #2c3e50; }
         .btn-delete-order { background: #e74c3c; }
         .btn-delete-order:hover { background: #c0392b; }
+        
+        .btn-edit-order { background: #f39c12; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.3s; margin-bottom: 5px; }
+        .btn-edit-order:hover { background: #e67e22; }
 
         .order-products { background: #f9f9f9; padding: 15px; border-radius: 8px; }
         .product-line {
@@ -67,11 +70,29 @@
         .product-line:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .total-price-line { text-align: right; font-size: 18px; font-weight: bold; color: #ff4757; margin-top: 15px; }
 
+        /* MODAL SỬA ĐƠN */
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #888; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 14px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        .form-group textarea { height: 60px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .edit-product-list { margin-bottom: 15px; border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fdfaf3; }
+        .edit-product-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .edit-product-item input { padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn-remove-sp { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .btn-add-sp { background: #27ae60; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 15px; }
+
         @media (max-width: 768px) {
             .admin-sidebar { width: 60px; } .admin-nav-item span { display: none; }
             .admin-main { margin-left: 60px; padding: 15px; }
             .order-header-info { flex-direction: column; gap: 15px; }
             .order-controls { align-items: flex-start; width: 100%; }
+            .edit-product-item { flex-direction: column; align-items: stretch; }
+            .edit-product-item input, .btn-remove-sp { width: 100% !important; margin-bottom: 5px; }
         }
     </style>
 </head>
@@ -96,6 +117,46 @@
         </main>
     </div>
 
+    <!-- MODAL SỬA ĐƠN HÀNG -->
+    <div id="edit-order-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="window.closeEditModal()">&times;</span>
+            <h2 style="color:#d35400; margin-top:0; border-bottom:2px solid #eee; padding-bottom:10px;">SỬA THÔNG TIN ĐƠN HÀNG</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tên Khách Hàng</label>
+                    <input type="text" id="edit-cus-name">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="text" id="edit-cus-phone">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Địa chỉ giao hàng</label>
+                <textarea id="edit-cus-address"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Ghi chú của khách (Bao gồm Ngôn ngữ)</label>
+                <textarea id="edit-cus-note"></textarea>
+            </div>
+
+            <h3 style="color:#4a6741; margin-top:20px;">Danh sách Sản phẩm</h3>
+            <div id="edit-products-container" class="edit-product-list">
+                <!-- Chứa các dòng sản phẩm -->
+            </div>
+            <button class="btn-add-sp" onclick="window.addEditProduct()">+ Thêm sản phẩm mới vào đơn</button>
+
+            <div class="form-group" style="text-align: right;">
+                <label style="display:inline-block; margin-right:10px; font-size:16px;">TỔNG TIỀN ĐƠN HÀNG (VNĐ):</label>
+                <input type="number" id="edit-total-price" style="width: 200px; font-size:18px; font-weight:bold; color:#ff4757; text-align:right;">
+            </div>
+
+            <button class="btn-update" style="padding: 15px; font-size: 16px; width: 100%; margin-top: 10px;" id="btn-save-edit" onclick="window.saveOrderEdit()">LƯU LẠI THAY ĐỔI</button>
+        </div>
+    </div>
+
     <script src="admin-layout-helper.js"></script>
 
     <script type="module">
@@ -116,6 +177,11 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Biến toàn cục để lưu trữ dữ liệu sửa đơn
+        window.allOrders = [];
+        let currentEditId = null;
+        let currentEditProducts = [];
+
         async function loadOrders() {
             const container = document.getElementById('orders-container');
             const countEl = document.getElementById('total-orders-count');
@@ -130,21 +196,21 @@
                     return;
                 }
 
-                let orders = [];
+                window.allOrders = [];
                 querySnapshot.forEach((doc) => {
-                    orders.push({ id: doc.id, ...doc.data() });
+                    window.allOrders.push({ id: doc.id, ...doc.data() });
                 });
 
-                countEl.innerText = orders.length;
+                countEl.innerText = window.allOrders.length;
 
-                orders.sort((a, b) => {
+                window.allOrders.sort((a, b) => {
                     let timeA = a.ngayDat ? a.ngayDat.toMillis() : 0;
                     let timeB = b.ngayDat ? b.ngayDat.toMillis() : 0;
                     return timeB - timeA; 
                 });
 
                 let htmlContent = "";
-                orders.forEach(order => {
+                window.allOrders.forEach(order => {
                     const kh = order.khachHang || {};
                     let dateStr = "Chưa rõ thời gian";
                     if(order.ngayDat) {
@@ -208,6 +274,7 @@
                                     </div>
 
                                     <button class="btn-update" onclick="window.updateStatus('${order.id}')">Cập nhật</button>
+                                    <button class="btn-edit-order" onclick="window.openEditModal('${order.id}')"><i class="fas fa-edit"></i> Sửa đơn</button>
                                     <button class="btn-delete-order" onclick="window.confirmDeleteOrder(this, '${order.id}')"><i class="fas fa-trash"></i> Xóa đơn</button>
                                 </div>
                             </div>
@@ -444,6 +511,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, (user) => {
                 const container = document.getElementById('orders-container');
+                // Cập nhật đúng email Admin
                 if (user && user.email === "cuong23022003@gmail.com") { 
                     loadOrders();
                 } else {
