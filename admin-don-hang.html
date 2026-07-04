@@ -221,9 +221,10 @@
                     let productsHTML = "";
                     if(order.sanPham && order.sanPham.length > 0) {
                         order.sanPham.forEach(sp => {
+                            let timeHtml = sp.thoiGianGiaoDuKien ? `<br><span style="font-size:12px; color:#d35400; font-weight:normal;"><i class="fas fa-truck"></i> Giao: ${sp.thoiGianGiaoDuKien}</span>` : '';
                             productsHTML += `
                                 <div class="product-line">
-                                    <span><strong>${sp.soLuong}x</strong> ${sp.ten} (${sp.loai})</span>
+                                    <span><strong>${sp.soLuong}x</strong> ${sp.ten} (${sp.loai}) ${timeHtml}</span>
                                     <span>${(sp.gia * sp.soLuong).toLocaleString('vi-VN')}đ</span>
                                 </div>
                             `;
@@ -268,9 +269,12 @@
                                         <input type="text" id="delivery-time-${order.id}" class="delivery-input" placeholder="T.Gian giao (VD: 2-3 ngày...)" value="${order.thoiGianGiao || ''}">
                                     </div>
 
-                                    <!-- Ô nhập Link Theo Dõi (Chỉ hiện khi Đang giao) -->
-                                    <div id="tracking-box-${order.id}" style="display: ${trackingDisplay}; width: 100%; margin-top: 5px;">
-                                        <input type="text" id="tracking-link-${order.id}" class="tracking-input" placeholder="Nhập Link theo dõi đơn..." value="${order.linkTheoDoi || ''}">
+                                    <!-- Ô nhập Thông tin Vận chuyển (Chỉ hiện khi Đang giao) -->
+                                    <div id="tracking-box-${order.id}" style="display: ${trackingDisplay}; width: 100%; margin-top: 5px; background: #f4f9fc; padding: 10px; border-radius: 5px; border: 1px dashed #3498db; box-sizing: border-box;">
+                                        <div style="font-size: 12px; font-weight: bold; color: #3498db; margin-bottom: 8px;"><i class="fas fa-truck"></i> THÔNG TIN VẬN CHUYỂN</div>
+                                        <input type="text" id="delivery-company-${order.id}" class="tracking-input" placeholder="Đơn vị giao (VD: GHTK, Viettel...)" value="${order.donViGiao || ''}" style="margin-bottom: 8px;">
+                                        <input type="text" id="tracking-code-${order.id}" class="tracking-input" placeholder="Mã vận đơn" value="${order.maVanDon || ''}" style="margin-bottom: 8px;">
+                                        <input type="text" id="tracking-link-${order.id}" class="tracking-input" placeholder="Link tra cứu (Nếu có)" value="${order.linkTraCuu || order.linkTheoDoi || ''}">
                                     </div>
 
                                     <button class="btn-update" onclick="window.updateStatus('${order.id}')">Cập nhật</button>
@@ -317,7 +321,6 @@
         // HÀM CẬP NHẬT TRẠNG THÁI
         window.updateStatus = async function(id) {
             const status = document.getElementById(`status-${id}`).value;
-            const link = document.getElementById(`tracking-link-${id}`).value;
             const deliveryTime = document.getElementById(`delivery-time-${id}`).value;
             const btn = event.target;
             
@@ -326,8 +329,17 @@
 
             try {
                 let updateData = { trangThai: status };
-                if (status === "Đang giao") updateData.linkTheoDoi = link;
-                if (status === "Đang chuẩn bị") updateData.thoiGianGiao = deliveryTime;
+                
+                if (status === "Đang giao") {
+                    updateData.donViGiao = document.getElementById(`delivery-company-${id}`).value.trim();
+                    updateData.maVanDon = document.getElementById(`tracking-code-${id}`).value.trim();
+                    updateData.linkTraCuu = document.getElementById(`tracking-link-${id}`).value.trim();
+                    updateData.linkTheoDoi = updateData.linkTraCuu; // Lưu song song để tương thích dữ liệu cũ
+                }
+                
+                if (status === "Đang chuẩn bị") {
+                    updateData.thoiGianGiao = deliveryTime;
+                }
 
                 await updateDoc(doc(db, "don-hang", id), updateData);
 
