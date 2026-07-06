@@ -76,6 +76,29 @@
         }
         .form-group textarea { height: 80px; resize: vertical; }
         
+        /* Box Ghi chú Shipping Cải Tiến */
+        .shipping-note-box {
+            background: linear-gradient(to right bottom, #fffaf0, #fff5e6);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #f39c12;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(243, 156, 18, 0.1);
+        }
+        .note-title {
+            font-size: 15px; font-weight: 900; color: #d35400; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px dashed #f39c12; padding-bottom: 8px; text-transform: uppercase;
+        }
+        .note-item {
+            display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+            font-size: 13px; color: #444; line-height: 1.6;
+        }
+        .note-item:last-child { margin-bottom: 0; }
+        .note-item i { font-size: 18px; color: #e67e22; margin-top: 2px; }
+        .note-item ul { margin: 5px 0 0 0; padding-left: 20px; list-style-type: square; }
+        .note-item ul li { margin-bottom: 3px; }
+        
         .total-row {
             display: flex; justify-content: space-between; align-items: center;
             font-size: 18px; font-weight: bold; margin: 20px 0; padding-top: 15px; border-top: 2px solid #e0d9c5;
@@ -134,6 +157,31 @@
             <div class="form-group">
                 <label>Ghi chú thêm (Tùy chọn)</label>
                 <textarea id="order-note" placeholder="Ví dụ: Giao giờ hành chính, bọc chống sốc kỹ..."></textarea>
+            </div>
+
+            <!-- GHI CHÚ PHÍ VẬN CHUYỂN BẮT MẮT -->
+            <div class="shipping-note-box">
+                <div class="note-title"><i class="fas fa-bullhorn"></i> Thông tin giao hàng cần lưu ý</div>
+                
+                <div class="note-item">
+                    <i class="fas fa-motorcycle"></i>
+                    <div>
+                        <strong>Phí vận chuyển:</strong> Đồng giá 30k. Đơn <strong>trên 1.000.000đ</strong> (không tính hàng FAKE và REAL) sẽ được <strong>Freeship</strong>. Bạn có thể chú thích <em>"Giao 2 lần"</em> để nhận trước những phần có sẵn nếu đơn phải chờ quá lâu.
+                    </div>
+                </div>
+
+                <div class="note-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>Thời gian chờ hàng dự kiến:</strong>
+                        <ul>
+                            <li><strong>Hàng FAKE:</strong> Chờ khoảng 20 ngày.</li>
+                            <li><strong>Hàng REAL:</strong> Vui lòng liên hệ mình để kiểm tra hàng và báo thời gian.</li>
+                            <li><strong>Hàng DIY có in 3D:</strong> (Meeple, Landmark...) chờ từ 3-5 tuần.</li>
+                            <li><strong>Các đơn khác:</strong> Thời gian chuẩn bị từ 3-7 ngày.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <div class="total-row">
