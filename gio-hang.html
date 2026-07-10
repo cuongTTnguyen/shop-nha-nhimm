@@ -360,6 +360,36 @@
                 const docRef = await addDoc(collection(db, "don-hang"), donHangMoi);
                 localStorage.removeItem('cart');
                 
+                // ====================================================
+                // 2. CODE BÁO ĐƠN VỀ TELEGRAM
+                // ====================================================
+                const TELEGRAM_BOT_TOKEN = "ĐIỀN_TOKEN_CỦA_BẠN_VÀO_ĐÂY"; // Lấy ở Bước 1
+                const TELEGRAM_CHAT_ID = "ĐIỀN_ID_CỦA_BẠN_VÀO_ĐÂY"; // Lấy ở Bước 2
+
+                const teleMsg = 
+                    `📦 CÓ ĐƠN ĐẶT HÀNG MỚI!
+                    Mã đơn: #${docRef.id.substring(0,6).toUpperCase()}
+                    -------------------------
+                    👤 Khách: ${ten}
+                    📞 SĐT: ${sdt}
+                    🏠 Địa chỉ: ${diaChi}
+                    📝 Ghi chú: ${ghiChuMoi}
+                    -------------------------
+                    💰 Tổng tiền: ${(tongTien || 0).toLocaleString('vi-VN')}đ`;
+
+                const teleUrl = `https://api.telegram.org/bot${"8789078737:AAHZOc0oaB2e14KJy6fXUnvpXySUyuKQ_F0"}/sendMessage`;
+                
+                // Lệnh gửi ngầm lên Telegram
+                fetch(teleUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        chat_id: 8861648351, 
+                        text: teleMsg 
+                    })
+                }).catch(err => console.log("Lỗi gửi Tele:", err));
+                // ====================================================
+
                 statusMsg.style.color = "#27ae60";
                 statusMsg.innerText = "Đặt hàng thành công! Mã đơn: " + docRef.id.substring(0,6).toUpperCase();
                 
