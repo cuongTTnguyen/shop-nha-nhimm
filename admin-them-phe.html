@@ -9,12 +9,6 @@
     <style>
         body { margin: 0; padding: 0; background-color: #f4f1ea; }
         .admin-wrapper { display: flex; min-height: 100vh; }
-        .admin-sidebar { width: 250px; background: #2c3e50; color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
-        .admin-logo { padding: 20px; text-align: center; background: #1a252f; font-weight: bold; font-size: 18px; border-bottom: 1px solid #34495e; }
-        .admin-nav { display: flex; flex-direction: column; padding: 15px 0; }
-        .admin-nav-item { padding: 15px 20px; color: #bdc3c7; text-decoration: none; font-size: 15px; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
-        .admin-nav-item:hover, .admin-nav-item.active { background: #4a6741; color: white; border-left: 4px solid #a3d977; }
-        .admin-sidebar i { width: 20px; text-align: center; }
         .admin-main { flex: 1; margin-left: 250px; padding: 30px; }
         
         .admin-container { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; margin-bottom: 40px; }
@@ -27,12 +21,9 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; color: #333; margin-bottom: 8px; font-size: 13px; }
-        .form-group input[type="text"], .form-group input[type="number"], .form-group select, .form-group textarea { 
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box;
-        }
+        .form-group input[type="text"], .form-group input[type="number"], .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box; }
         .form-group textarea { resize: vertical; height: 80px; }
         
-        /* Style cho phần nhập Chỉ số (Stats) */
         .stat-input-group { display: flex; gap: 10px; }
         .stat-input-group input[type="number"] { flex: 1; }
         .stat-input-group input[type="text"] { flex: 2; }
@@ -46,16 +37,21 @@
         
         .list-section-title { color: #2c3e50; margin: 40px 0 20px 0; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
         .item-list-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .manage-item-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; border: 1px solid #eee; }
+        .manage-item-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; border: 1px solid #eee; position: relative;}
         .manage-item-card img { width: 70px; height: 70px; object-fit: contain; border-radius: 5px; background: #f9f9f9; }
         .manage-item-info { flex: 1; }
         .manage-item-name { font-weight: bold; color: #333; margin-bottom: 5px; }
         .manage-item-actions { display: flex; flex-direction: column; gap: 5px; }
-        .btn-edit-mini, .btn-delete-mini { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white; }
+        .btn-mini { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white; transition: 0.3s;}
+        
         .btn-edit-mini { background: #3498db; }
         .btn-delete-mini { background: #e74c3c; }
+        .btn-approve-mini { background: #27ae60; }
+        .btn-approve-mini:hover { background: #2ecc71; }
         
-        @media (max-width: 768px) { .admin-sidebar { width: 60px; } .admin-main { margin-left: 60px; padding: 15px; } .form-row, .item-list-container { grid-template-columns: 1fr; } }
+        .badge-pending { position: absolute; top: -10px; right: -10px; background: #e67e22; color: white; font-size: 11px; padding: 3px 8px; border-radius: 10px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+
+        @media (max-width: 768px) { .admin-main { margin-left: 60px; padding: 15px; } .form-row, .item-list-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -64,6 +60,14 @@
         <div id="global-admin-sidebar"></div>
 
         <main class="admin-main" id="admin-main-content" style="display:none;">
+            
+            <!-- DANH SÁCH CHỜ DUYỆT -->
+            <h2 class="list-section-title" style="color:#d35400; border-color:#d35400; margin-top:0;"><i class="fas fa-inbox"></i> PHE DO NGƯỜI CHƠI ĐÓNG GÓP (CHỜ DUYỆT)</h2>
+            <div class="item-list-container" id="pending-list" style="margin-bottom: 40px;">
+                <!-- Dữ liệu chờ duyệt -->
+            </div>
+
+            <!-- FORM KHAI BÁO -->
             <div class="admin-container">
                 <h2 class="admin-title" id="form-title"><i class="fas fa-paw"></i> KHAI BÁO CHI TIẾT PHE PHÁI</h2>
                 
@@ -71,148 +75,82 @@
                 <div class="form-section">
                     <h3>1. THÔNG TIN CƠ BẢN</h3>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Tên Phe (Tiếng Việt)</label>
-                            <input type="text" id="phe-name" placeholder="VD: Nữ Bá Tước Mèo">
-                        </div>
-                        <div class="form-group">
-                            <label>Tên Gốc (Tiếng Anh)</label>
-                            <input type="text" id="phe-eng" placeholder="VD: Marquise de Cat">
-                        </div>
+                        <div class="form-group"><label>Tên Phe (Tiếng Việt)</label><input type="text" id="phe-name" placeholder="VD: Nữ Bá Tước Mèo"></div>
+                        <div class="form-group"><label>Tên Gốc (Tiếng Anh)</label><input type="text" id="phe-eng" placeholder="VD: Marquise de Cat"></div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Slogan / Câu trích dẫn (Hiển thị dưới tên phe)</label>
-                        <input type="text" id="phe-slogan" placeholder="VD: Bạn đã chinh phục được khu rừng...">
-                    </div>
+                    <div class="form-group"><label>Slogan / Câu trích dẫn</label><input type="text" id="phe-slogan" placeholder="VD: Bạn đã chinh phục được khu rừng..."></div>
 
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Tạo bởi (Tác giả)</label>
-                            <input type="text" id="phe-author" placeholder="VD: Cole Wehrle">
-                        </div>
-                        <div class="form-group">
-                            <label>Họa sĩ minh họa</label>
-                            <input type="text" id="phe-artist" placeholder="VD: Kyle Ferrin">
-                        </div>
+                        <div class="form-group"><label>Tạo bởi (Tác giả)</label><input type="text" id="phe-author" placeholder="VD: Cole Wehrle"></div>
+                        <div class="form-group"><label>Họa sĩ minh họa</label><input type="text" id="phe-artist" placeholder="VD: Kyle Ferrin"></div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>Trạng thái (Badge)</label>
-                            <select id="phe-status">
-                                <option value="Cân bằng">Cân bằng (Xanh lá)</option>
-                                <option value="Testing">Testing (Cam)</option>
-                            </select>
+                            <select id="phe-status"><option value="Cân bằng">Cân bằng</option><option value="Testing">Testing</option><option value="Đang Test">Đang Test</option><option value="Hoàn thành">Hoàn thành</option></select>
                         </div>
                         <div class="form-group">
                             <label>Phân loại (Gốc hay Fanmade)</label>
-                            <select id="phe-tag">
-                                <option value="Goc">Phe Gốc</option>
-                                <option value="Fanmade">Phe Fanmade</option>
-                            </select>
+                            <select id="phe-tag"><option value="Goc">Phe Gốc</option><option value="Fanmade">Phe Fanmade</option></select>
                         </div>
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Link Ảnh Icon Phe (Vuông)</label>
-                            <input type="text" id="phe-icon" placeholder="VD: images/icon-meo.png">
-                        </div>
-                        <div class="form-group">
-                            <label>Thứ tự hiển thị (Số nhỏ xếp trước, ví dụ: 1, 2...)</label>
-                            <input type="number" id="phe-order" value="100" placeholder="Mặc định: 100">
-                        </div>
+                        <div class="form-group"><label>Link Ảnh Icon Phe (Vuông)</label><input type="text" id="phe-icon"></div>
+                        <div class="form-group"><label>Thứ tự hiển thị</label><input type="number" id="phe-order" value="100"></div>
                     </div>
 
-                    <!-- BỔ SUNG Ô CHỌN MÀU CHỦ ĐẠO -->
                     <div class="form-group">
-                        <label><i class="fas fa-palette"></i> Màu chủ đạo (Sẽ dùng để đổi màu cho thanh chỉ số của phe này)</label>
+                        <label><i class="fas fa-palette"></i> Màu chủ đạo</label>
                         <input type="color" id="phe-color" value="#e67e22" style="height: 42px; cursor: pointer; padding: 2px; width: 100%; border: 1px solid #ddd; border-radius: 8px;">
                     </div>
                 </div>
 
                 <!-- SECTION 2: CHỈ SỐ GAMEPLAY -->
                 <div class="form-section">
-                    <h3>2. CHỈ SỐ GAMEPLAY (HIỂN THỊ DẠNG THANH)</h3>
-                    
+                    <h3>2. CHỈ SỐ GAMEPLAY</h3>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Loại phe (VD: Phe thiện chiến, Phe nổi dậy...)</label>
-                            <input type="text" id="phe-type" placeholder="VD: Phe thiện chiến">
-                        </div>
-                        <div class="form-group">
-                            <label>Tầm ảnh hưởng (Reach)</label>
-                            <input type="number" id="phe-reach" placeholder="VD: 10">
-                        </div>
+                        <div class="form-group"><label>Loại phe</label><input type="text" id="phe-type" placeholder="VD: Phe thiện chiến"></div>
+                        <div class="form-group"><label>Tầm ảnh hưởng (Reach)</label><input type="number" id="phe-reach" placeholder="VD: 10"></div>
                     </div>
-
-                    <p style="font-size:12px; color:#666; margin-bottom:10px;"><i>* Nhập % để thanh tiến trình chạy dài bao nhiêu, và Chữ để hiển thị lên trên thanh đó (Thấp, Vừa, Cao).</i></p>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Độ phức tạp (Complexity)</label>
-                            <div class="stat-input-group">
-                                <input type="number" id="stat-comp-pc" placeholder="% (VD: 30)">
-                                <input type="text" id="stat-comp-txt" placeholder="Chữ hiển thị (VD: THẤP)">
-                            </div>
+                            <label>Độ phức tạp</label>
+                            <div class="stat-input-group"><input type="text" id="stat-comp-pc" placeholder="%"><input type="text" id="stat-comp-txt" placeholder="Chữ hiển thị"></div>
                         </div>
                         <div class="form-group">
-                            <label>Số lượng lá bài (Card Wealth)</label>
-                            <div class="stat-input-group">
-                                <input type="number" id="stat-card-pc" placeholder="% (VD: 60)">
-                                <input type="text" id="stat-card-txt" placeholder="Chữ hiển thị (VD: VỪA PHẢI)">
-                            </div>
+                            <label>Số lượng lá bài</label>
+                            <div class="stat-input-group"><input type="text" id="stat-card-pc" placeholder="%"><input type="text" id="stat-card-txt" placeholder="Chữ hiển thị"></div>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Độ hiếu chiến (Aggression)</label>
-                            <div class="stat-input-group">
-                                <input type="number" id="stat-aggr-pc" placeholder="% (VD: 60)">
-                                <input type="text" id="stat-aggr-txt" placeholder="Chữ hiển thị (VD: VỪA PHẢI)">
-                            </div>
+                            <label>Độ hiếu chiến</label>
+                            <div class="stat-input-group"><input type="text" id="stat-aggr-pc" placeholder="%"><input type="text" id="stat-aggr-txt" placeholder="Chữ hiển thị"></div>
                         </div>
                         <div class="form-group">
-                            <label>Khả năng chế tạo (Crafting Ability)</label>
-                            <div class="stat-input-group">
-                                <input type="number" id="stat-craft-pc" placeholder="% (VD: 90)">
-                                <input type="text" id="stat-craft-txt" placeholder="Chữ hiển thị (VD: CAO)">
-                            </div>
+                            <label>Khả năng chế tạo</label>
+                            <div class="stat-input-group"><input type="text" id="stat-craft-pc" placeholder="%"><input type="text" id="stat-craft-txt" placeholder="Chữ hiển thị"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- SECTION 3: THƯ VIỆN HÌNH ẢNH (GALLERY) -->
+                <!-- SECTION 3: HÌNH ẢNH & THÔNG TIN EXTRA -->
                 <div class="form-section">
-                    <h3>3. THƯ VIỆN HÌNH ẢNH BẢNG & BÀI (GALLERY)</h3>
-                    <p style="font-size:12px; color:#666; margin-bottom:10px;"><i>* Khuyến khích dùng link URL dạng https://... Mục nào không có thì để trống.</i></p>
-                    
-                    <div class="form-group">
-                        <label>Link Ảnh Bảng Mặt Trước (Nằm ngang to)</label>
-                        <input type="text" id="img-front" placeholder="Link ảnh bảng trước...">
-                    </div>
-                    <div class="form-group">
-                        <label>Link Ảnh Bảng Mặt Sau (Nằm ngang to)</label>
-                        <input type="text" id="img-back" placeholder="Link ảnh bảng sau...">
-                    </div>
+                    <h3>3. THƯ VIỆN HÌNH ẢNH & EXTRA</h3>
+                    <div class="form-group"><label>Link Ảnh Bảng Mặt Trước</label><input type="text" id="img-front"></div>
+                    <div class="form-group"><label>Link Ảnh Bảng Mặt Sau</label><input type="text" id="img-back"></div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Link Ảnh Lá Bài (Nằm dọc)</label>
-                            <input type="text" id="img-cards" placeholder="Link ảnh các lá bài...">
-                        </div>
-                        <div class="form-group">
-                            <label>Link Ảnh Advanced Setup - Adset (Nằm dọc)</label>
-                            <input type="text" id="img-adset" placeholder="Link ảnh Adset...">
-                        </div>
+                        <div class="form-group"><label>Link Ảnh Lá Bài</label><input type="text" id="img-cards"></div>
+                        <div class="form-group"><label>Link Ảnh Setup Nâng cao (Adset)</label><input type="text" id="img-adset"></div>
                     </div>
-                </div>
-
-                <!-- Ẩn trường này nhưng giữ lại để tương thích ngược -->
-                <div class="form-group" style="display:none;">
-                    <label>Mô tả Lối chơi (Trang cũ)</label>
-                    <textarea id="phe-desc"></textarea>
+                    
+                    <div class="form-group" style="margin-top:15px;"><label style="color:#d35400;">Link Tải Tài Nguyên (Từ người dùng)</label><input type="text" id="link-tai-nguyen" placeholder="Trống..."></div>
+                    <div class="form-group"><label>Cốt truyện / Mô tả chi tiết</label><textarea id="phe-desc"></textarea></div>
                 </div>
 
                 <div class="action-buttons">
@@ -222,7 +160,7 @@
                 <div id="status-message"></div>
             </div>
 
-            <h2 class="list-section-title"><i class="fas fa-list"></i> DANH SÁCH PHE ĐÃ KHAI BÁO</h2>
+            <h2 class="list-section-title"><i class="fas fa-list"></i> DANH SÁCH PHE ĐÃ DUYỆT (CHÍNH THỨC)</h2>
             <div class="item-list-container" id="manage-list"></div>
         </main>
     </div>
@@ -232,7 +170,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
@@ -248,20 +186,52 @@
         const db = getFirestore(app);
 
         let dangSuaId = null;
+        let isPendingMode = null; // Cờ kiểm tra xem form đang dùng để sửa hay duyệt
         let danhSachLocal = [];
+        let danhSachPending = [];
 
         onAuthStateChanged(auth, (user) => {
             if (user && user.email === "cuong23022003@gmail.com") {
                 document.getElementById('admin-main-content').style.display = 'block';
+                loadPendingItems();
                 loadItems();
             } else {
                 document.body.innerHTML = `<div style="text-align:center; padding:100px; font-family:sans-serif;"><i class="fas fa-lock" style="font-size:50px; color:#e74c3c;"></i><h2>Truy cập bị từ chối!</h2></div>`;
             }
         });
 
+        // 1. TẢI DANH SÁCH CHỜ DUYỆT
+        async function loadPendingItems() {
+            const container = document.getElementById('pending-list');
+            try {
+                const snapshot = await getDocs(collection(db, "phe-cho-duyet"));
+                danhSachPending = [];
+                let html = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    danhSachPending.push({ id: doc.id, ...data });
+                    html += `
+                        <div class="manage-item-card" style="border-color:#e67e22; background:#fffcf9;">
+                            <div class="badge-pending">Chờ duyệt</div>
+                            <img src="${data.anh}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'">
+                            <div class="manage-item-info">
+                                <div class="manage-item-name">${data.ten}</div>
+                                <div style="font-size:12px; color:#666;">Người gửi: ${data.nguoiGuiEmail || 'Ẩn danh'}</div>
+                            </div>
+                            <div class="manage-item-actions">
+                                <button class="btn-mini btn-approve-mini" onclick="window.viewPending('${doc.id}')"><i class="fas fa-search"></i> Chi tiết & Duyệt</button>
+                                <button class="btn-mini btn-delete-mini" onclick="window.confirmDeletePending(this, '${doc.id}')"><i class="fas fa-times"></i> Xóa</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html || "<p style='color:#888; font-style:italic;'>Không có phe nào đang chờ duyệt.</p>";
+            } catch(e) { container.innerHTML = "Lỗi: " + e.message; }
+        }
+
+        // 2. TẢI DANH SÁCH CHÍNH THỨC
         async function loadItems() {
             const container = document.getElementById('manage-list');
-            container.innerHTML = "Đang tải dữ liệu...";
             try {
                 const snapshot = await getDocs(collection(db, "phe-phai"));
                 danhSachLocal = [];
@@ -277,8 +247,8 @@
                                 <div style="font-size:12px; color:#666;">Thứ tự: ${data.thuTu !== undefined ? data.thuTu : 'Chưa set'} | Tác giả: ${data.taoBoi || 'Chưa rõ'}</div>
                             </div>
                             <div class="manage-item-actions">
-                                <button class="btn-edit-mini" onclick="window.prepareEdit('${doc.id}')">Sửa</button>
-                                <button class="btn-delete-mini" onclick="window.confirmDelete(this, '${doc.id}')">Xóa</button>
+                                <button class="btn-mini btn-edit-mini" onclick="window.prepareEdit('${doc.id}')">Sửa</button>
+                                <button class="btn-mini btn-delete-mini" onclick="window.confirmDelete(this, '${doc.id}')">Xóa</button>
                             </div>
                         </div>
                     `;
@@ -287,20 +257,47 @@
             } catch(e) { container.innerHTML = "Lỗi: " + e.message; }
         }
 
-        // HÀM CHUẨN ĐỒNG BỘ DỮ LIỆU PHÒNG TRÁNH LỖI KHI BẤM SỬA
+        // 3. ĐẨY DỮ LIỆU CHỜ LÊN FORM ĐỂ ADMIN XEM & DUYỆT
+        window.viewPending = function(id) {
+            const item = danhSachPending.find(x => x.id === id);
+            if(!item) return;
+            
+            dangSuaId = null;
+            isPendingMode = id; // Đánh dấu là đang ở chế độ duyệt
+            
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-check-circle"></i> ĐANG XEM XÉT DUYỆT: ${item.ten}`;
+            document.getElementById('form-title').style.color = "#d35400";
+            
+            const btnSave = document.getElementById('btn-save');
+            btnSave.innerHTML = "<i class='fas fa-check'></i> DUYỆT & ĐĂNG PHE NÀY LÊN";
+            btnSave.style.background = "#d35400";
+
+            fillFormWithData(item);
+            window.scrollTo({ top: 500, behavior: 'smooth' });
+        };
+
+        // 4. CHẾ ĐỘ SỬA BÌNH THƯỜNG
         window.prepareEdit = function(id) {
             const item = danhSachLocal.find(x => x.id === id);
             if(!item) return;
-            dangSuaId = id;
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit"></i> ĐANG SỬA PHE: ${item.ten}`;
-            document.getElementById('btn-save').innerText = "CẬP NHẬT PHE PHÁI";
             
-            const safeSet = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = (val !== undefined && val !== null) ? val : '';
-            };
+            dangSuaId = id;
+            isPendingMode = null;
+            
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit"></i> ĐANG SỬA PHE: ${item.ten}`;
+            document.getElementById('form-title').style.color = "#4a6741";
+            
+            const btnSave = document.getElementById('btn-save');
+            btnSave.innerText = "CẬP NHẬT PHE PHÁI";
+            btnSave.style.background = "#4a6741";
 
-            // Section 1
+            fillFormWithData(item);
+            window.scrollTo({ top: 500, behavior: 'smooth' });
+        };
+
+        function fillFormWithData(item) {
+            const safeSet = (id, val) => { const el = document.getElementById(id); if (el) el.value = (val !== undefined && val !== null) ? val : ''; };
+
             safeSet('phe-name', item.ten);
             safeSet('phe-eng', item.tenGoc);
             safeSet('phe-slogan', item.slogan);
@@ -310,11 +307,8 @@
             safeSet('phe-tag', (item.tags && item.tags.length > 0) ? item.tags[0] : 'Goc');
             safeSet('phe-icon', item.anh);
             safeSet('phe-order', item.thuTu !== undefined ? item.thuTu : 100);
-            
-            // Xử lý lấy màu chủ đạo
             document.getElementById('phe-color').value = item.mauChuDao || '#e67e22';
             
-            // Section 2
             safeSet('phe-type', item.loaiPhe);
             safeSet('phe-reach', item.tamAnhHuong);
             safeSet('stat-comp-pc', item.statCompPc);
@@ -326,21 +320,24 @@
             safeSet('stat-craft-pc', item.statCraftPc);
             safeSet('stat-craft-txt', item.statCraftTxt);
 
-            // Section 3
             safeSet('img-front', item.imgFront);
             safeSet('img-back', item.imgBack);
             safeSet('img-cards', item.imgCards);
             safeSet('img-adset', item.imgAdset);
             safeSet('phe-desc', item.moTa);
+            safeSet('link-tai-nguyen', item.linkTai);
+        }
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // 5. XÓA BẢN NHÁP (TỪ CHỐI)
+        window.confirmDeletePending = async function(btn, id) {
+            if(confirm("Bạn có chắc chắn muốn TỪ CHỐI và XÓA bản nháp này không?")) {
+                btn.innerText = "...";
+                try { await deleteDoc(doc(db, "phe-cho-duyet", id)); loadPendingItems(); } catch(e) { alert("Lỗi"); }
+            }
         };
 
         window.confirmDelete = async function(btn, id) {
-            if(!btn.dataset.confirmed) {
-                btn.dataset.confirmed = "true"; btn.innerText = "Chắc chắn?"; btn.style.background = "#d35400";
-                setTimeout(() => { btn.removeAttribute("data-confirmed"); btn.innerText = "Xóa"; btn.style.background = "#e74c3c"; }, 4000);
-            } else {
+            if(confirm("Xóa vĩnh viễn phe phái chính thức này khỏi hệ thống?")) {
                 btn.innerText = "...";
                 try { await deleteDoc(doc(db, "phe-phai", id)); loadItems(); } catch(e) { alert("Lỗi"); }
             }
@@ -350,14 +347,19 @@
 
         function resetForm() {
             dangSuaId = null;
+            isPendingMode = null;
             document.getElementById('form-title').innerHTML = `<i class="fas fa-paw"></i> KHAI BÁO CHI TIẾT PHE PHÁI`;
-            document.getElementById('btn-save').innerText = "LƯU PHE PHÁI NÀY";
+            document.getElementById('form-title').style.color = "#4a6741";
+            
+            const btnSave = document.getElementById('btn-save');
+            btnSave.innerText = "LƯU PHE PHÁI NÀY";
+            btnSave.style.background = "#4a6741";
             
             document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
             document.getElementById('phe-status').value = 'Cân bằng';
             document.getElementById('phe-tag').value = 'Goc';
             document.getElementById('phe-order').value = '100';
-            document.getElementById('phe-color').value = '#e67e22'; // Reset màu
+            document.getElementById('phe-color').value = '#e67e22';
         }
 
         document.getElementById('btn-save').addEventListener('click', async () => {
@@ -367,55 +369,44 @@
             const ten = document.getElementById('phe-name').value.trim();
             const anh = document.getElementById('phe-icon').value.trim();
 
-            if(!ten || !anh) {
-                statusMsg.style.color = "#ff4757"; statusMsg.innerText = "Tên phe và Ảnh Icon là bắt buộc!"; return;
-            }
+            if(!ten || !anh) { statusMsg.style.color = "#ff4757"; statusMsg.innerText = "Tên phe và Ảnh Icon là bắt buộc!"; return; }
 
-            // Ép kiểu ép buộc về số để chống lỗi nếu người dùng bỏ trống hoặc nhập chữ
             const thuTuInput = parseInt(document.getElementById('phe-order').value);
-            const thuTu = isNaN(thuTuInput) ? 100 : thuTuInput;
-
             const data = { 
-                ten: ten,
-                tenGoc: document.getElementById('phe-eng').value.trim(),
-                slogan: document.getElementById('phe-slogan').value.trim(),
-                taoBoi: document.getElementById('phe-author').value.trim(),
-                minhHoa: document.getElementById('phe-artist').value.trim(),
-                trangThai: document.getElementById('phe-status').value,
-                tags: [document.getElementById('phe-tag').value],
-                anh: anh,
-                thuTu: thuTu, 
-                mauChuDao: document.getElementById('phe-color').value, // Lấy mã màu
-                
-                loaiPhe: document.getElementById('phe-type').value.trim(),
-                tamAnhHuong: parseInt(document.getElementById('phe-reach').value) || 0,
-                
-                statCompPc: document.getElementById('stat-comp-pc').value.trim(),
-                statCompTxt: document.getElementById('stat-comp-txt').value.trim(),
-                statCardPc: document.getElementById('stat-card-pc').value.trim(),
-                statCardTxt: document.getElementById('stat-card-txt').value.trim(),
-                statAggrPc: document.getElementById('stat-aggr-pc').value.trim(),
-                statAggrTxt: document.getElementById('stat-aggr-txt').value.trim(),
-                statCraftPc: document.getElementById('stat-craft-pc').value.trim(),
-                statCraftTxt: document.getElementById('stat-craft-txt').value.trim(),
-
-                imgFront: document.getElementById('img-front').value.trim(),
-                imgBack: document.getElementById('img-back').value.trim(),
-                imgCards: document.getElementById('img-cards').value.trim(),
-                imgAdset: document.getElementById('img-adset').value.trim(),
-                
-                moTa: document.getElementById('phe-desc').value.trim() 
+                ten: ten, tenGoc: document.getElementById('phe-eng').value.trim(), slogan: document.getElementById('phe-slogan').value.trim(),
+                taoBoi: document.getElementById('phe-author').value.trim(), minhHoa: document.getElementById('phe-artist').value.trim(),
+                trangThai: document.getElementById('phe-status').value, tags: [document.getElementById('phe-tag').value],
+                anh: anh, thuTu: isNaN(thuTuInput) ? 100 : thuTuInput, mauChuDao: document.getElementById('phe-color').value, 
+                loaiPhe: document.getElementById('phe-type').value.trim(), tamAnhHuong: parseInt(document.getElementById('phe-reach').value) || 0,
+                statCompPc: document.getElementById('stat-comp-pc').value.trim(), statCompTxt: document.getElementById('stat-comp-txt').value.trim(),
+                statCardPc: document.getElementById('stat-card-pc').value.trim(), statCardTxt: document.getElementById('stat-card-txt').value.trim(),
+                statAggrPc: document.getElementById('stat-aggr-pc').value.trim(), statAggrTxt: document.getElementById('stat-aggr-txt').value.trim(),
+                statCraftPc: document.getElementById('stat-craft-pc').value.trim(), statCraftTxt: document.getElementById('stat-craft-txt').value.trim(),
+                imgFront: document.getElementById('img-front').value.trim(), imgBack: document.getElementById('img-back').value.trim(),
+                imgCards: document.getElementById('img-cards').value.trim(), imgAdset: document.getElementById('img-adset').value.trim(),
+                linkTai: document.getElementById('link-tai-nguyen').value.trim(), moTa: document.getElementById('phe-desc').value.trim() 
             };
 
             btn.innerText = "ĐANG XỬ LÝ...";
             try {
-                if(dangSuaId) {
+                if (isPendingMode) {
+                    // Nếu đang Duyệt -> Lưu vào bảng chính, XÓA ở bảng chờ
+                    await addDoc(collection(db, "phe-phai"), data);
+                    await deleteDoc(doc(db, "phe-cho-duyet", isPendingMode));
+                    statusMsg.style.color = "#27ae60"; statusMsg.innerText = "Đã duyệt và đăng thành công!";
+                    loadPendingItems();
+                } 
+                else if (dangSuaId) {
+                    // Cập nhật bình thường
                     await updateDoc(doc(db, "phe-phai", dangSuaId), data);
                     statusMsg.style.color = "#27ae60"; statusMsg.innerText = "Cập nhật thành công!";
-                } else {
+                } 
+                else {
+                    // Thêm mới hoàn toàn
                     await addDoc(collection(db, "phe-phai"), data);
                     statusMsg.style.color = "#27ae60"; statusMsg.innerText = "Thêm thành công!";
                 }
+                
                 resetForm(); loadItems();
             } catch(e) {
                 statusMsg.style.color = "#ff4757"; statusMsg.innerText = "Lỗi: " + e.message;

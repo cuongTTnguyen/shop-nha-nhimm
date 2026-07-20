@@ -111,12 +111,12 @@
         
         <div class="input-group">
             <label>Email của bạn</label>
-            <input type="email" id="email">
+            <input type="email" id="email" placeholder="ví dụ: meomun@gmail.com">
         </div>
         
         <div class="input-group">
             <label>Mật khẩu</label>
-            <input type="password" id="password">
+            <input type="password" id="password" placeholder="Từ 6 ký tự trở lên">
         </div>
 
         <!-- Vùng hiển thị nút Quên mật khẩu -->
@@ -222,7 +222,27 @@
             if (isLoginMode) {
                 // ĐĂNG NHẬP
                 signInWithEmailAndPassword(auth, email, password)
-                    .then(() => {
+                    .then(async (userCredential) => {
+                        // --- ĐOẠN CODE MỚI: TỰ ĐỘNG ĐỒNG BỘ TÀI KHOẢN CŨ VÀO BẢNG ADMIN ---
+                        try {
+                            const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+                            const db = getFirestore(app);
+                            const userRef = doc(db, "tai-khoan", userCredential.user.uid);
+                            const userSnap = await getDoc(userRef);
+                            
+                            // Nếu đăng nhập thành công mà chưa có hồ sơ trong bảng 'tai-khoan', thì tạo luôn
+                            if (!userSnap.exists()) {
+                                await setDoc(userRef, {
+                                    email: userCredential.user.email,
+                                    ten: "Khách hàng cũ (Tự đồng bộ)",
+                                    sdt: "",
+                                    role: "user",
+                                    ngayTao: serverTimestamp()
+                                });
+                            }
+                        } catch (err) { console.error("Lỗi đồng bộ tài khoản cũ:", err); }
+                        // -------------------------------------------------------------------
+
                         alert("Đăng nhập thành công! Chào mừng trở lại Woodland.");
                         window.location.href = "index.html"; 
                     })
@@ -232,7 +252,21 @@
             } else {
                 // ĐĂNG KÝ
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then(() => {
+                    .then(async (userCredential) => {
+                        // KHI ĐĂNG KÝ THÀNH CÔNG -> LƯU HỒ SƠ VÀO BẢNG 'tai-khoan'
+                        try {
+                            const { getFirestore, collection, doc, setDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+                            const db = getFirestore(app);
+                            // Dùng uid của Firebase Auth làm ID của document để đồng bộ
+                            await setDoc(doc(db, "tai-khoan", userCredential.user.uid), {
+                                email: email,
+                                ten: "Khách hàng mới",
+                                sdt: "",
+                                role: "user",
+                                ngayTao: serverTimestamp()
+                            });
+                        } catch (err) { console.error("Lỗi tạo hồ sơ:", err); }
+
                         alert("Đăng ký thành công! Bạn có thể bắt đầu mua sắm.");
                         window.location.href = "index.html";
                     })

@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="admin-soan-don.html" class="admin-nav-item">
                         <i class="fas fa-tasks"></i> Bảng Soạn Đơn
                     </a>
+                    <a href="admin-tai-khoan.html" class="admin-nav-item">
+                        <i class="fas fa-users-cog"></i> <span>Quản lý Tài Khoản</span>
+                    </a>
                     <a href="admin-set-keo.html" class="admin-nav-item">
                         <i class="fas fa-tasks"></i> Quản lý set kèo
                     </a>
