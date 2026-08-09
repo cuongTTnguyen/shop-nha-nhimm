@@ -55,20 +55,18 @@
             overflow: hidden !important; 
         }
         .modal-content {
-            margin: 5vh auto !important; /* Căn giữa lề trên dưới 5% màn hình */
+            margin: 5vh auto !important;
             width: 90% !important;
             max-width: 900px !important;
-            max-height: 90vh !important; /* KHÔNG CHO POPUP DÀI QUÁ 90% MÀN HÌNH */
-            overflow-y: auto !important; /* BẬT THANH CUỘN DỌC KHI NỘI DUNG QUÁ DÀI */
+            max-height: 90vh !important;
+            overflow-y: auto !important;
             border-radius: 12px !important;
-            padding: 0 !important; /* Xóa padding thừa để nội dung không bị kẹt */
+            padding: 0 !important;
             position: relative;
         }
-        /* Làm đẹp thanh cuộn cho Popup */
         .modal-content::-webkit-scrollbar { width: 5px; }
         .modal-content::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
         
-        /* Làm nổi bật nút X (Đóng) để khách dễ bấm trên điện thoại */
         .close-btn {
             position: absolute; top: 15px; right: 15px; z-index: 100;
             font-size: 24px; color: #333; background: #fff; 
@@ -82,7 +80,7 @@
             .modal-content {
                 width: 95% !important;
                 margin: 2.5vh auto !important;
-                max-height: 95vh !important; /* Trên điện thoại cho phép cao tới 95% */
+                max-height: 95vh !important;
             }
         }
     </style>
@@ -210,16 +208,15 @@
                     window.danhSachSanPham.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // LOGIC SẮP XẾP SẢN PHẨM THEO THỨ TỰ SỐ
                 window.danhSachSanPham.sort((a, b) => {
                     let orderA = parseInt(a.thuTu);
-                    if (isNaN(orderA)) orderA = 1000; // Nếu không có số thứ tự, gán 1000 đẩy xuống cuối
+                    if (isNaN(orderA)) orderA = 1000;
                     
                     let orderB = parseInt(b.thuTu);
                     if (isNaN(orderB)) orderB = 1000;
 
                     if (orderA !== orderB) return orderA - orderB;
-                    return (a.ten || '').localeCompare(b.ten || ''); // Trùng số thì xếp theo tên A-Z
+                    return (a.ten || '').localeCompare(b.ten || '');
                 });
                 
                 window.hienThiTheoLoai('tat-ca');
@@ -230,7 +227,7 @@
             }
         });
 
-        // Hàm Hiển Thị Sản Phẩm
+        // Hàm Hiển Thị Sản Phẩm (BỔ SUNG LOGIC SALE)
         window.hienThiTheoLoai = function(tagCanLoc = 'tat-ca') {
             const container = document.getElementById('product-grid');
             let htmlContent = "";
@@ -246,14 +243,32 @@
 
             danhSachDaLoc.forEach((sp) => {
                 let giaHTML = "";
+                let isSale = false;
+
                 if(sp.bienTheGia) {
                     sp.bienTheGia.forEach(g => {
                         let colorClass = g.nhan.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/\s+/g, '-');
-                        giaHTML += `<div class="price-row"><span class="price-label ${colorClass}">${g.nhan}</span><span class="price-value">${g.soTien}</span></div>`;
+                        
+                        // Kiểm tra nếu có giá khuyến mãi
+                        if (g.giaKhuyenMai && g.giaKhuyenMai.trim() !== '') {
+                            isSale = true;
+                            giaHTML += `<div class="price-row">
+                                <span class="price-label ${colorClass}">${g.nhan}</span>
+                                <span class="price-value" style="text-decoration:line-through; color:#aaa; font-size:12px; margin-right:5px;">${g.soTien}</span>
+                                <span class="price-value" style="color:#e74c3c;">${g.giaKhuyenMai}</span>
+                            </div>`;
+                        } else {
+                            giaHTML += `<div class="price-row"><span class="price-label ${colorClass}">${g.nhan}</span><span class="price-value">${g.soTien}</span></div>`;
+                        }
                     });
                 }
                 
                 let tagsHTML = sp.tags ? sp.tags.map(t => `<span class="category">${t}</span>`).join(' ') : '';
+                
+                // Nếu có bất kỳ biến thể nào Sale, gắn tag SALE đỏ lên Card sản phẩm
+                if (isSale) {
+                    tagsHTML = `<span class="category" style="background:#e74c3c; color:white; font-weight:bold;"><i class="fas fa-bolt"></i> SALE</span> ` + tagsHTML;
+                }
 
                 htmlContent += `
                     <div class="product-card">
@@ -284,20 +299,27 @@
         };
 
         // ==========================================
-        // MỞ POPUP - GỘP LUÔN DANH SÁCH THÀNH PHẦN
+        // MỞ POPUP 
         // ==========================================
         window.openModal = function(tenSp) {
             const sp = window.danhSachSanPham.find(item => item.ten === tenSp);
             if (!sp) return;
             window.currentProduct = sp;
             
-            // 1. Nút chọn biến thể giá
+            // 1. Nút chọn biến thể giá (CẬP NHẬT SALE)
             let variantHTML = '';
             if(sp.bienTheGia) {
                 sp.bienTheGia.forEach((bt, index) => {
-                    variantHTML += `<button class="variant-btn ${index === 0 ? 'active' : ''}" style="margin:5px; padding:8px; border:1px solid #ccc; border-radius:5px; background:${index === 0 ? '#4a6741' : '#fff'}; color:${index === 0 ? '#fff' : '#333'}; cursor:pointer;" onclick="window.selectVariant(this, '${bt.nhan}', '${bt.soTien}')">${bt.nhan}: ${bt.soTien}</button>`;
+                    let salePriceArg = bt.giaKhuyenMai || '';
+                    let btnText = `${bt.nhan}: ${bt.soTien}`;
+                    
+                    if (bt.giaKhuyenMai && bt.giaKhuyenMai.trim() !== '') {
+                        btnText = `${bt.nhan}: <del style="font-size:11px; opacity:0.7;">${bt.soTien}</del> <span style="font-weight:bold; color:inherit;">${bt.giaKhuyenMai}</span>`;
+                    }
+
+                    variantHTML += `<button class="variant-btn ${index === 0 ? 'active' : ''}" style="margin:5px; padding:8px; border:1px solid #ccc; border-radius:5px; background:${index === 0 ? '#4a6741' : '#fff'}; color:${index === 0 ? '#fff' : '#333'}; cursor:pointer;" onclick="window.selectVariant(this, '${bt.nhan}', '${bt.soTien}', '${salePriceArg}')">${btnText}</button>`;
                 });
-                window.currentProduct.selectedVariant = sp.bienTheGia[0];
+                window.currentProduct.selectedVariant = sp.bienTheGia[0]; // Mặc định chọn cái đầu
             }
 
             // 2. Thư viện ảnh (Ảnh chính + ảnh nhỏ)
@@ -315,14 +337,13 @@
                 thumbnailsHTML += `</div>`;
             }
 
-            // 3. Xử lý hiển thị Thành phần Game (Nếu có)
+            // 3. Xử lý hiển thị Thành phần Game
             let componentsBtnHTML = '';
             let componentsBoxHTML = '';
             
             if (sp.thanhPhanChiTiet) {
                 const tp = sp.thanhPhanChiTiet;
                 let gridHTML = '';
-                
                 const cats = [
                     { key: 'bangChoi', label: 'Bảng chơi', icon: 'fa-chess-board' },
                     { key: 'laBai', label: 'Lá bài', icon: 'fa-clone' },
@@ -331,29 +352,16 @@
                     { key: 'warrior', label: 'Warrior', icon: 'fa-chess-knight' },
                     { key: 'minibox', label: 'Minibox', icon: 'fa-box' }
                 ];
-                
                 cats.forEach(c => {
                     if(tp[c.key] && tp[c.key].trim() !== '') {
-                        // Tách từng dòng ra thẻ <li>
                         const itemsList = tp[c.key].split('\n').filter(i => i.trim() !== '').map(i => `<li>${i.trim()}</li>`).join('');
-                        gridHTML += `
-                            <div class="comp-item">
-                                <h4><i class="fas ${c.icon}"></i> ${c.label}</h4>
-                                <ul>${itemsList}</ul>
-                            </div>
-                        `;
+                        gridHTML += `<div class="comp-item"><h4><i class="fas ${c.icon}"></i> ${c.label}</h4><ul>${itemsList}</ul></div>`;
                     }
                 });
                 
                 if (gridHTML !== '') {
-                    // Sinh ra nút bấm và khung ẩn
                     componentsBtnHTML = `<button class="components-toggle-btn" onclick="window.toggleComponents()">📦 Xem danh sách thành phần chi tiết (Checklist)</button>`;
-                    componentsBoxHTML = `
-                        <div id="components-detail-box" class="components-detail-box">
-                            <h3 style="color:#4a6741; margin-top:0; font-size:16px;"><i class="fas fa-list-check"></i> THÀNH PHẦN BỘ GAME GỒM CÓ:</h3>
-                            <div class="comp-grid">${gridHTML}</div>
-                        </div>
-                    `;
+                    componentsBoxHTML = `<div id="components-detail-box" class="components-detail-box"><h3 style="color:#4a6741; margin-top:0; font-size:16px;"><i class="fas fa-list-check"></i> THÀNH PHẦN BỘ GAME GỒM CÓ:</h3><div class="comp-grid">${gridHTML}</div></div>`;
                 }
             }
 
@@ -361,12 +369,9 @@
             document.getElementById('modal-body').innerHTML = `
                 <div style="background:#fff; padding:20px; border-radius:10px;">
                     <div style="display:flex; gap:30px; flex-wrap:wrap;">
-                        
                         <!-- Cột trái chứa Hình Ảnh -->
                         <div style="flex:1; min-width:300px;" class="popup-image-container">
-                            <div class="main-image-box">
-                                <img id="popup-main-img" src="${sp.anh}" style="cursor:zoom-in;" onclick="window.openFullscreen(this.src)" alt="${sp.ten}">
-                            </div>
+                            <div class="main-image-box"><img id="popup-main-img" src="${sp.anh}" style="cursor:zoom-in;" onclick="window.openFullscreen(this.src)" alt="${sp.ten}"></div>
                             ${thumbnailsHTML}
                         </div>
 
@@ -387,48 +392,41 @@
                             
                             <button onclick="window.confirmAddToCart()" style="margin-top:20px; width:100%; padding:15px; background:#4a6741; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">🛒 THÊM VÀO GIỎ HÀNG</button>
                             
-                            <!-- Nút Tắt bật Khung Thành Phần -->
                             ${componentsBtnHTML}
                         </div>
                     </div>
-                    
-                    <!-- Khung Thành Phần (Mặc định ẩn) -->
                     ${componentsBoxHTML}
                 </div>
             `;
             document.getElementById('product-modal').style.display = "block";
         };
 
-        // Hàm Đóng Mở khung Thành phần chi tiết
         window.toggleComponents = function() {
             const box = document.getElementById('components-detail-box');
             if (box.style.display === 'none' || box.style.display === '') {
                 box.style.display = 'block';
-                box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Cuộn nhẹ xuống để nhìn rõ
+                box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
             } else {
                 box.style.display = 'none';
             }
         };
 
-        // Hàm đổi ảnh chính
         window.changeMainImage = function(thumbEl, src) {
             const mainImg = document.getElementById('popup-main-img');
             mainImg.style.opacity = 0.5;
-            setTimeout(() => {
-                mainImg.src = src;
-                mainImg.style.opacity = 1;
-            }, 150);
-
+            setTimeout(() => { mainImg.src = src; mainImg.style.opacity = 1; }, 150);
             document.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active'));
             thumbEl.classList.add('active');
         };
 
         window.closeModal = function() { document.getElementById('product-modal').style.display = "none"; };
         
-        window.selectVariant = function(btn, nhan, gia) {
+        // HÀM CHỌN BIẾN THỂ (CẬP NHẬT GHI NHẬN CẢ GIÁ SALE)
+        window.selectVariant = function(btn, nhan, giaGoc, giaSale) {
             document.querySelectorAll('.variant-btn').forEach(b => { b.style.background='#fff'; b.style.color='#333'; });
             btn.style.background = '#4a6741'; btn.style.color = '#fff';
-            window.currentProduct.selectedVariant = { nhan, soTien: gia };
+            // Lưu lại cả giá gốc và giá sale vào Object đang chọn
+            window.currentProduct.selectedVariant = { nhan: nhan, soTien: giaGoc, giaKhuyenMai: giaSale };
         };
         
         window.changeQty = function(num) {
@@ -437,25 +435,39 @@
             if (val >= 1) input.value = val;
         };
         
-        window.openFullscreen = function(src) {
-            document.getElementById('img-full').src = src;
-            document.getElementById('fullscreen-modal').style.display = 'flex';
-        };
-        
+        window.openFullscreen = function(src) { document.getElementById('img-full').src = src; document.getElementById('fullscreen-modal').style.display = 'flex'; };
         window.closeFullscreen = function() { document.getElementById('fullscreen-modal').style.display = 'none'; };
         
+        // HÀM CHỐT VÀO GIỎ HÀNG (CẬP NHẬT LOGIC TÍNH GIÁ SALE)
         window.confirmAddToCart = function() {
             if (!window.currentProduct || !window.currentProduct.selectedVariant) return;
             const qty = parseInt(document.getElementById('config-qty').value);
             
-            let giaTienSo = parseInt(window.currentProduct.selectedVariant.soTien.replace(/\D/g, ""));
+            let varSel = window.currentProduct.selectedVariant;
+            
+            // Xử lý lấy giá để tính toán
+            let priceStringToParse = varSel.soTien; // Mặc định lấy giá gốc
+            let giaCuHienThi = ""; // Mặc định không có giá cũ (không bị gạch ngang)
+            let giaMoiHienThi = varSel.soTien; // Mặc định giá hiển thị là giá gốc
+
+            // Nếu có giá SALE, đổi lại kịch bản
+            if (varSel.giaKhuyenMai && varSel.giaKhuyenMai.trim() !== "") {
+                priceStringToParse = varSel.giaKhuyenMai; // Lấy giá Sale để nhân với số lượng
+                giaCuHienThi = varSel.soTien;             // Lưu giá gốc để làm gạch ngang
+                giaMoiHienThi = varSel.giaKhuyenMai;      // Giá chính hiển thị là giá Sale
+            }
+
+            // Lọc bỏ ký tự chữ, chỉ giữ lại số để tính toán
+            let giaTienSo = parseInt(priceStringToParse.replace(/\D/g, ""));
             if(isNaN(giaTienSo)) giaTienSo = 0;
 
             const cartItem = {
+                idSanPham: window.currentProduct.id,
                 ten: window.currentProduct.ten,
-                loai: window.currentProduct.selectedVariant.nhan,
-                gia: giaTienSo,
-                giaGocChu: window.currentProduct.selectedVariant.soTien,
+                loai: varSel.nhan,
+                gia: giaTienSo,               // Số tiền thực tế để tính tổng
+                giaGocChu: giaMoiHienThi,     // Giá sẽ in đậm màu đỏ
+                giaCuHienThi: giaCuHienThi,   // Giá sẽ bị gạch chéo mờ (nếu có)
                 soLuong: qty,
                 anh: window.currentProduct.anh
             };

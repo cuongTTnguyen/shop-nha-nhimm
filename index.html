@@ -3,11 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ</title>
+    <title>Trang Chủ - ROOT Việt Nam</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Font Luminari / Cinzel Decorative dự phòng -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* TÙY CHỈNH GIAO DIỆN TRANG CHỦ MỚI */
+        body.index-page { margin: 0; padding: 0; }
+
+        /* 1. KHU VỰC BANNER 100% CHIỀU NGANG */
+        .banner-wrapper {
+            width: 100%;
+            position: relative;
+            background-image: url('images/bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin-top: 70px; /* Bù lại khoảng trống của header fixed */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-bottom: 3px solid #d35400;
+        }
+
+        /* Lớp phủ màn đen mờ giúp chữ luôn nổi bật */
+        .banner-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); 
+            z-index: 1;
+        }
+
+        /* Vùng nội dung chữ nổi lên trên lớp màn đen */
+        .banner-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 60px 20px 70px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-logo {
+            width: 250px;
+            max-width: 80%;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hero-logo:hover {
+            transform: scale(1.08) rotate(-2deg);
+        }
+
+        .main-title {
+            font-family: 'Luminari Custom', 'Cinzel Decorative', fantasy, serif;
+            color: #f39c12; /* Màu cam sáng nịnh mắt */
+            font-size: 46px;
+            line-height: 1.3;
+            margin: 0 0 20px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+            letter-spacing: 1px;
+        }
+
+        .main-desc {
+            font-family: 'Montserrat', sans-serif;
+            color: #ecf0f1;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* 2. KHU VỰC NÚT BẤM (NẰM DƯỚI BANNER) */
+        .nav-container {
+            max-width: 1200px;
+            margin: 40px auto 60px auto;
+            padding: 0 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cấu trúc Lưới tự động chia Hàng/Cột theo thiết bị */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        /* Thiết kế nút bấm trên nền sáng */
+        .btn-channel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: #ffffff;
+            color: #2c3e50;
+            padding: 18px 25px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            border: 2px solid #e0d9c5;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            min-height: 75px;
+        }
+
+        .btn-channel i {
+            font-size: 26px;
+            color: #4a6741; /* Màu xanh lá chuẩn Root */
+            transition: transform 0.3s ease;
+        }
+
+        .btn-channel:hover {
+            transform: translateY(-8px);
+            border-color: #d35400;
+            box-shadow: 0 15px 30px rgba(211, 84, 0, 0.15);
+            color: #d35400;
+        }
+
+        .btn-channel:hover i { 
+            transform: scale(1.2) rotate(10deg); 
+            color: #d35400;
+        }
+
+        /* Nút Shop nổi bật hơn hẳn */
+        .btn-shop { 
+            background: linear-gradient(135deg, #d35400 0%, #c0392b 100%); 
+            color: #ffffff;
+            border: none;
+        }
+        .btn-shop i { color: #f1c40f; }
+        .btn-shop:hover { 
+            background: linear-gradient(135deg, #e67e22 0%, #e74c3c 100%); 
+            color: #ffffff;
+            border-color: transparent;
+        }
+        .btn-shop:hover i { color: #ffffff; }
+
+        /* Nút phụ (Còn tiếp) */
+        .btn-more { 
+            background: #fdfaf3; 
+            border: 2px dashed #bdc3c7; 
+            color: #7f8c8d;
+            box-shadow: none;
+        }
+        .btn-more i { color: #bdc3c7; }
+        .btn-more:hover { 
+            border-color: #4a6741; 
+            color: #4a6741; 
+            background: #ffffff;
+        }
+        .btn-more:hover i { color: #4a6741; }
+
+        /* Khung hiển thị trên Mobile */
+        @media (max-width: 768px) {
+            .banner-wrapper { margin-top: 60px; }
+            .banner-content { padding: 40px 15px 50px 15px; }
+            .main-title { font-size: 32px; }
+            .main-desc { font-size: 14px; }
+            .nav-container { margin-top: 30px; }
+            .nav-grid { grid-template-columns: 1fr; } /* Ép thành 1 cột trên điện thoại để nút to dễ bấm */
+        }
+    </style>
 </head>
 <body class="index-page">
+    <!-- Header và các thành phần ẩn (Sidebar, Search) -->
     <header id="global-header" class="index-header"></header>
 
     <div id="search-bar-container" class="search-bar-hidden">
@@ -16,42 +190,42 @@
     </div>
 
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
-    <div id="left-sidebar" class="left-sidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title">MENU</span>
-            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
-        </div>
+    <div id="left-sidebar" class="left-sidebar"></div>
+
+    <!-- 1. KHU VỰC BANNER TRẢI DÀI -->
+    <div class="banner-wrapper">
+        <!-- Màn đen mờ -->
+        <div class="banner-overlay"></div>
         
-        <ul class="sidebar-nav">
-            <li><a href="index.html">🏠 Menu chính</a></li>
+        <div class="banner-content">
+            <!-- Logo Root -->
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Board Game" class="hero-logo">
             
-            <li class="has-submenu">
-                <div class="submenu-header" onclick="toggleSubmenu(this)">
-                    📜 Luật chơi <span class="arrow">▼</span>
-                </div>
-                <ul class="submenu">
-                    <li><a href="luat-choi-root.html">· Luật chơi ROOT</a></li>
-                    <li><a href="luat-choi-fort.html">· Luật chơi Fort</a></li>
-                    <li><a href="luat-choi-arcs.html">· Luật chơi Arcs</a></li>
-                </ul>
-            </li>
-            <li><a href="tong-hop-phe.html">🐾 Tổng hợp phe</a></li>
-            <li><a href="san-pham.html">🛒 Mua sắm</a></li>
-            <li><a href="thong-tin.html">ℹ️ Thông tin bổ sung</a></li>
-            <li><a href="ung-ho.html">🎁 Donate</a></li>
-        </ul>
+            <!-- Tiêu đề Luminari & Chú thích -->
+            <h1 class="main-title">Database (cơ sở dữ liệu)<br>ROOT Việt Nam</h1>
+            <p class="main-desc">
+                Nơi chứa tổng hợp toàn bộ mọi thứ về Boardgame ROOT bằng TIẾNG VIỆT. <br>
+                Thoả sức tìm hiểu, khám phá và đắm chìm trong cánh rừng WOODLAND.
+            </p>
+        </div>
     </div>
 
-    <section class="hero-section">
-        <h1>Board Game ROOT Việt Nam</h1>
-        <p>Nơi dành cho các cư dân WOODLAND tại Việt Nam!</p>
-        
-        <div class="button-group">
-            <a href="luat-choi-root.html" class="btn btn-rules">Luật chơi ROOT</a>
-            <a href="san-pham.html" class="btn btn-store">Xem Shop Nhà Nhimm</a>
+    <!-- 2. KHU VỰC NÚT BẤM BÊN DƯỚI -->
+    <div class="nav-container">
+        <!-- Lưới Nút Bấm Chuyển Kênh -->
+        <div class="nav-grid">
+            <a href="tong-hop-phe.html" class="btn-channel"><i class="fas fa-paw"></i> Tổng hợp phe</a>
+            <a href="luat-choi-root.html" class="btn-channel"><i class="fas fa-scroll"></i> Luật chơi</a>
+            <a href="san-pham.html" class="btn-channel btn-shop"><i class="fas fa-store"></i> Shop nhà NHIMM</a>
+            <a href="thong-tin.html" class="btn-channel"><i class="fas fa-question-circle"></i> FAQ (Hỏi đáp)</a>
+            <a href="set-keo.html" class="btn-channel"><i class="fas fa-handshake"></i> Set kèo</a>
+            <a href="#" class="btn-channel" onclick="alert('Tính năng đang phát triển!')"><i class="fas fa-dharmachakra"></i> Vòng quay may mắn</a>
+            <a href="#" class="btn-channel btn-more"><i class="fas fa-ellipsis-h"></i> Còn tiếp...</a>
         </div>
-    </section>
+    </div>
+
     <footer id="global-footer" class="main-footer"></footer>
+    
     <script src="script.js"></script>
     <script type="module" src="auth-helper.js"></script>
     <script src="layout-helper.js"></script>

@@ -16,40 +16,60 @@
         .admin-nav-item:hover, .admin-nav-item.active { background: #4a6741; color: white; border-left: 4px solid #a3d977; }
         .admin-nav-item i { width: 20px; text-align: center; }
         .admin-main { flex: 1; margin-left: 250px; padding: 30px; }
+        
+        /* FORM THÊM SẢN PHẨM TRÊN CÙNG */
         .admin-container { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; margin-bottom: 40px; }
         .admin-title { color: #4a6741; text-align: center; margin-bottom: 20px; }
-        
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: bold; color: #333; margin-bottom: 8px; }
         .form-group input[type="text"], .form-group input[type="number"], .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box; }
         .form-group textarea { resize: vertical; height: 80px; }
-        
         .tags-container { display: flex; flex-wrap: wrap; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
         .tag-item { display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .variant-box { background: #fdfaf3; border: 1px dashed #4a6741; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-        .variant-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .variant-row input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
-        .btn-remove-variant { background: #ff4757; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; }
-        .btn-add-variant { background: #e8f5e9; color: #2e7d32; border: 1px dashed #2e7d32; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; }
-        
+        .variant-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .variant-row input { padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        .btn-remove-variant { background: #ff4757; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; height: 100%;}
+        .btn-add-variant { background: #e8f5e9; color: #2e7d32; border: 1px dashed #2e7d32; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; text-align: center; }
         .btn-submit { width: 100%; padding: 15px; background: #4a6741; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: background 0.3s; }
-        .btn-submit:hover { background: #ff4757; }
+        .btn-submit:hover { background: #2c3e50; }
         .action-buttons { display: flex; gap: 15px; margin-top: 30px; }
         .btn-reset { width: 100%; padding: 15px; background: #f1f2f6; color: #555; border: 1px solid #ccc; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
         #status-message { text-align: center; margin-top: 15px; font-weight: bold; }
         
+        /* BẢNG EXCEL-LIKE INLINE EDITING */
         .list-section-title { color: #2c3e50; margin: 40px 0 20px 0; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
-        .item-list-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .manage-item-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; border: 1px solid #eee; }
-        .manage-item-card img { width: 70px; height: 70px; object-fit: contain; border-radius: 5px; background: #f9f9f9; }
-        .manage-item-info { flex: 1; }
-        .manage-item-name { font-weight: bold; color: #333; margin-bottom: 5px; }
-        .manage-item-actions { display: flex; flex-direction: column; gap: 5px; }
-        .btn-edit-mini { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .btn-delete-mini { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        
-        @media (max-width: 768px) { .admin-sidebar { width: 60px; } .admin-nav-item span { display: none; } .admin-main { margin-left: 60px; padding: 15px; } .item-list-container, .form-row { grid-template-columns: 1fr; } }
+        .search-bar-wrapper { position: relative; margin-bottom: 15px; }
+        .search-bar-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; }
+        .search-bar-wrapper input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; font-size: 14px; outline: none;}
+        .search-bar-wrapper input:focus { border-color: #4a6741; }
+
+        .data-table-container { background: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow-x: auto; border: 1px solid #e0d9c5; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+        .data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; border-right: 1px solid #eee; vertical-align: top; font-size: 13px; }
+        .data-table th { background: #fdfaf3; color: #4a6741; font-weight: bold; text-transform: uppercase; font-size: 12px; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #ddd; }
+        .data-table tbody tr:hover { background: #faf9f5; }
+
+        /* Các ô nhập liệu trong bảng */
+        .tbl-input { width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: inherit; box-sizing: border-box; margin-bottom: 5px; background: #fff; transition: 0.2s; }
+        .tbl-input:focus { border-color: #4a6741; outline: none; box-shadow: 0 0 3px rgba(74,103,65,0.3); }
+        .tbl-textarea { resize: vertical; min-height: 50px; }
+        .info-label { font-size: 11px; color: #888; margin-bottom: 2px; font-weight: bold; display: block; text-transform: uppercase; }
+
+        .btn-action { padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; border: none; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; transition: 0.3s;}
+        .btn-update-tbl { background: #27ae60; margin-bottom: 5px; }
+        .btn-update-tbl:hover { background: #2ecc71; }
+        .btn-delete-tbl { background: #e74c3c; }
+        .btn-delete-tbl:hover { background: #c0392b; }
+
+        @media (max-width: 768px) { 
+            .admin-sidebar { width: 60px; } 
+            .admin-nav-item span { display: none; } 
+            .admin-main { margin-left: 60px; padding: 15px; } 
+            .form-row { grid-template-columns: 1fr; } 
+            .variant-row { grid-template-columns: 1fr; } 
+        }
     </style>
 </head>
 <body>
@@ -58,8 +78,9 @@
         <div id="global-admin-sidebar"></div>
 
         <main class="admin-main" id="admin-main-content" style="display:none;">
+            <!-- FORM NÀY BÂY GIỜ CHỈ DÙNG ĐỂ THÊM MỚI -->
             <div class="admin-container">
-                <h2 class="admin-title" id="form-title"><i class="fas fa-box-open"></i> THÊM SẢN PHẨM MỚI VÀO CỬA HÀNG</h2>
+                <h2 class="admin-title" id="form-title"><i class="fas fa-plus-circle"></i> THÊM SẢN PHẨM MỚI VÀO CỬA HÀNG</h2>
                 
                 <div class="form-row">
                     <div class="form-group">
@@ -110,7 +131,8 @@
                     <div class="variant-box" id="variants-container">
                         <div class="variant-row">
                             <input type="text" class="var-label" placeholder="Loại (VD: Real, Fake)" value="Real">
-                            <input type="text" class="var-price" placeholder="Giá tiền (VD: 2.000.000đ)">
+                            <input type="text" class="var-price" placeholder="Giá gốc (VD: 2.000.000đ)">
+                            <input type="text" class="var-sale" placeholder="Giá SALE (Tùy chọn)">
                             <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
@@ -118,15 +140,35 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn-submit" id="btn-save" style="flex: 2;">LƯU SẢN PHẨM</button>
-                    <button class="btn-reset" id="btn-clear" style="flex: 1;">HUỶ / LÀM MỚI</button>
+                    <button class="btn-submit" id="btn-save" style="flex: 2;">TẠO SẢN PHẨM MỚI</button>
+                    <button class="btn-reset" id="btn-clear" style="flex: 1;">LÀM MỚI FORM</button>
                 </div>
                 <div id="status-message"></div>
             </div>
 
-            <h2 class="list-section-title"><i class="fas fa-list"></i> DANH SÁCH SẢN PHẨM HIỆN CÓ</h2>
-            <div class="item-list-container" id="manage-list">
-                <!-- Danh sách sản phẩm load từ Firebase -->
+            <!-- DANH SÁCH SẢN PHẨM DẠNG BẢNG EXCEL EDITABLE -->
+            <h2 class="list-section-title"><i class="fas fa-edit"></i> BẢNG CHỈNH SỬA SẢN PHẨM NHANH</h2>
+            
+            <div class="search-bar-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-product" placeholder="Tìm nhanh sản phẩm theo Tên..." oninput="window.filterProducts()">
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%">Hình Ảnh</th>
+                            <th style="width: 25%">Thông Tin Cơ Bản</th>
+                            <th style="width: 25%">Nội Dung (Giới thiệu & TP)</th>
+                            <th style="width: 25%">Biến Thể (Tên | Giá gốc | Giá Sale)</th>
+                            <th style="width: 10%; text-align: center;">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manage-list-tbody">
+                        <tr><td colspan="5" style="text-align:center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </main>
     </div>
@@ -151,7 +193,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let dangSuaId = null;
         let danhSachLocal = [];
 
         onAuthStateChanged(auth, (user) => {
@@ -169,15 +210,16 @@
             row.className = 'variant-row';
             row.innerHTML = `
                 <input type="text" class="var-label" placeholder="Loại (VD: Real, Fake)">
-                <input type="text" class="var-price" placeholder="Giá tiền (VD: 2.000.000đ)">
+                <input type="text" class="var-price" placeholder="Giá gốc (VD: 2.000.000đ)">
+                <input type="text" class="var-sale" placeholder="Giá SALE (Tùy chọn)">
                 <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
             `;
             container.appendChild(row);
         };
 
+        // HÀM TẢI DỮ LIỆU ĐỔ VÀO BẢNG EXCEL INLINE
         async function loadItems() {
-            const container = document.getElementById('manage-list');
-            container.innerHTML = "Đang tải danh sách...";
+            const tbody = document.getElementById('manage-list-tbody');
             try {
                 const snapshot = await getDocs(collection(db, "san-pham"));
                 danhSachLocal = [];
@@ -185,92 +227,171 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     danhSachLocal.push({ id: doc.id, ...data });
+                });
+
+                danhSachLocal.sort((a, b) => {
+                    let orderA = parseInt(a.thuTu); if (isNaN(orderA)) orderA = 1000;
+                    let orderB = parseInt(b.thuTu); if (isNaN(orderB)) orderB = 1000;
+                    if (orderA !== orderB) return orderA - orderB;
+                    return (a.ten || '').localeCompare(b.ten || '');
+                });
+
+                danhSachLocal.forEach(item => {
+                    let tagsStr = item.tags ? item.tags.join(', ') : '';
+                    let subImgsStr = (item.anhBoSung && Array.isArray(item.anhBoSung)) ? item.anhBoSung.join(', ') : '';
                     
+                    // Chuyển mảng Object Biến thể thành chuỗi Text nhiều dòng để dễ sửa
+                    let variantsStr = '';
+                    if(item.bienTheGia && item.bienTheGia.length > 0) {
+                        variantsStr = item.bienTheGia.map(v => {
+                            let sale = v.giaKhuyenMai ? ` | ${v.giaKhuyenMai}` : '';
+                            return `${v.nhan} | ${v.soTien}${sale}`;
+                        }).join('\n');
+                    }
+
                     html += `
-                        <div class="manage-item-card">
-                            <img src="${data.anh}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'">
-                            <div class="manage-item-info">
-                                <div class="manage-item-name">${data.ten}</div>
-                                <div style="font-size:12px; color:#666;">Thứ tự: ${data.thuTu !== undefined ? data.thuTu : 'Chưa set'} | Phân loại: ${data.tags ? data.tags.join(', ') : ''}</div>
-                            </div>
-                            <div class="manage-item-actions">
-                                <button class="btn-edit-mini" onclick="window.prepareEdit('${doc.id}')"><i class="fas fa-edit"></i> Sửa</button>
-                                <button class="btn-delete-mini" onclick="window.confirmDelete(this, '${doc.id}')"><i class="fas fa-trash"></i> Xóa</button>
-                            </div>
-                        </div>
+                        <tr class="product-row" id="row-${item.id}">
+                            <td>
+                                <div style="text-align:center; margin-bottom:5px;">
+                                    <img src="${item.anh}" style="width:60px; height:60px; object-fit:contain; border-radius:5px; border:1px solid #eee;" onerror="this.src='https://placehold.co/60x60?text=IMG'">
+                                </div>
+                                <span class="info-label">Link ảnh chính</span>
+                                <input type="text" class="tbl-input val-anh" value="${item.anh}">
+                                <span class="info-label">Ảnh phụ (Cách nhau dấu phẩy)</span>
+                                <textarea class="tbl-input tbl-textarea val-anh-phu" rows="2">${subImgsStr}</textarea>
+                            </td>
+                            <td>
+                                <span class="info-label">Tên sản phẩm</span>
+                                <input type="text" class="tbl-input val-ten" value="${item.ten}" style="font-weight:bold; color:#2c3e50;">
+                                <div style="display:flex; gap:10px;">
+                                    <div style="width: 70px;">
+                                        <span class="info-label">Thứ tự</span>
+                                        <input type="number" class="tbl-input val-thutu" value="${item.thuTu !== undefined ? item.thuTu : 100}">
+                                    </div>
+                                    <div style="flex:1;">
+                                        <span class="info-label">Tags (Cách nhau dấu phẩy)</span>
+                                        <input type="text" class="tbl-input val-tags" value="${tagsStr}">
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="info-label">Giới thiệu (HTML)</span>
+                                <textarea class="tbl-input tbl-textarea val-gioithieu" rows="3">${item.GioiThieu || ''}</textarea>
+                                <span class="info-label">Thành phần</span>
+                                <textarea class="tbl-input tbl-textarea val-thanhphan" rows="2">${item.ThanhPhan || ''}</textarea>
+                            </td>
+                            <td>
+                                <span class="info-label">Nhãn | Giá gốc | Giá SALE (Tùy chọn)</span>
+                                <textarea class="tbl-input tbl-textarea val-bienthe" rows="6" placeholder="VD:&#10;Real | 2.000.000đ | 1.500.000đ&#10;Fake | 500.000đ">${variantsStr}</textarea>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <button class="btn-action btn-update-tbl" onclick="window.updateProduct('${item.id}')" id="btn-upd-${item.id}"><i class="fas fa-save"></i> CẬP NHẬT</button>
+                                <button class="btn-action btn-delete-tbl" onclick="window.confirmDelete(this, '${item.id}')"><i class="fas fa-trash"></i> XÓA</button>
+                            </td>
+                        </tr>
                     `;
                 });
-                container.innerHTML = html || "Chưa có sản phẩm nào.";
+                tbody.innerHTML = html || "<tr><td colspan='5' style='text-align:center; padding: 30px;'>Chưa có sản phẩm nào.</td></tr>";
             } catch(e) {
-                container.innerHTML = "Lỗi tải danh sách: " + e.message;
+                tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red; padding: 30px;'>Lỗi tải danh sách: ${e.message}</td></tr>`;
             }
         }
 
-        // HÀM CHUẨN ĐỒNG BỘ ĐỂ TRÁNH LỖI NGẦM DO DỮ LIỆU RỖNG
-        window.prepareEdit = function(id) {
-            const item = danhSachLocal.find(x => x.id === id);
-            if(!item) return;
+        // TÌM KIẾM THEO TÊN TRONG BẢNG INLINE
+        window.filterProducts = function() {
+            const searchStr = document.getElementById('search-product').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.product-row');
             
-            dangSuaId = id;
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit"></i> ĐANG SỬA SẢN PHẨM: ${item.ten}`;
-            document.getElementById('btn-save').innerText = "CẬP NHẬT SẢN PHẨM";
+            rows.forEach(row => {
+                const nameInput = row.querySelector('.val-ten');
+                if (nameInput) {
+                    const name = nameInput.value.toLowerCase();
+                    if(name.includes(searchStr)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        };
+
+        // HÀM LƯU DỮ LIỆU TỪ HÀNG BẢNG (INLINE EDIT)
+        window.updateProduct = async function(id) {
+            const row = document.getElementById(`row-${id}`);
+            const btn = document.getElementById(`btn-upd-${id}`);
             
-            const safeSet = (elId, val) => {
-                const el = document.getElementById(elId);
-                if(el) el.value = (val !== undefined && val !== null) ? val : '';
-            };
-
-            safeSet('sp-name', item.ten);
-            safeSet('sp-img', item.anh);
-            safeSet('sp-desc', item.GioiThieu);
-            safeSet('sp-components', item.ThanhPhan);
-            safeSet('sp-order', item.thuTu !== undefined ? item.thuTu : 100);
-
-            const subImgs = document.getElementById('sp-sub-imgs');
-            if (subImgs) {
-                subImgs.value = (item.anhBoSung && Array.isArray(item.anhBoSung)) ? item.anhBoSung.join(', ') : '';
-            }
-
-            document.querySelectorAll('#sp-tags input[type="checkbox"]').forEach(cb => {
-                cb.checked = item.tags && item.tags.includes(cb.value);
+            // Đọc dữ liệu từ Input/Textarea
+            const ten = row.querySelector('.val-ten').value.trim();
+            const anh = row.querySelector('.val-anh').value.trim();
+            const thuTu = parseInt(row.querySelector('.val-thutu').value) || 100;
+            const tagsStr = row.querySelector('.val-tags').value;
+            const tags = tagsStr.split(',').map(t => t.trim()).filter(t => t !== '');
+            
+            const anhPhuStr = row.querySelector('.val-anh-phu').value;
+            const anhBoSung = anhPhuStr.split(',').map(t => t.trim()).filter(t => t !== '');
+            
+            const gioiThieu = row.querySelector('.val-gioithieu').value.trim();
+            const thanhPhan = row.querySelector('.val-thanhphan').value.trim();
+            
+            // Xử lý Biến thể (Từ text sang Object)
+            const bienTheStr = row.querySelector('.val-bienthe').value;
+            const bienTheGia = [];
+            bienTheStr.split('\n').forEach(line => {
+                const parts = line.split('|').map(p => p.trim());
+                if (parts.length >= 2 && parts[0] !== '') {
+                    let vt = { nhan: parts[0], soTien: parts[1] };
+                    if (parts.length >= 3 && parts[2] !== '') {
+                        vt.giaKhuyenMai = parts[2]; // Gán giá Sale nếu có
+                    }
+                    bienTheGia.push(vt);
+                }
             });
 
-            const varContainer = document.getElementById('variants-container');
-            varContainer.innerHTML = "";
-            if(item.bienTheGia && item.bienTheGia.length > 0) {
-                item.bienTheGia.forEach(v => {
-                    const row = document.createElement('div');
-                    row.className = 'variant-row';
-                    row.innerHTML = `
-                        <input type="text" class="var-label" value="${v.nhan}">
-                        <input type="text" class="var-price" value="${v.soTien}">
-                        <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-                    `;
-                    varContainer.appendChild(row);
-                });
-            } else {
-                window.addVariantRow();
+            // Validate
+            if(!ten || !anh || tags.length === 0 || bienTheGia.length === 0) {
+                btn.innerHTML = "ĐIỀN THIẾU!";
+                btn.style.background = "#e74c3c";
+                setTimeout(() => { btn.innerHTML = "<i class='fas fa-save'></i> CẬP NHẬT"; btn.style.background = "#27ae60"; }, 2000);
+                return;
             }
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const data = { ten, tags, anh, anhBoSung, GioiThieu: gioiThieu, ThanhPhan: thanhPhan, bienTheGia, thuTu };
+
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> ĐANG LƯU...";
+            btn.style.background = "#f39c12";
+
+            try {
+                await updateDoc(doc(db, "san-pham", id), data);
+                btn.innerHTML = "<i class='fas fa-check'></i> ĐÃ LƯU ✓";
+                btn.style.background = "#2c3e50";
+                setTimeout(() => { btn.innerHTML = "<i class='fas fa-save'></i> CẬP NHẬT"; btn.style.background = "#27ae60"; }, 2000);
+            } catch (e) {
+                btn.innerHTML = "LỖI LƯU!";
+                btn.style.background = "#e74c3c";
+                setTimeout(() => { btn.innerHTML = "<i class='fas fa-save'></i> CẬP NHẬT"; btn.style.background = "#27ae60"; }, 2000);
+            }
         };
 
+        // HÀM XÓA 2 BƯỚC KHÔNG DÙNG ALERT
         window.confirmDelete = async function(btn, id) {
             if(!btn.dataset.confirmed) {
-                btn.dataset.confirmed = "true"; btn.innerText = "Chắc chắn?"; btn.style.background = "#d35400";
-                setTimeout(() => { btn.removeAttribute("data-confirmed"); btn.innerHTML = `<i class="fas fa-trash"></i> Xóa`; btn.style.background = "#e74c3c"; }, 4000);
+                btn.dataset.confirmed = "true"; 
+                btn.innerHTML = "CHẮC CHƯA?"; 
+                btn.style.background = "#000";
+                setTimeout(() => { 
+                    if(btn) { btn.removeAttribute("data-confirmed"); btn.innerHTML = `<i class="fas fa-trash"></i> XÓA`; btn.style.background = "#e74c3c"; }
+                }, 3000);
             } else {
-                btn.innerText = "...";
-                try { await deleteDoc(doc(db, "san-pham", id)); loadItems(); } catch(e) { alert("Lỗi khi xóa!"); }
+                btn.innerHTML = "...";
+                try { 
+                    await deleteDoc(doc(db, "san-pham", id)); 
+                    document.getElementById(`row-${id}`).remove();
+                } catch(e) { console.error("Lỗi xóa"); }
             }
         };
 
-        document.getElementById('btn-clear').addEventListener('click', resetForm);
-
-        function resetForm() {
-            dangSuaId = null;
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-box-open"></i> THÊM SẢN PHẨM MỚI VÀO CỬA HÀNG`;
-            document.getElementById('btn-save').innerText = "LƯU SẢN PHẨM";
+        // LÀM MỚI FORM TRÊN CÙNG
+        document.getElementById('btn-clear').addEventListener('click', () => {
             document.getElementById('sp-name').value = '';
             document.getElementById('sp-order').value = '100';
             document.getElementById('sp-img').value = '';
@@ -281,12 +402,14 @@
             document.getElementById('variants-container').innerHTML = `
                 <div class="variant-row">
                     <input type="text" class="var-label" placeholder="Loại (VD: Real, Fake)" value="Real">
-                    <input type="text" class="var-price" placeholder="Giá tiền (VD: 2.000.000đ)">
+                    <input type="text" class="var-price" placeholder="Giá gốc (VD: 2.000.000đ)">
+                    <input type="text" class="var-sale" placeholder="Giá SALE (Tùy chọn)">
                     <button class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                 </div>
             `;
-        }
+        });
 
+        // XỬ LÝ LƯU TỪ FORM TRÊN CÙNG (THÊM MỚI)
         document.getElementById('btn-save').addEventListener('click', async () => {
             const btn = document.getElementById('btn-save');
             const statusMsg = document.getElementById('status-message');
@@ -295,7 +418,6 @@
             const anh = document.getElementById('sp-img').value.trim();
             const gioiThieu = document.getElementById('sp-desc').value.trim();
             const thanhPhan = document.getElementById('sp-components').value.trim();
-            
             const thuTuInput = parseInt(document.getElementById('sp-order').value);
             const thuTu = isNaN(thuTuInput) ? 100 : thuTuInput;
 
@@ -309,7 +431,10 @@
             document.querySelectorAll('.variant-row').forEach(row => {
                 const label = row.querySelector('.var-label').value.trim();
                 const price = row.querySelector('.var-price').value.trim();
-                if(label && price) bienTheGia.push({ nhan: label, soTien: price });
+                const saleInput = row.querySelector('.var-sale');
+                const salePrice = saleInput ? saleInput.value.trim() : '';
+                
+                if(label && price) bienTheGia.push({ nhan: label, soTien: price, giaKhuyenMai: salePrice });
             });
 
             if(!ten || !anh || tags.length === 0 || bienTheGia.length === 0) {
@@ -320,25 +445,20 @@
 
             const data = { ten, tags, anh, anhBoSung, GioiThieu: gioiThieu, ThanhPhan: thanhPhan, bienTheGia, thuTu: thuTu };
 
-            btn.innerText = "ĐANG LƯU...";
+            btn.innerText = "ĐANG TẠO...";
             btn.disabled = true;
 
             try {
-                if(dangSuaId) {
-                    await updateDoc(doc(db, "san-pham", dangSuaId), data);
-                    statusMsg.style.color = "#27ae60";
-                    statusMsg.innerText = "Cập nhật sản phẩm thành công!";
-                } else {
-                    await addDoc(collection(db, "san-pham"), data);
-                    statusMsg.style.color = "#27ae60";
-                    statusMsg.innerText = "Thêm sản phẩm thành công!";
-                }
-                resetForm();
-                loadItems();
+                await addDoc(collection(db, "san-pham"), data);
+                statusMsg.style.color = "#27ae60";
+                statusMsg.innerText = "Đã thêm sản phẩm mới thành công!";
+                document.getElementById('btn-clear').click(); // Xóa form
+                loadItems(); // Refresh bảng
             } catch (error) {
                 statusMsg.style.color = "#ff4757";
                 statusMsg.innerText = "Lỗi hệ thống: " + error.message;
             } finally {
+                btn.innerText = "TẠO SẢN PHẨM MỚI";
                 btn.disabled = false;
             }
         });

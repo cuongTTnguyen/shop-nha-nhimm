@@ -226,7 +226,7 @@
             if (user) currentUserUid = user.uid;
         });
 
-        // 1. HÀM RENDER GIỎ HÀNG TỪ LOCAL STORAGE
+        // 1. HÀM RENDER GIỎ HÀNG TỪ LOCAL STORAGE (ĐÃ CẬP NHẬT GIAO DIỆN SALE)
         function renderCart() {
             const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
             const container = document.getElementById('cart-list');
@@ -252,6 +252,13 @@
 
             gioHang.forEach((sp, index) => {
                 let giaHienThi = sp.giaGocChu || (sp.gia.toLocaleString('vi-VN') + "đ");
+                
+                // KIỂM TRA: Nếu có giá gốc bị gạch chéo (giaCuHienThi) thì render giao diện Sale
+                let phanGiaHtml = giaHienThi;
+                if(sp.giaCuHienThi && sp.giaCuHienThi !== "") {
+                    phanGiaHtml = `<span style="text-decoration:line-through; color:#999; font-size:12px; margin-right:5px;">${sp.giaCuHienThi}</span> <span style="color:#e74c3c;">${giaHienThi}</span>`;
+                }
+
                 let thanhTien = sp.gia * sp.soLuong;
                 tongTien += thanhTien;
 
@@ -261,7 +268,7 @@
                         <div class="cart-item-info">
                             <div class="cart-item-title">${sp.ten}</div>
                             <div class="cart-item-variant">Loại: ${sp.loai}</div>
-                            <div class="cart-item-price">${giaHienThi}</div>
+                            <div class="cart-item-price">${phanGiaHtml}</div>
                         </div>
                         <div class="qty-controls">
                             <button onclick="window.changeCartQty(${index}, -1)">-</button>
@@ -313,7 +320,7 @@
 
             const gioHang = JSON.parse(localStorage.getItem('cart')) || [];
 
-            // Lấy thông tin form
+            // Lấy thôngত্তি form
             const ten = document.getElementById('order-name').value.trim();
             const sdt = document.getElementById('order-phone').value.trim();
             const diaChi = document.getElementById('order-address').value.trim();
@@ -333,7 +340,7 @@
 
             const tongTien = gioHang.reduce((total, item) => total + (item.gia * item.soLuong), 0);
 
-            // Gộp ngôn ngữ vào ghi chú để Admin và Khách hàng tiện theo dõi ở các trang khác mà không cần sửa code cũ
+            // Gộp ngôn ngữ vào ghi chú
             const ghiChuMoi = `Ngôn ngữ: ${ngonNgu} | ${ghiChu}`;
 
             // Đóng gói dữ liệu đơn hàng
@@ -344,7 +351,7 @@
                     sdt: sdt, 
                     diaChi: diaChi, 
                     ghiChu: ghiChuMoi,
-                    ngonNgu: ngonNgu // Vẫn lưu trường riêng phòng hờ sau này bạn muốn lọc
+                    ngonNgu: ngonNgu
                 },
                 ngonNgu: ngonNgu,
                 sanPham: gioHang,
@@ -361,30 +368,30 @@
                 localStorage.removeItem('cart');
                 
                 // ====================================================
-                // 2. CODE BÁO ĐƠN VỀ TELEGRAM
+                // 2. CODE BÁO ĐƠN VỀ TELEGRAM (Sử dụng biến gọn gàng)
                 // ====================================================
-                const TELEGRAM_BOT_TOKEN = "ĐIỀN_TOKEN_CỦA_BẠN_VÀO_ĐÂY"; // Lấy ở Bước 1
-                const TELEGRAM_CHAT_ID = "ĐIỀN_ID_CỦA_BẠN_VÀO_ĐÂY"; // Lấy ở Bước 2
+                const TELEGRAM_BOT_TOKEN = "8789078737:AAHZOc0oaB2e14KJy6fXUnvpXySUyuKQ_F0"; 
+                const TELEGRAM_CHAT_ID = "8861648351"; 
 
                 const teleMsg = 
-                    `📦 CÓ ĐƠN ĐẶT HÀNG MỚI!
-                    Mã đơn: #${docRef.id.substring(0,6).toUpperCase()}
-                    -------------------------
-                    👤 Khách: ${ten}
-                    📞 SĐT: ${sdt}
-                    🏠 Địa chỉ: ${diaChi}
-                    📝 Ghi chú: ${ghiChuMoi}
-                    -------------------------
-                    💰 Tổng tiền: ${(tongTien || 0).toLocaleString('vi-VN')}đ`;
+`📦 CÓ ĐƠN ĐẶT HÀNG MỚI!
+Mã đơn: #${docRef.id.substring(0,6).toUpperCase()}
+-------------------------
+👤 Khách: ${ten}
+📞 SĐT: ${sdt}
+🏠 Địa chỉ: ${diaChi}
+📝 Ghi chú: ${ghiChuMoi}
+-------------------------
+💰 Tổng tiền: ${(tongTien || 0).toLocaleString('vi-VN')}đ`;
 
-                const teleUrl = `https://api.telegram.org/bot${"8789078737:AAHZOc0oaB2e14KJy6fXUnvpXySUyuKQ_F0"}/sendMessage`;
+                const teleUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
                 
                 // Lệnh gửi ngầm lên Telegram
                 fetch(teleUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
-                        chat_id: 8861648351, 
+                        chat_id: TELEGRAM_CHAT_ID, 
                         text: teleMsg 
                     })
                 }).catch(err => console.log("Lỗi gửi Tele:", err));
