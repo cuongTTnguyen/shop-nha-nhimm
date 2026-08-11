@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay May Mắn - Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Hiệu ứng Pháo giấy -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { background-color: #fcf9f2; }
+        .main-title { font-family: 'Luminari Custom', 'Cinzel Decorative', fantasy, serif; text-align: center; color: #d35400; font-size: 40px; margin-top: 100px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);}
+        .sub-title { text-align: center; color: #666; font-size: 15px; margin-bottom: 40px; }
+
+        .vq-container { max-width: 1100px; margin: 0 auto 50px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        
+        .wheel-section { background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; border: 3px solid #e0d9c5; position: relative;}
+        .wheel-wrapper { position: relative; width: 380px; height: 380px; margin: 0 auto; }
+        
+        /* Viền ngoài của vòng quay */
+        .wheel-border { position: absolute; top: -10px; left: -10px; width: 400px; height: 400px; border-radius: 50%; background: linear-gradient(135deg, #f1c40f, #d35400); box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 1;}
+        
+        #wheel-canvas { position: relative; z-index: 2; width: 100%; height: 100%; border-radius: 50%; box-shadow: inset 0 0 15px rgba(0,0,0,0.2); background: #fff; transition: transform 5s cubic-bezier(0.15, 0.9, 0.15, 1); }
+        
+        /* Kim chỉ nhọn và hướng đúng xuống dưới, tâm xoay ở đỉnh */
+        .wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 40px; height: 50px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23c0392b"><path d="M0 0 H24 L12 24 Z"/></svg>') no-repeat center; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4)); transform-origin: top center; }
+        
+        /* Hiệu ứng kim giật tự động thay đổi theo biến CSS */
+        @keyframes pointer-wiggle {
+            0%, 50%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-50%) rotate(calc(-1 * var(--wiggle-angle, 15deg))); }
+            75% { transform: translateX(-50%) rotate(var(--wiggle-angle, 15deg)); }
+        }
+        .pointer-spinning { animation: pointer-wiggle var(--wiggle-speed, 0.1s) ease-in-out infinite; }
+        
+        .btn-spin { margin-top: 35px; background: linear-gradient(135deg, #d35400, #c0392b); color: white; border: none; padding: 18px 50px; border-radius: 40px; font-size: 22px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(211,84,0,0.4); transition: 0.3s; width: 80%; text-transform: uppercase; letter-spacing: 2px; border: 2px solid #f1c40f;}
+        .btn-spin:hover:not(:disabled) { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(211,84,0,0.5); }
+        .btn-spin:disabled { background: #ccc; border-color: #aaa; cursor: not-allowed; box-shadow: none; transform: none;}
+
+        .allocation-box { background: #fdfaf3; border: 2px dashed #f39c12; padding: 20px; border-radius: 15px; margin-top: 25px; text-align: left;}
+        .alloc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .alloc-pts { font-size: 18px; font-weight: 900; color: #d35400; background: #ffeaa7; padding: 5px 15px; border-radius: 20px;}
+        
+        .prize-alloc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #fff; border-radius: 8px; border: 1px solid #eee;}
+        .p-name { font-weight: bold; color: #2c3e50; font-size: 14px; flex: 1;}
+        .p-base { font-size: 12px; color: #888; width: 60px; text-align: center;}
+        .p-controls { display: flex; align-items: center; gap: 8px;}
+        .btn-alloc { background: #ecf0f1; border: 1px solid #bdc3c7; border-radius: 5px; width: 26px; height: 26px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #333; transition: 0.2s;}
+        .btn-alloc:hover:not(:disabled) { background: #d35400; color: white; border-color: #d35400;}
+        .btn-alloc:disabled { opacity: 0.3; cursor: not-allowed;}
+        .p-val { font-weight: 900; color: #e74c3c; width: 30px; text-align: center; font-size: 15px;}
+        
+        .btn-save-alloc { width: 100%; background: #27ae60; color: white; padding: 12px; border-radius: 10px; font-weight: bold; border: none; margin-top: 15px; cursor: pointer; font-size: 15px; transition: 0.3s;}
+        .btn-save-alloc:hover { background: #2ecc71; }
+
+        .tasks-section { background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; }
+        .tasks-section h2 { margin-top: 0; color: #4a6741; border-bottom: 2px solid #eee; padding-bottom: 10px; font-family: 'Montserrat', sans-serif;}
+        
+        .task-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px;}
+        .task-item { background: #faf9f5; border: 1px solid #eee; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .task-info h4 { margin: 0 0 5px 0; color: #2c3e50; }
+        .task-info p { margin: 0; font-size: 13px; color: #888; }
+        
+        .btn-do-task { background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.3s;}
+        .btn-do-task:hover { background: #2980b9; }
+        .btn-done { background: #27ae60 !important; cursor: not-allowed; }
+
+        .search-task-box { display: flex; gap: 5px; margin-top: 10px; }
+        .search-task-box input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+
+        .lock-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:100; display:flex; flex-direction:column; justify-content:center; align-items:center; border-radius: 20px;}
+
+        /* Style cho Popup thông báo chung thay vì Alert */
+        .toast-msg {
+            position: fixed; bottom: 30px; right: 30px; background: #34495e; color: white;
+            padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 5px solid #f1c40f; font-weight: bold; font-size: 14px;
+        }
+        .toast-msg.show { transform: translateY(0); opacity: 1; }
+
+        .custom-alert-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center; }
+        .custom-alert-box { background: #fff; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 15px 40px rgba(0,0,0,0.3); border: 4px solid #f1c40f; transform: scale(0.8); animation: popAlert 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popAlert { to { transform: scale(1); } }
+        .alert-icon { font-size: 70px; margin-bottom: 20px; }
+        .icon-win { color: #f1c40f; text-shadow: 0 4px 10px rgba(241, 196, 15, 0.4); }
+        .icon-lose { color: #95a5a6; }
+        .alert-title { font-size: 26px; font-weight: 900; color: #2c3e50; margin-bottom: 10px; text-transform: uppercase;}
+        .alert-msg { font-size: 16px; color: #555; margin-bottom: 30px; line-height: 1.5; }
+        .btn-close-alert { background: #d35400; color: white; border: none; padding: 12px 35px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-close-alert:hover { background: #c0392b; transform: scale(1.05); }
+
+        @media (max-width: 900px) { .vq-container { grid-template-columns: 1fr; } .wheel-wrapper, .wheel-border { width: 300px; height: 300px; } .wheel-border { top: -8px; left: -8px; width: 316px; height: 316px; } }
+    </style>
+</head>
+<body class="index-page">
+
+    <header id="global-header" class="index-header"></header>
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
+    <div id="left-sidebar" class="left-sidebar"></div>
+
+    <h1 class="main-title">VÒNG QUAY MAY MẮN</h1>
+    <p class="sub-title">Làm nhiệm vụ hoặc mua hàng để nhận thêm Lượt Quay và Điểm May Mắn!</p>
+
+    <div class="vq-container">
+        
+        <!-- CỘT 1: VÒNG QUAY -->
+        <div class="wheel-section">
+            <div id="lock-screen" class="lock-screen">
+                <i class="fas fa-lock" style="font-size: 50px; color:#e74c3c; margin-bottom:15px;"></i>
+                <h3 style="margin:0;">Vui lòng đăng nhập</h3>
+                <p style="font-size:14px; color:#666; margin-bottom: 20px;">Bạn cần tài khoản để lưu lượt quay và điểm may mắn.</p>
+                <button onclick="window.location.href='dang-nhap.html'" style="background:#4a6741; color:white; padding:10px 25px; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Đăng nhập ngay</button>
+            </div>
+
+            <div class="wheel-wrapper">
+                <div class="wheel-border"></div>
+                <div class="wheel-pointer"></div>
+                <!-- Canvas vẽ vòng quay -->
+                <canvas id="wheel-canvas" width="600" height="600"></canvas>
+            </div>
+
+            <button class="btn-spin" id="btn-spin" onclick="startSpin()" disabled>QUAY (<span id="val-spins">0</span>)</button>
+
+            <div class="allocation-box">
+                <div class="alloc-header">
+                    <div style="font-weight:bold; color:#4a6741; font-size:15px;"><i class="fas fa-star"></i> ĐIỂM MAY MẮN ĐANG CÓ:</div>
+                    <div class="alloc-pts" id="ui-avail-pts">0</div>
+                </div>
+                <p style="font-size:11px; color:#888; margin-top:-5px; margin-bottom:15px;">
+                    * Tổng tỉ lệ trúng các phần quà không vượt quá 70% (Luôn có 3 ô Trượt 10%). Nếu bạn bơm điểm quá 70%, hệ thống tự động bòn rút điểm của các quà khác để cân bằng. Điểm đã bấm [Lưu] không thể giảm xuống.
+                </p>
+                
+                <div id="alloc-list">
+                    <div style="text-align:center; padding:10px; color:#888;"><i class="fas fa-spinner fa-spin"></i> Đang tải danh sách quà...</div>
+                </div>
+
+                <button class="btn-save-alloc" id="btn-save-alloc" onclick="saveAllocatedPoints()" disabled><i class="fas fa-save"></i> LƯU TỈ LỆ LÊN VÒNG QUAY</button>
+            </div>
+        </div>
+
+        <!-- CỘT 2: NHIỆM VỤ -->
+        <div class="tasks-section">
+            <h2><i class="fas fa-clipboard-list"></i> Nhiệm vụ kiếm lượt</h2>
+            <div class="task-list" id="task-list-container">
+                <div style="text-align:center; padding:20px; color:#888;"><i class="fas fa-spinner fa-spin"></i> Đang tải nhiệm vụ...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tích hợp Toast notification thay vì Alert -->
+    <div id="sys-toast" class="toast-msg"></div>
+
+    <div id="custom-alert" class="custom-alert-overlay">
+        <div class="custom-alert-box">
+            <i id="alert-icon" class="fas fa-gift alert-icon icon-win"></i>
+            <div id="alert-title" class="alert-title">CHÚC MỪNG!</div>
+            <div id="alert-msg" class="alert-msg">Bạn đã quay trúng phần quà xyz.</div>
+            <button class="btn-close-alert" onclick="closeAlert()">Tuyệt vời</button>
+        </div>
+    </div>
+
+    <footer id="global-footer" class="main-footer"></footer>
+
+    <script src="script.js"></script>
+    <script src="layout-helper.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0", authDomain: "rootvn-3eeca.firebaseapp.com", projectId: "rootvn-3eeca", storageBucket: "rootvn-3eeca.firebasestorage.app", messagingSenderId: "92355209659", appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let userData = { spins: 0, luckyPoints: 0, allocatedPoints: {}, wonPrizes: [], completedTasks: [] };
+        let basePrizes = [];
+        let tasks = [];
+        let wheelSegments = [];
+        let currentRotation = 0;
+        
+        let tempAllocated = {};
+        let tempAvailable = 0;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('lock-screen').style.display = 'none';
+                await fetchUserData();
+                await fetchData();
+            } else {
+                document.getElementById('lock-screen').style.display = 'flex';
+            }
+        });
+
+        async function fetchUserData() {
+            const userRef = doc(db, "users-vong-quay", currentUser.uid);
+            const snap = await getDoc(userRef);
+            if (snap.exists()) {
+                userData = snap.data();
+                if(!userData.allocatedPoints) userData.allocatedPoints = {};
+                if(!userData.wonPrizes) userData.wonPrizes = [];
+            } else {
+                userData = { spins: 0, luckyPoints: 0, allocatedPoints: {}, wonPrizes: [], completedTasks: [] };
+                await setDoc(userRef, userData);
+            }
+        }
+
+        async function fetchData() {
+            const prizeSnap = await getDocs(collection(db, "vong-quay-qua"));
+            basePrizes = [];
+            prizeSnap.forEach(d => basePrizes.push({ id: d.id, ...d.data() }));
+
+            const taskSnap = await getDocs(collection(db, "vong-quay-nhiem-vu"));
+            tasks = [];
+            taskSnap.forEach(d => tasks.push({ id: d.id, ...d.data() }));
+
+            initAllocationUI();
+            updateSpinsUI();
+            renderTasks();
+            drawWheel(); 
+        }
+
+        function initAllocationUI() {
+            tempAvailable = userData.luckyPoints || 0;
+            tempAllocated = JSON.parse(JSON.stringify(userData.allocatedPoints || {})); 
+            renderAllocList();
+        }
+
+        function renderAllocList() {
+            document.getElementById('ui-avail-pts').innerText = tempAvailable;
+            document.getElementById('btn-save-alloc').disabled = false;
+
+            const list = document.getElementById('alloc-list');
+            let html = "";
+            basePrizes.forEach(p => {
+                let savedAlloc = userData.allocatedPoints[p.id] || 0;
+                let added = tempAllocated[p.id] || 0;
+                let total = p.prob + added;
+                
+                let disableMinus = added <= savedAlloc ? "disabled" : "";
+                
+                html += `
+                    <div class="prize-alloc-row">
+                        <div class="p-name">${p.name}</div>
+                        <div class="p-base">Gốc ${p.prob}%</div>
+                        <div class="p-controls">
+                            <button class="btn-alloc" onclick="changeAlloc('${p.id}', -1)" ${disableMinus}>-</button>
+                            <div class="p-val" style="color: ${added > savedAlloc ? '#27ae60' : '#e74c3c'};">+${added}%</div>
+                            <button class="btn-alloc" onclick="changeAlloc('${p.id}', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        // Hiện Toast Notification đẹp thay vì Alert
+        function showToast(msg) {
+            const toast = document.getElementById('sys-toast');
+            toast.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // ==============================================================
+        // THUẬT TOÁN: CÂN BẰNG TỈ LỆ VÒNG QUAY Ở MỨC TỐI ĐA 70%
+        // ==============================================================
+        window.changeAlloc = function(prizeId, amt) {
+            let currentAlloc = tempAllocated[prizeId] || 0;
+            let savedAlloc = userData.allocatedPoints[prizeId] || 0;
+            
+            // Xử lý Trừ
+            if(amt < 0) {
+                if(currentAlloc > savedAlloc) {
+                    tempAllocated[prizeId] = currentAlloc - 1;
+                    tempAvailable += 1;
+                    renderAllocList();
+                }
+            } 
+            // Xử lý Cộng
+            else {
+                if(tempAvailable > 0) {
+                    let totalProb = 0;
+                    basePrizes.forEach(p => {
+                        totalProb += p.prob + (tempAllocated[p.id] || 0);
+                    });
+
+                    // Nếu chưa quá 70% thì cứ cộng thoải mái
+                    if (totalProb < 70) {
+                        tempAllocated[prizeId] = currentAlloc + 1;
+                        tempAvailable -= 1;
+                        renderAllocList();
+                    } 
+                    // Nếu đã chạm mốc 70%, đi trộm của phần quà đang có Tỉ lệ bự nhất (nhưng phải trừ đi số đã lưu)
+                    else {
+                        // Lọc các ứng viên: Khác phần quà đang ấn + VÀ Có số điểm có thể bòn rút được (Số đang tạm cộng > số đã khóa)
+                        let candidates = basePrizes.filter(p => 
+                            p.id !== prizeId && (tempAllocated[p.id] || 0) > 0
+                        );
+                        
+                        if (candidates.length > 0) {
+                            // Sắp xếp quà từ to đến nhỏ (ưu tiên đè thằng to nhất xuống)
+                            candidates.sort((a, b) => {
+                                let totalA = a.prob + (tempAllocated[a.id] || 0);
+                                let totalB = b.prob + (tempAllocated[b.id] || 0);
+                                return totalB - totalA; 
+                            });
+                            
+                            let targetToSteal = candidates[0].id;
+                            
+                            // Tiến hành bòn rút điểm và chuyển sang cho quà mới
+                            tempAllocated[targetToSteal] -= 1;
+                            tempAllocated[prizeId] += 1;
+                            tempAvailable -= 1; // Khách vẫn bị mất 1 điểm may mắn đang rảnh
+                            
+                            renderAllocList();
+                            showToast(`Hệ thống đã tự động bòn rút 1% từ quà "${candidates[0].name}" để nhường chỗ cho món bạn vừa chọn!`);
+                        } else {
+                            showToast("Tổng tỉ lệ đã đạt mức trần 70%. Bạn không thể nâng thêm được nữa!");
+                        }
+                    }
+                }
+            }
+        }
+
+        window.saveAllocatedPoints = async function() {
+            const btn = document.getElementById('btn-save-alloc');
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> ĐANG KHÓA TỈ LỆ LẠI...";
+            btn.disabled = true;
+
+            userData.luckyPoints = tempAvailable;
+            userData.allocatedPoints = tempAllocated;
+
+            try {
+                await updateDoc(doc(db, "users-vong-quay", currentUser.uid), {
+                    luckyPoints: userData.luckyPoints,
+                    allocatedPoints: userData.allocatedPoints
+                });
+                btn.innerHTML = "<i class='fas fa-check'></i> ĐÃ LƯU & KHÓA TỈ LỆ THÀNH CÔNG";
+                btn.style.background = "#2c3e50";
+                
+                drawWheel(); 
+                
+                setTimeout(() => {
+                    btn.innerHTML = "<i class='fas fa-save'></i> LƯU TỈ LỆ LÊN VÒNG QUAY";
+                    btn.style.background = "#27ae60";
+                    btn.disabled = false;
+                    renderAllocList(); // Render lại để cập nhật nút trừ bị khóa mờ
+                }, 2000);
+            } catch(e) {
+                showToast("Lỗi lưu dữ liệu!");
+                btn.innerHTML = "LƯU TỈ LỆ LÊN VÒNG QUAY";
+                btn.disabled = false;
+            }
+        }
+
+        function updateSpinsUI() {
+            document.getElementById('val-spins').innerText = userData.spins;
+            document.getElementById('btn-spin').disabled = userData.spins <= 0;
+        }
+
+        function drawWheel() {
+            const canvas = document.getElementById('wheel-canvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = centerX;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let totalPrizeProb = 0;
+            let activePrizes = [];
+            
+            basePrizes.forEach(p => {
+                let userAdded = userData.allocatedPoints[p.id] || 0;
+                let actualProb = p.prob + userAdded;
+                totalPrizeProb += actualProb;
+                activePrizes.push({ id: p.id, name: p.name, color: p.color, prob: actualProb, isMiss: false });
+            });
+
+            // Luôn đảm bảo 3 ô trượt. Vì phần quà max 70%, nên phần trượt min = 30% (Mỗi ô 10%).
+            let totalMissProb = 100 - totalPrizeProb;
+            if (totalMissProb < 0) totalMissProb = 0; 
+            
+            let missProbPerSegment = totalMissProb / 3;
+
+            wheelSegments = [];
+            
+            let chunks = 3;
+            let itemsPerChunk = Math.ceil(activePrizes.length / chunks);
+            
+            let prizeIndex = 0;
+            for(let i=0; i<3; i++) {
+                for(let j=0; j<itemsPerChunk; j++) {
+                    if(prizeIndex < activePrizes.length) {
+                        wheelSegments.push(activePrizes[prizeIndex]);
+                        prizeIndex++;
+                    }
+                }
+                if(missProbPerSegment > 0) {
+                    wheelSegments.push({ name: "Chúc may mắn lần sau", color: "#bdc3c7", prob: missProbPerSegment, isMiss: true });
+                }
+            }
+            while(prizeIndex < activePrizes.length) {
+                wheelSegments.push(activePrizes[prizeIndex]);
+                prizeIndex++;
+            }
+
+            let sumProb = 0;
+            wheelSegments.forEach(s => sumProb += s.prob);
+            
+            if(sumProb > 0) {
+                wheelSegments.forEach(s => s.drawProb = (s.prob / sumProb) * 100);
+            } else {
+                wheelSegments = [{name:"Lỗi tải quà", color:"#ccc", prob:100, drawProb:100, isMiss:true}];
+            }
+
+            let startAngle = 0;
+            wheelSegments.forEach(seg => {
+                let sliceAngle = (seg.drawProb / 100) * 2 * Math.PI;
+                seg.startAngle = startAngle;
+                seg.endAngle = startAngle + sliceAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.closePath();
+                ctx.fillStyle = seg.color;
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "#ffffff";
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = seg.isMiss ? "#7f8c8d" : "#ffffff";
+                ctx.font = "bold 24px 'Montserrat', sans-serif";
+                
+                let text = seg.name;
+                if(text.length > 15) text = text.substring(0, 15) + '...';
+                
+                if(!seg.isMiss) {
+                    ctx.shadowColor = "rgba(0,0,0,0.5)";
+                    ctx.shadowBlur = 4;
+                }
+                ctx.fillText(text, radius - 30, 8);
+                ctx.restore();
+
+                startAngle += sliceAngle;
+            });
+        }
+
+        window.startSpin = async function() {
+            if (userData.spins <= 0) return;
+            
+            const btn = document.getElementById('btn-spin');
+            btn.disabled = true;
+
+            const pointer = document.querySelector('.wheel-pointer');
+            pointer.classList.add('pointer-spinning');
+
+            pointer.style.setProperty('--wiggle-angle', '10deg');
+            pointer.style.setProperty('--wiggle-speed', '0.15s');
+
+            setTimeout(() => {
+                pointer.style.setProperty('--wiggle-angle', '25deg');
+                pointer.style.setProperty('--wiggle-speed', '0.08s');
+            }, 400);
+
+            setTimeout(() => {
+                pointer.style.setProperty('--wiggle-angle', '12deg');
+                pointer.style.setProperty('--wiggle-speed', '0.2s');
+            }, 2500);
+
+            setTimeout(() => {
+                pointer.style.setProperty('--wiggle-angle', '4deg');
+                pointer.style.setProperty('--wiggle-speed', '0.4s');
+            }, 4200);
+
+            userData.spins -= 1;
+            await updateDoc(doc(db, "users-vong-quay", currentUser.uid), { spins: userData.spins });
+            updateSpinsUI();
+
+            let roll = Math.random() * 100;
+            let currentThresh = 0;
+            let wonSegment = null;
+
+            for (let seg of wheelSegments) {
+                currentThresh += seg.prob; 
+                if (roll <= currentThresh) {
+                    wonSegment = seg;
+                    break;
+                }
+            }
+            if(!wonSegment) wonSegment = wheelSegments[wheelSegments.length - 1]; 
+
+            let midAngle = (wonSegment.startAngle + wonSegment.endAngle) / 2;
+            let midAngleDeg = midAngle * (180 / Math.PI);
+            
+            let currentMod = currentRotation % 360;
+            
+            let targetRotation = currentRotation + (360 - currentMod) + (360 * 6) + (270 - midAngleDeg); 
+            currentRotation = targetRotation;
+
+            const canvas = document.getElementById('wheel-canvas');
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(async () => {
+                pointer.classList.remove('pointer-spinning');
+                
+                if (wonSegment.isMiss) {
+                    userData.luckyPoints += 1;
+                    await updateDoc(doc(db, "users-vong-quay", currentUser.uid), { luckyPoints: userData.luckyPoints });
+                    initAllocationUI(); 
+                    
+                    showCustomAlert(false, "TRƯỢT RỒI!", "Rất tiếc! Chúc bạn may mắn lần sau. <br>Bạn được hoàn lại <b>1 Điểm may mắn</b> để phục thù!");
+                } else {
+                    let d = new Date();
+                    let dateStr = `${d.getDate()}/${d.getMonth()+1}`;
+                    userData.wonPrizes.push(`${wonSegment.name} (${dateStr})`);
+                    
+                    // THUẬT TOÁN: Giảm 1 nửa số % được tăng thêm của món quà vừa trúng
+                    let prizeId = wonSegment.id;
+                    if (prizeId && userData.allocatedPoints[prizeId] > 0) {
+                        let currentAdded = userData.allocatedPoints[prizeId];
+                        userData.allocatedPoints[prizeId] = Math.floor(currentAdded / 2); // Giảm đi 1 nửa (làm tròn xuống)
+                    }
+                    
+                    await updateDoc(doc(db, "users-vong-quay", currentUser.uid), { 
+                        wonPrizes: userData.wonPrizes,
+                        allocatedPoints: userData.allocatedPoints
+                    });
+                    
+                    initAllocationUI(); // Reset lại bảng tỉ lệ bên dưới
+                    drawWheel(); // Vẽ lại vòng quay
+                    
+                    fireConfetti();
+                    showCustomAlert(true, "TRÚNG LỚN DÒ NHA!", `🎉 Bạn đã tuyệt vời quay trúng:<br><strong style="font-size:20px; color:#d35400;">${wonSegment.name}</strong><br><br><span style="font-size:13px;color:#888;">(Hệ thống đã tiêu hao một nửa số % mà bạn đã bơm thêm vào món quà này)</span><br><br>Hãy chụp màn hình lại và inbox Admin Fanpage để nhận quà nhé!`);
+                }
+
+                updateSpinsUI();
+            }, 5100); 
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('task-list-container');
+            let html = "";
+
+            tasks.forEach(t => {
+                let isDone = userData.completedTasks.includes(t.id);
+                let btnHtml = "";
+
+                if (isDone) {
+                    btnHtml = `<button class="btn-do-task btn-done" disabled><i class="fas fa-check"></i> Đã nhận</button>`;
+                } else {
+                    if (t.type === 'click') {
+                        btnHtml = `<button class="btn-do-task" onclick="window.doTask('${t.id}', '${t.type}', '${t.reward}')">Nhận ngay</button>`;
+                    } else if (t.type === 'link') {
+                        btnHtml = `<button class="btn-do-task" onclick="window.doTask('${t.id}', '${t.type}', '${t.reward}', '${t.target}')">Đi tới trang</button>`;
+                    } else if (t.type === 'search') {
+                        btnHtml = `
+                            <div class="search-task-box">
+                                <input type="text" id="input-${t.id}" placeholder="Nhập keyword web...">
+                                <button class="btn-do-task" onclick="window.doTask('${t.id}', 'search', '${t.reward}', '${t.target}')">Gửi</button>
+                            </div>
+                        `;
+                    } else if (t.type === 'buy') {
+                        btnHtml = `<div style="font-size:12px; color:#d35400; font-weight:bold;"><i class="fas fa-magic"></i> Duyệt tự động khi mua hàng</div>`;
+                    }
+                }
+
+                html += `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <h4>${t.name}</h4>
+                            <p>Phần thưởng: <strong style="color:#e74c3c;">+${t.reward} lượt</strong></p>
+                        </div>
+                        <div>${btnHtml}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.doTask = async function(taskId, type, reward, target) {
+            let numReward = parseInt(reward);
+
+            if (type === 'link') {
+                window.open(target, '_blank');
+                setTimeout(() => finishTask(taskId, numReward), 3000); 
+            } 
+            else if (type === 'search') {
+                let val = document.getElementById(`input-${taskId}`).value.trim().toLowerCase();
+                if (val === target.toLowerCase()) {
+                    finishTask(taskId, numReward);
+                } else {
+                    showCustomAlert(false, "SAI TỪ KHÓA", "Từ khóa không chính xác. Hãy dạo quanh web tìm hiểu kỹ nhé!");
+                }
+            } 
+            else if (type === 'click') {
+                finishTask(taskId, numReward);
+            }
+        }
+
+        async function finishTask(taskId, reward) {
+            userData.spins += reward;
+            userData.completedTasks.push(taskId);
+
+            await updateDoc(doc(db, "users-vong-quay", currentUser.uid), {
+                spins: userData.spins,
+                completedTasks: userData.completedTasks
+            });
+
+            showCustomAlert(true, "HOÀN THÀNH", `Làm nhiệm vụ thành công! Bạn nhận được <strong style="color:#e74c3c">+${reward} lượt quay.</strong>`);
+            updateSpinsUI();
+            renderTasks();
+        }
+
+        window.showCustomAlert = function(isWin, title, message) {
+            const overlay = document.getElementById('custom-alert');
+            const icon = document.getElementById('alert-icon');
+            
+            document.getElementById('alert-title').innerHTML = title;
+            document.getElementById('alert-msg').innerHTML = message;
+            
+            if(isWin) {
+                icon.className = "fas fa-gift alert-icon icon-win";
+            } else {
+                icon.className = "fas fa-sad-tear alert-icon icon-lose";
+            }
+            
+            overlay.style.display = 'flex';
+        }
+
+        window.closeAlert = function() {
+            document.getElementById('custom-alert').style.display = 'none';
+        }
+
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10001 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>

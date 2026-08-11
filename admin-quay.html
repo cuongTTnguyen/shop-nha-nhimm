@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Vòng Quay - Admin Nhà Nhimm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f4f1ea; }
+        .admin-wrapper { display: flex; min-height: 100vh; }
+        .admin-main { flex: 1; margin-left: 250px; padding: 30px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .admin-header h1 { margin: 0; font-size: 20px; color: #4a6741; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;}
+        .admin-card { background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #e0d9c5; }
+        .admin-card h3 { color: #d35400; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; font-size: 16px;}
+        .full-width { grid-column: 1 / -1; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 13px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        .btn-add { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn-add:hover { background: #2ecc71; }
+
+        .data-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .data-item { background: #fdfaf3; border: 1px dashed #ccc; padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-del { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+
+        .color-box { display: inline-block; width: 15px; height: 15px; border-radius: 3px; vertical-align: middle; margin-right: 5px; border: 1px solid #000; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        .data-table th { background: #fdfaf3; color: #4a6741; }
+        .btn-edit-user { background: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: bold;}
+        .prizes-list-tag { background: #ffeaa7; color: #d35400; padding: 3px 8px; border-radius: 10px; font-size: 11px; display: inline-block; margin: 2px; font-weight: bold; border: 1px solid #f1c40f;}
+
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #888; }
+        .btn-save-modal { width: 100%; padding: 12px; background: #4a6741; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;}
+
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } .admin-main { margin-left: 60px; } .data-table { display: block; overflow-x: auto; white-space: nowrap; } }
+    </style>
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        <div id="global-admin-sidebar"></div>
+
+        <main class="admin-main" id="admin-main-content" style="display:none;">
+            <div class="admin-header">
+                <h1><i class="fas fa-dharmachakra"></i> Thiết lập Vòng Quay May Mắn</h1>
+                <p style="font-size:13px; color:#666;">Khách phân bổ điểm may mắn để tăng % trúng. Luôn có 3 ô Trượt.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="admin-card">
+                    <h3><i class="fas fa-gift"></i> THIẾT LẬP PHẦN THƯỞNG (Tỉ lệ gốc)</h3>
+                    <div class="form-group">
+                        <label>Tên phần quà</label>
+                        <input type="text" id="q-name" placeholder="VD: Giảm 50k, 1 Lượt quay, Game Base...">
+                    </div>
+                    <div style="display:flex; gap:15px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Tỉ lệ gốc mặc định (%)</label>
+                            <input type="number" id="q-prob" placeholder="VD: 5" min="0" max="100">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Màu sắc hiển thị</label>
+                            <input type="color" id="q-color" value="#f1c40f" style="padding:2px; height:42px; cursor:pointer;">
+                        </div>
+                    </div>
+                    <button class="btn-add" onclick="addPrize()">+ THÊM QUÀ MỚI</button>
+
+                    <div class="data-list" id="prizes-list">
+                        <div style="text-align:center; padding:10px; color:#888;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
+                    </div>
+                    <p style="font-size:12px; color:#888; margin-top:10px;">* Hệ thống tự động tính phần trăm còn lại cho 3 ô "Trượt".</p>
+                </div>
+
+                <div class="admin-card">
+                    <h3><i class="fas fa-tasks"></i> THIẾT LẬP NHIỆM VỤ NHẬN LƯỢT</h3>
+                    <div class="form-group">
+                        <label>Tên nhiệm vụ</label>
+                        <input type="text" id="n-name" placeholder="VD: Điểm danh mỗi ngày, Theo dõi Fanpage...">
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượt quay tặng kèm</label>
+                        <input type="number" id="n-reward" placeholder="VD: 1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Loại nhiệm vụ</label>
+                        <select id="n-type" onchange="toggleTaskInputs()">
+                            <option value="click">Ấn là nhận (Phù hợp điểm danh)</option>
+                            <option value="link">Chuyển hướng Link (Xem Fb, Youtube)</option>
+                            <option value="search">Tìm kiếm Keyword trên Web</option>
+                            <option value="buy">Mua hàng (Tự động cộng khi duyệt đơn)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="box-link" style="display:none;">
+                        <label>Link chuyển hướng</label>
+                        <input type="text" id="n-link" placeholder="https://...">
+                    </div>
+                    <div class="form-group" id="box-search" style="display:none;">
+                        <label>Từ khóa cần tìm</label>
+                        <input type="text" id="n-keyword" placeholder="Gõ chính xác từ khóa...">
+                    </div>
+
+                    <button class="btn-add" onclick="addTask()" style="background:#d35400;">+ THÊM NHIỆM VỤ</button>
+
+                    <div class="data-list" id="tasks-list">
+                        <div style="text-align:center; padding:10px; color:#888;"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
+                    </div>
+                </div>
+
+                <div class="admin-card full-width">
+                    <h3><i class="fas fa-users"></i> THEO DÕI & QUẢN LÝ NGƯỜI CHƠI</h3>
+                    <p style="font-size:13px; color:#666; margin-top:-15px;">Tra cứu số dư lượt quay, điểm may mắn và các phần quà khách đã trúng.</p>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Khách hàng (Tài khoản)</th>
+                                <th style="text-align:center;">Lượt quay còn</th>
+                                <th style="text-align:center;">Điểm may mắn rảnh</th>
+                                <th>Lịch sử Trúng Quà</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-vq-list">
+                            <tr><td colspan="5" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('edit-user-modal').style.display='none'">&times;</span>
+            <h2 style="color:#d35400; margin-top:0; border-bottom:2px solid #eee; padding-bottom:10px;"><i class="fas fa-user-edit"></i> SỬA THÔNG TIN NGƯỜI CHƠI</h2>
+            
+            <p id="edit-u-email" style="font-weight:bold; color:#4a6741; margin-bottom:15px;"></p>
+
+            <div class="form-group" style="display:flex; gap:15px;">
+                <div style="flex:1;">
+                    <label>Lượt quay còn lại</label>
+                    <input type="number" id="edit-u-spins" min="0">
+                </div>
+                <div style="flex:1;">
+                    <label>Điểm may mắn (Rảnh)</label>
+                    <input type="number" id="edit-u-lucky" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Quà đã trúng (Chưa trao)</label>
+                <p style="font-size:11px; color:#888; margin-top:-5px;">* Mỗi phần quà trên 1 dòng. Admin tự xóa dòng sau khi đã trao quà cho khách qua Zalo/FB.</p>
+                <textarea id="edit-u-prizes" rows="5"></textarea>
+            </div>
+
+            <button class="btn-save-modal" id="btn-save-user" onclick="saveUserVqData()">LƯU CẬP NHẬT</button>
+            <div id="modal-msg" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
+        </div>
+    </div>
+
+    <script src="admin-layout-helper.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0", authDomain: "rootvn-3eeca.firebaseapp.com", projectId: "rootvn-3eeca", storageBucket: "rootvn-3eeca.firebasestorage.app", messagingSenderId: "92355209659", appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let usersMap = {}; // Lưu email user từ bảng tai-khoan
+        let editingUserId = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                let isAdmin = false;
+                if (user.email === "cuong23022003@gmail.com") isAdmin = true;
+                else {
+                    try {
+                        const q = query(collection(db, "tai-khoan"), where("email", "==", user.email));
+                        const snap = await getDocs(q);
+                        snap.forEach(d => { if (d.data().role === "admin") isAdmin = true; });
+                    } catch(e) {}
+                }
+
+                if (isAdmin) {
+                    document.getElementById('admin-main-content').style.display = 'block';
+                    // Tải map email trước để ghép vào bảng
+                    try {
+                        const tkSnap = await getDocs(collection(db, "tai-khoan"));
+                        tkSnap.forEach(t => usersMap[t.id] = t.data().email || 'Khách');
+                    } catch(e){}
+
+                    loadPrizes(); 
+                    loadTasks();
+                    loadUsersVq();
+                } else {
+                    document.body.innerHTML = `<div style="text-align:center; padding:100px;"><i class="fas fa-lock" style="font-size:50px; color:#e74c3c;"></i><h2>Truy cập bị từ chối!</h2></div>`;
+                }
+            } else {
+                document.body.innerHTML = `<div style="text-align:center; padding:100px;"><h2 style="color:#e74c3c;">Chưa đăng nhập!</h2></div>`;
+            }
+        });
+
+        window.toggleTaskInputs = function() {
+            const type = document.getElementById('n-type').value;
+            document.getElementById('box-link').style.display = type === 'link' ? 'block' : 'none';
+            document.getElementById('box-search').style.display = type === 'search' ? 'block' : 'none';
+        }
+
+        async function loadPrizes() {
+            const list = document.getElementById('prizes-list');
+            try {
+                const snap = await getDocs(collection(db, "vong-quay-qua"));
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div class="data-item">
+                        <div><span class="color-box" style="background:${data.color}"></span> <strong>${data.name}</strong> (${data.prob}%)</div>
+                        <button class="btn-del" onclick="deleteDocItem('vong-quay-qua', '${d.id}')">Xóa</button>
+                    </div>`;
+                });
+                list.innerHTML = html || "Chưa có phần quà nào.";
+            } catch (e) {
+                list.innerHTML = `<div style="color:red; font-size:12px;">Lỗi: ${e.message}</div>`;
+            }
+        }
+
+        async function loadTasks() {
+            const list = document.getElementById('tasks-list');
+            try {
+                const snap = await getDocs(collection(db, "vong-quay-nhiem-vu"));
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    let info = "";
+                    if(data.type === 'link') info = ` <br><small>Link: ${data.target}</small>`;
+                    if(data.type === 'search') info = ` <br><small>Key: ${data.target}</small>`;
+                    
+                    html += `<div class="data-item">
+                        <div><strong>${data.name}</strong> (+${data.reward} lượt) <br><span style="font-size:11px; color:#888;">Loại: ${data.type}</span>${info}</div>
+                        <button class="btn-del" onclick="deleteDocItem('vong-quay-nhiem-vu', '${d.id}')">Xóa</button>
+                    </div>`;
+                });
+                list.innerHTML = html || "Chưa có nhiệm vụ nào.";
+            } catch (e) {
+                list.innerHTML = `<div style="color:red; font-size:12px;">Lỗi: ${e.message}</div>`;
+            }
+        }
+
+        async function loadUsersVq() {
+            const tbody = document.getElementById('users-vq-list');
+            try {
+                const snap = await getDocs(collection(db, "users-vong-quay"));
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    const email = usersMap[d.id] || "Không xác định (UID: "+d.id.substring(0,5)+")";
+                    
+                    let prizesHtml = "";
+                    if(data.wonPrizes && data.wonPrizes.length > 0) {
+                        data.wonPrizes.forEach(p => { prizesHtml += `<span class="prizes-list-tag">${p}</span>`; });
+                    } else {
+                        prizesHtml = "<span style='color:#ccc; font-size:12px;'>Chưa trúng quà</span>";
+                    }
+
+                    html += `
+                        <tr>
+                            <td><strong>${email}</strong></td>
+                            <td style="text-align:center; font-weight:bold; color:#2980b9;">${data.spins || 0}</td>
+                            <td style="text-align:center; font-weight:bold; color:#e67e22;">${data.luckyPoints || 0}</td>
+                            <td>${prizesHtml}</td>
+                            <td><button class="btn-edit-user" onclick="window.openEditUser('${d.id}', '${email}', ${data.spins||0}, ${data.luckyPoints||0}, '${(data.wonPrizes||[]).join('\\n')}')"><i class="fas fa-edit"></i> Sửa</button></td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html || "<tr><td colspan='5' style='text-align:center;'>Chưa có người chơi tham gia.</td></tr>";
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan='5' style='color:red; text-align:center;'>Lỗi tải dữ liệu người chơi.</td></tr>`;
+            }
+        }
+
+        window.addPrize = async function() {
+            const name = document.getElementById('q-name').value.trim();
+            const prob = parseFloat(document.getElementById('q-prob').value);
+            const color = document.getElementById('q-color').value;
+            if(!name || isNaN(prob)) return alert("Nhập đủ tên và tỉ lệ!");
+            try {
+                await addDoc(collection(db, "vong-quay-qua"), { name, prob, color });
+                document.getElementById('q-name').value = '';
+                loadPrizes();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+
+        window.addTask = async function() {
+            const name = document.getElementById('n-name').value.trim();
+            const reward = parseInt(document.getElementById('n-reward').value);
+            const type = document.getElementById('n-type').value;
+            let target = "";
+            if(type === 'link') target = document.getElementById('n-link').value.trim();
+            if(type === 'search') target = document.getElementById('n-keyword').value.trim();
+
+            if(!name || isNaN(reward)) return alert("Nhập đủ tên và phần thưởng!");
+            if((type === 'link' || type === 'search') && !target) return alert("Nhập thông tin mục tiêu!");
+
+            try {
+                await addDoc(collection(db, "vong-quay-nhiem-vu"), { name, reward, type, target });
+                document.getElementById('n-name').value = '';
+                loadTasks();
+            } catch (e) { alert("Lỗi: " + e.message); }
+        }
+
+        window.deleteDocItem = async function(col, id) {
+            if(confirm("Xóa mục này?")) {
+                try {
+                    await deleteDoc(doc(db, col, id));
+                    if(col === 'vong-quay-qua') loadPrizes(); else loadTasks();
+                } catch(e) { alert("Lỗi xóa: " + e.message); }
+            }
+        }
+
+        window.openEditUser = function(uid, email, spins, lucky, prizesStr) {
+            editingUserId = uid;
+            document.getElementById('edit-u-email').innerText = email;
+            document.getElementById('edit-u-spins').value = spins;
+            document.getElementById('edit-u-lucky').value = lucky;
+            document.getElementById('edit-u-prizes').value = prizesStr;
+            document.getElementById('modal-msg').innerText = '';
+            document.getElementById('edit-user-modal').style.display = 'flex';
+        }
+
+        window.saveUserVqData = async function() {
+            if(!editingUserId) return;
+            const btn = document.getElementById('btn-save-user');
+            const msg = document.getElementById('modal-msg');
+            
+            const spins = parseInt(document.getElementById('edit-u-spins').value) || 0;
+            const lucky = parseInt(document.getElementById('edit-u-lucky').value) || 0;
+            const prizesRaw = document.getElementById('edit-u-prizes').value.trim();
+            
+            let wonPrizes = [];
+            if(prizesRaw) wonPrizes = prizesRaw.split('\n').map(x => x.trim()).filter(x => x !== '');
+
+            btn.innerText = "ĐANG LƯU...";
+            try {
+                await updateDoc(doc(db, "users-vong-quay", editingUserId), {
+                    spins: spins,
+                    luckyPoints: lucky,
+                    wonPrizes: wonPrizes
+                });
+                msg.style.color = "green";
+                msg.innerText = "Đã lưu thành công!";
+                setTimeout(() => {
+                    document.getElementById('edit-user-modal').style.display = 'none';
+                    btn.innerText = "LƯU CẬP NHẬT";
+                    loadUsersVq(); // Refresh table
+                }, 1000);
+            } catch(e) {
+                msg.style.color = "red";
+                msg.innerText = "Lỗi: " + e.message;
+                btn.innerText = "LƯU CẬP NHẬT";
+            }
+        }
+    </script>
+</body>
+</html>

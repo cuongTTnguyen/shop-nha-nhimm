@@ -178,7 +178,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // Bổ sung getDoc và setDoc để nạp điểm cho khách
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
@@ -293,11 +294,15 @@
                 let trackingDisplay = currentStatus === "Đang giao" ? "block" : "none";
                 let deliveryDisplay = currentStatus === "Đang chuẩn bị" ? "block" : "none";
 
+                // Hiển thị badge nếu khách đã được cộng điểm
+                let bonusBadge = order.diemVongQuayDaCong ? `<br><span style="background:#f1c40f; color:#d35400; font-size:11px; padding:2px 6px; border-radius:10px; font-weight:bold;"><i class="fas fa-gift"></i> Đã tặng Lượt/Điểm</span>` : '';
+
                 htmlContent += `
                     <tr id="row-${order.id}">
                         <td>
                             <strong style="color:#333;">#${order.id.substring(0,8).toUpperCase()}</strong><br>
                             <span style="font-size:12px; color:#888;">${dateStr}</span>
+                            ${bonusBadge}
                         </td>
                         <td>
                             <div class="cus-name">${kh.ten || 'Khách không tên'}</div>
@@ -344,14 +349,12 @@
             container.innerHTML = htmlContent;
         }
 
-        // HÀM COPY TẠO ĐƠN (Không dùng alert)
         window.copyOrder = function(id) {
             const order = window.allOrders.find(o => o.id === id);
             if(!order) return;
             const kh = order.khachHang || {};
             
-            // Format: Tên - SĐT - Địa chỉ
-            const textToCopy = `${kh.ten || ''} , ${kh.sdt || ''} , ${kh.diaChi || ''}`;
+            const textToCopy = `${kh.ten || ''} - ${kh.sdt || ''} - ${kh.diaChi || ''}`;
             
             const el = document.createElement('textarea');
             el.value = textToCopy;
@@ -360,7 +363,6 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // Báo hiệu trên nút
             const btn = document.getElementById(`btn-copy-${id}`);
             btn.innerHTML = `<i class="fas fa-check"></i> Đã Copy!`;
             btn.style.background = "#27ae60";
@@ -404,9 +406,45 @@
                     updateData.thoiGianGiao = document.getElementById(`delivery-time-${id}`).value.trim();
                 }
 
+                // =========================================================
+                // THUẬT TOÁN: CỘNG LƯỢT VÀ ĐIỂM MAY MẮN KHI ĐƠN ĐƯỢC DUYỆT HOÀN THÀNH
+                // =========================================================
+                if (status === "Hoàn thành") {
+                    const order = window.allOrders.find(o => o.id === id);
+                    // Kiểm tra xem đơn này đã cộng điểm chưa, tránh cộng 2 lần nếu admin đổi nhầm trạng thái
+                    if (order && !order.diemVongQuayDaCong && order.uidKhachHang && order.uidKhachHang !== "khach-vang-lai") {
+                        // Tính điểm: Lấy tổng tiền / 100k
+                        let diemCongThem = Math.floor((order.tongTien || 0) / 100000);
+                        let luotCongThem = 1; // Tặng 1 lượt quay cho mỗi đơn hàng
+
+                        try {
+                            const userVqRef = doc(db, "users-vong-quay", order.uidKhachHang);
+                            const userVqSnap = await getDoc(userVqRef);
+                            
+                            if (userVqSnap.exists()) {
+                                let curPts = userVqSnap.data().luckyPoints || 0;
+                                let curSpins = userVqSnap.data().spins || 0;
+                                await updateDoc(userVqRef, {
+                                    luckyPoints: curPts + diemCongThem,
+                                    spins: curSpins + luotCongThem
+                                });
+                            } else {
+                                await setDoc(userVqRef, {
+                                    spins: luotCongThem,
+                                    luckyPoints: diemCongThem,
+                                    allocatedPoints: {},
+                                    wonPrizes: [],
+                                    completedTasks: []
+                                });
+                            }
+                            // Đánh dấu đơn này đã cộng điểm để không cộng lại
+                            updateData.diemVongQuayDaCong = true; 
+                        } catch(e) { console.log("Lỗi cộng điểm Vòng Quay:", e); }
+                    }
+                }
+
                 await updateDoc(doc(db, "don-hang", id), updateData);
                 
-                // Cập nhật mảng local
                 const orderIndex = window.allOrders.findIndex(o => o.id === id);
                 if(orderIndex > -1) {
                     window.allOrders[orderIndex].trangThai = status;
@@ -414,6 +452,10 @@
                         window.allOrders[orderIndex].donViGiao = updateData.donViGiao;
                         window.allOrders[orderIndex].maVanDon = updateData.maVanDon;
                         window.allOrders[orderIndex].linkTraCuu = updateData.linkTraCuu;
+                    }
+                    if(updateData.diemVongQuayDaCong) {
+                        window.allOrders[orderIndex].diemVongQuayDaCong = true;
+                        window.applyFilters(); // Render lại bảng để hiện nhãn "Đã tặng điểm"
                     }
                 }
 
