@@ -178,7 +178,7 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-        let userData = { spins: 0, luckyPoints: 0, allocatedPoints: {}, wonPrizes: [], completedTasks: [] };
+        let userData = { spins: 0, luckyPoints: 0, allocatedPoints: {}, wonPrizes: [], completedTasks: [], dailyTasks: {} };
         let basePrizes = [];
         let tasks = [];
         let wheelSegments = [];
@@ -186,6 +186,12 @@
         
         let tempAllocated = {};
         let tempAvailable = 0;
+
+        // HÀM HỖ TRỢ: Lấy chuỗi ngày hôm nay (VD: 14/08/2026) để kiểm tra Nhiệm vụ Hàng ngày
+        function getTodayString() {
+            const d = new Date();
+            return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -205,8 +211,11 @@
                 userData = snap.data();
                 if(!userData.allocatedPoints) userData.allocatedPoints = {};
                 if(!userData.wonPrizes) userData.wonPrizes = [];
+                if(!userData.completedTasks) userData.completedTasks = [];
+                // Bổ sung kho lưu trữ nhiệm vụ điểm danh theo ngày
+                if(!userData.dailyTasks) userData.dailyTasks = {}; 
             } else {
-                userData = { spins: 0, luckyPoints: 0, allocatedPoints: {}, wonPrizes: [], completedTasks: [] };
+                userData = { spins: 0, luckyPoints: 0, allocatedPoints: {}, wonPrizes: [], completedTasks: [], dailyTasks: {} };
                 await setDoc(userRef, userData);
             }
         }
@@ -553,9 +562,24 @@
         function renderTasks() {
             const container = document.getElementById('task-list-container');
             let html = "";
+            let todayStr = getTodayString(); // Lấy ngày hôm nay
 
             tasks.forEach(t => {
-                let isDone = userData.completedTasks.includes(t.id);
+                let taskNameLow = t.name.toLowerCase();
+                // Thuật toán nhận diện Nhiệm vụ Hàng ngày qua từ khóa
+                let isDaily = taskNameLow.includes('mỗi ngày') || taskNameLow.includes('hằng ngày') || taskNameLow.includes('hàng ngày') || taskNameLow.includes('điểm danh');
+                
+                let isDone = false;
+                
+                // Nếu là nhiệm vụ hàng ngày -> Check xem hôm nay đã làm chưa
+                if (isDaily) {
+                    isDone = (userData.dailyTasks && userData.dailyTasks[t.id] === todayStr);
+                } 
+                // Nhiệm vụ thường -> Check xem đã từng làm vĩnh viễn chưa
+                else {
+                    isDone = userData.completedTasks.includes(t.id);
+                }
+
                 let btnHtml = "";
 
                 if (isDone) {
@@ -580,7 +604,7 @@
                 html += `
                     <div class="task-item">
                         <div class="task-info">
-                            <h4>${t.name}</h4>
+                            <h4>${t.name} ${isDaily ? '<span style="font-size:10px; color:#3498db; background:#e3f2fd; padding:2px 5px; border-radius:10px; margin-left:5px;">Hàng ngày</span>' : ''}</h4>
                             <p>Phần thưởng: <strong style="color:#e74c3c;">+${t.reward} lượt</strong></p>
                         </div>
                         <div>${btnHtml}</div>
@@ -612,11 +636,27 @@
 
         async function finishTask(taskId, reward) {
             userData.spins += reward;
-            userData.completedTasks.push(taskId);
+            
+            // Tìm thông tin task để biết nó là loại gì
+            const taskDef = tasks.find(x => x.id === taskId);
+            let taskNameLow = taskDef ? taskDef.name.toLowerCase() : "";
+            let isDaily = taskNameLow.includes('mỗi ngày') || taskNameLow.includes('hằng ngày') || taskNameLow.includes('hàng ngày') || taskNameLow.includes('điểm danh');
+
+            if (isDaily) {
+                // Lưu mốc thời gian của ngày hôm nay vào kho
+                if(!userData.dailyTasks) userData.dailyTasks = {};
+                userData.dailyTasks[taskId] = getTodayString();
+            } else {
+                // Lưu vĩnh viễn
+                if (!userData.completedTasks.includes(taskId)) {
+                    userData.completedTasks.push(taskId);
+                }
+            }
 
             await updateDoc(doc(db, "users-vong-quay", currentUser.uid), {
                 spins: userData.spins,
-                completedTasks: userData.completedTasks
+                completedTasks: userData.completedTasks,
+                dailyTasks: userData.dailyTasks || {}
             });
 
             showCustomAlert(true, "HOÀN THÀNH", `Làm nhiệm vụ thành công! Bạn nhận được <strong style="color:#e74c3c">+${reward} lượt quay.</strong>`);
