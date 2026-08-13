@@ -75,7 +75,7 @@
         }
         .form-group textarea { height: 80px; resize: vertical; }
 
-        /* Box Quà tặng / Voucher - CẢI TIẾN CHỌN NHIỀU */
+        /* Box Quà tặng / Voucher */
         .voucher-box {
             background: #fff9e6;
             padding: 15px;
@@ -182,10 +182,10 @@
             <div class="voucher-box" id="voucher-container" style="display: none;">
                 <label><i class="fas fa-gift"></i> Quà tặng từ Vòng Quay May Mắn</label>
                 <div class="voucher-list" id="voucher-list">
-                    <!-- Checkbox các phần quà sẽ được sinh ra ở đây -->
+                    <!-- Sẽ sinh ra list voucher hoặc dòng chữ báo trống ở đây -->
                 </div>
                 <div style="font-size: 11px; color: #888; margin-top: 8px;">
-                    * Bạn có thể chọn nhiều món quà cùng lúc. Admin sẽ gạch tiền hoặc gửi kèm quà vào hộp hàng cho bạn. Các món quà được tick chọn sẽ tự động biến mất khỏi tài khoản sau khi chốt đơn.
+                    * <strong>Điều kiện:</strong> Đơn hàng từ 100.000đ trở lên. Mỗi loại quà chỉ được dùng tối đa 1 cái/đơn. Các món quà được tick chọn sẽ tự động biến mất khỏi tài khoản sau khi chốt đơn.
                 </div>
             </div>
 
@@ -270,14 +270,16 @@
                 const userVqRef = doc(db, "users-vong-quay", uid);
                 const userVqSnap = await getDoc(userVqRef);
                 
+                const voucherContainer = document.getElementById('voucher-container');
+                const voucherList = document.getElementById('voucher-list');
+                
+                // Nếu khách đã đăng nhập, LUÔN HIỆN khu vực hộp Voucher
+                voucherContainer.style.display = 'block';
+                
                 if (userVqSnap.exists()) {
                     const data = userVqSnap.data();
                     if (data.wonPrizes && data.wonPrizes.length > 0) {
                         userWonPrizes = data.wonPrizes; // Lưu lại mảng gốc
-                        
-                        const voucherContainer = document.getElementById('voucher-container');
-                        const voucherList = document.getElementById('voucher-list');
-                        voucherContainer.style.display = 'block';
                         
                         let listHtml = '';
                         userWonPrizes.forEach((prize, idx) => {
@@ -290,8 +292,17 @@
                             `;
                         });
                         voucherList.innerHTML = listHtml;
+                        return; // Dừng tại đây nếu có quà
                     }
                 }
+                
+                // Nếu khách không có quà (hoặc chưa từng vào vòng quay)
+                voucherList.innerHTML = `
+                    <div style="font-size:13px; color:#888; padding: 15px; text-align:center; background:#fff; border-radius:8px; border:1px dashed #ccc;">
+                        Bạn chưa có phần quà nào.<br>
+                        <a href="vong-quay.html" style="color:#d35400; font-weight:bold; text-decoration:none; display:inline-block; margin-top:5px;">Tham gia Vòng quay may mắn ngay!</a>
+                    </div>
+                `;
             } catch(e) {
                 console.log("Lỗi tải voucher:", e);
             }
@@ -404,10 +415,38 @@
             }
             if (gioHang.length === 0) return;
 
+            const tongTien = gioHang.reduce((total, item) => total + (item.gia * item.soLuong), 0);
+
             // KIỂM TRA CÁC VOUCHER ĐƯỢC CHỌN (HỖ TRỢ CHỌN NHIỀU)
             const checkedBoxes = document.querySelectorAll('.voucher-checkbox:checked');
             let selectedVoucherNames = [];
             let indicesToRemove = [];
+
+            // THÊM ĐIỀU KIỆN SỬ DỤNG VOUCHER
+            if (checkedBoxes.length > 0) {
+                if (tongTien < 100000) {
+                    statusMsg.style.color = "#ff4757";
+                    statusMsg.innerText = "Đơn hàng phải từ 100.000đ trở lên mới được áp dụng quà tặng!";
+                    return;
+                }
+
+                let uniqueVouchers = new Set();
+                let isDuplicate = false;
+                checkedBoxes.forEach(cb => {
+                    let fullVName = userWonPrizes[parseInt(cb.value)];
+                    // Tách lấy tên gốc, bỏ đi cái ngày tháng trong ngoặc đơn ở cuối (Ví dụ: Giảm 50k (14/8) -> Giảm 50k)
+                    let baseName = fullVName.replace(/\s\(\d{1,2}\/\d{1,2}\)$/, '').trim();
+                    
+                    if (uniqueVouchers.has(baseName)) isDuplicate = true;
+                    uniqueVouchers.add(baseName);
+                });
+
+                if (isDuplicate) {
+                    statusMsg.style.color = "#ff4757";
+                    statusMsg.innerText = "Mỗi loại quà tặng (cùng tên) chỉ được sử dụng tối đa 1 cái cho mỗi đơn hàng!";
+                    return;
+                }
+            }
 
             checkedBoxes.forEach(cb => {
                 let idx = parseInt(cb.value);
@@ -420,34 +459,27 @@
                 ghiChu = `[DÙNG QUÀ: ${selectedVoucherNames.join(' + ')}] ` + ghiChu;
             }
 
-            const tongTien = gioHang.reduce((total, item) => total + (item.gia * item.soLuong), 0);
             const ghiChuMoi = `Ngôn ngữ: ${ngonNgu} | ${ghiChu}`;
 
+            // Đóng gói dữ liệu đơn hàng
             const donHangMoi = {
-                uidKhachHang: currentUserUid,
-                khachHang: { 
-                    ten: ten, 
-                    sdt: sdt, 
-                    diaChi: diaChi, 
-                    ghiChu: ghiChuMoi,
-                    ngonNgu: ngonNgu
-                },
-                ngonNgu: ngonNgu,
+                khachHang: { ten, sdt, diaChi, ghiChu: ghiChuMoi },
                 sanPham: gioHang,
                 tongTien: tongTien,
-                trangThai: "Chờ xác nhận",
-                ngayDat: serverTimestamp()
+                trangThai: "Đang xem xét",
+                ngayDat: serverTimestamp(),
+                uidKhachHang: currentUserUid
             };
 
             btn.innerText = "ĐANG XỬ LÝ...";
             btn.disabled = true;
 
             try {
-                // 1. Lưu đơn hàng lên DB
+                // 1. Lưu đơn hàng vào Firebase
                 const docRef = await addDoc(collection(db, "don-hang"), donHangMoi);
-                localStorage.removeItem('cart');
+                localStorage.removeItem('cart'); // Xóa giỏ hàng
 
-                // 2. TỰ ĐỘNG XÓA HÀNG LOẠT VOUCHER KHÁCH VỪA DÙNG KHỎI KHO ĐỒ
+                // 2. XÓA VOUCHER NẾU CÓ DÙNG
                 if (indicesToRemove.length > 0) {
                     try {
                         // Phải sort giảm dần để khi splice(index, 1) không bị nhảy mảng làm sai index các item sau

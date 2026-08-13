@@ -6,6 +6,9 @@ function setupGlobalLayout() {
         style.innerHTML = `
             /* --- HEADER CAO CẤP (Kính mờ) --- */
             .index-header {
+                position: fixed !important; /* Ghim cứng lên đầu trang */
+                top: 0; left: 0; width: 100%;
+                z-index: 9999 !important; /* Đẩy lên lớp cao nhất, không bị thằng nào đè */
                 background: rgba(255, 255, 255, 0.85) !important;
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
@@ -15,6 +18,8 @@ function setupGlobalLayout() {
                 justify-content: space-between;
                 align-items: center;
                 padding: 0 20px;
+                height: 70px;
+                box-sizing: border-box;
             }
             .header-nav { display: flex; align-items: center; gap: 15px; }
             .header-nav .nav-item {
@@ -38,11 +43,20 @@ function setupGlobalLayout() {
             .header-nav .nav-item:hover::after { width: 100%; }
             .header-nav .nav-item:hover { color: #d35400 !important; }
 
+            /* Nút 3 gạch */
+            .menu-btn {
+                background: none; border: none; cursor: pointer; padding: 10px;
+                display: flex; flex-direction: column; gap: 5px; position: relative; z-index: 10000;
+            }
+            .menu-btn span { width: 25px; height: 3px; background: #4a6741; border-radius: 2px; transition: 0.3s; }
+
             /* SỬA LỖI CHE CHỮ HEADER TRÊN MÀN HÌNH NHỎ */
             @media (max-width: 1050px) {
-                /* Ẩn các chữ đi, khách sẽ dùng nút Menu 3 gạch */
                 .header-nav .nav-item { display: none !important; }
             }
+
+            /* Đẩy nội dung xuống tránh bị Header đè */
+            body { padding-top: 70px; }
 
             /* --- FOOTER SANG TRỌNG (Dark Mode) --- */
             .main-footer {
@@ -51,6 +65,7 @@ function setupGlobalLayout() {
                 padding: 60px 20px 20px 20px !important;
                 margin-top: 60px;
                 font-family: 'Montserrat', sans-serif;
+                position: relative; z-index: 10;
             }
             .footer-container {
                 display: grid;
@@ -100,13 +115,13 @@ function setupGlobalLayout() {
     // 2. TẠO HTML CHO HEADER
     const headerHtml = `
         <div class="header-left">
-            <button class="menu-btn" onclick="toggleSidebarMenu()">
+            <button class="menu-btn" onclick="if(window.toggleSidebarMenu) window.toggleSidebarMenu();">
                 <span></span><span></span><span></span>
             </button>
         </div>
         <div class="header-center">
             <a href="index.html" class="logo-link">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" class="root-logo">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUasrlZDK2aoQln8Y41Occ8yWOU5hq39ciRQ&s" alt="ROOT Logo" style="height: 40px;">
             </a>
         </div>
         <div class="header-right">
@@ -117,7 +132,7 @@ function setupGlobalLayout() {
                 <a href="set-keo.html" class="nav-item" style="color:#d35400;"><i class="fas fa-handshake"></i> Set Kèo</a>
                 
                 <!-- Icon Tìm kiếm và Giỏ hàng luôn hiển thị -->
-                <button class="search-btn" onclick="toggleSearch()" style="background:none; border:none; font-size:18px; color:#4a6741; cursor:pointer;">
+                <button class="search-btn" onclick="if(window.toggleSearch) window.toggleSearch();" style="background:none; border:none; font-size:18px; color:#4a6741; cursor:pointer;">
                     <i class="fas fa-search"></i>
                 </button>
                 <div class="cart-icon-container" onclick="window.location.href='gio-hang.html'" style="color: #2c3e50; font-size:18px; cursor:pointer; position:relative; margin-left:10px;">
@@ -132,7 +147,7 @@ function setupGlobalLayout() {
     const sidebarHtml = `
         <div class="sidebar-header">
             <span class="sidebar-title">MENU</span>
-            <button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button>
+            <button class="close-sidebar" onclick="if(window.toggleSidebarMenu) window.toggleSidebarMenu();">&times;</button>
         </div>
         <ul class="sidebar-nav">
             <li><a href="index.html">🏠 Trang chủ</a></li>
@@ -152,7 +167,7 @@ function setupGlobalLayout() {
         </ul>
     `;
 
-    // 4. TẠO HTML CHO FOOTER CAO CẤP
+    // 4. TẠO HTML CHO FOOTER
     const footerHtml = `
         <div class="footer-container">
             <div class="footer-column">
@@ -186,7 +201,13 @@ function setupGlobalLayout() {
 
     // 5. CHÈN VÀO DOM
     const headerEl = document.getElementById('global-header');
-    if (headerEl) headerEl.innerHTML = headerHtml;
+    if (headerEl) {
+        headerEl.innerHTML = headerHtml;
+        // Bắt buộc thẻ Header phải mang class index-header để nhận CSS
+        if (!headerEl.classList.contains('index-header')) {
+            headerEl.classList.add('index-header');
+        }
+    }
 
     const sidebarEl = document.getElementById('left-sidebar');
     if (sidebarEl) sidebarEl.innerHTML = sidebarHtml;
@@ -199,6 +220,18 @@ function setupGlobalLayout() {
     const tongSoLuong = gioHang.reduce((total, item) => total + item.soLuong, 0);
     const countElement = document.getElementById('cart-count');
     if (countElement) countElement.innerText = tongSoLuong;
+
+    // 7. HÀM TẠO LẠI CHỨC NĂNG BẬT TẮT SIDEBAR (Phòng trường hợp script.js bị lỗi)
+    if (typeof window.toggleSidebarMenu !== 'function') {
+        window.toggleSidebarMenu = function() {
+            const sb = document.getElementById('left-sidebar');
+            const ov = document.getElementById('sidebar-overlay');
+            if(sb && ov) {
+                sb.classList.toggle('active');
+                ov.classList.toggle('active');
+            }
+        };
+    }
 }
 
 document.addEventListener('DOMContentLoaded', setupGlobalLayout);
