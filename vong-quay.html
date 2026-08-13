@@ -167,6 +167,7 @@
     <script src="script.js"></script>
     <script src="layout-helper.js"></script>
 
+    <!-- SCRIPT CHÍNH VÒNG QUAY -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -585,15 +586,16 @@
                 if (isDone) {
                     btnHtml = `<button class="btn-do-task btn-done" disabled><i class="fas fa-check"></i> Đã nhận</button>`;
                 } else {
+                    // Truyền thêm từ khóa 'this' để truyền chính cái nút bấm đó vào hàm xử lý chống Spam
                     if (t.type === 'click') {
-                        btnHtml = `<button class="btn-do-task" onclick="window.doTask('${t.id}', '${t.type}', '${t.reward}')">Nhận ngay</button>`;
+                        btnHtml = `<button class="btn-do-task" onclick="window.doTask('${t.id}', '${t.type}', '${t.reward}', null, this)">Nhận ngay</button>`;
                     } else if (t.type === 'link') {
-                        btnHtml = `<button class="btn-do-task" onclick="window.doTask('${t.id}', '${t.type}', '${t.reward}', '${t.target}')">Đi tới trang</button>`;
+                        btnHtml = `<button class="btn-do-task" onclick="window.doTask('${t.id}', '${t.type}', '${t.reward}', '${t.target}', this)">Đi tới trang</button>`;
                     } else if (t.type === 'search') {
                         btnHtml = `
                             <div class="search-task-box">
                                 <input type="text" id="input-${t.id}" placeholder="Nhập keyword web...">
-                                <button class="btn-do-task" onclick="window.doTask('${t.id}', 'search', '${t.reward}', '${t.target}')">Gửi</button>
+                                <button class="btn-do-task" onclick="window.doTask('${t.id}', 'search', '${t.reward}', '${t.target}', this)">Gửi</button>
                             </div>
                         `;
                     } else if (t.type === 'buy') {
@@ -614,54 +616,90 @@
             container.innerHTML = html;
         }
 
-        window.doTask = async function(taskId, type, reward, target) {
+        window.doTask = async function(taskId, type, reward, target, btnEl) {
+            // LỚP BẢO VỆ 1: Khóa cứng nút ngay lập tức để chống Auto-click / Spam tay
+            if (btnEl) {
+                if (btnEl.disabled) return; // Nếu đang bị khóa thì chặn luôn
+                btnEl.disabled = true;
+                btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Xử lý...';
+            }
+
             let numReward = parseInt(reward);
 
             if (type === 'link') {
                 window.open(target, '_blank');
-                setTimeout(() => finishTask(taskId, numReward), 3000); 
+                // Chờ hệ thống xử lý xong mới nhả nút
+                await finishTask(taskId, numReward, btnEl); 
             } 
             else if (type === 'search') {
                 let val = document.getElementById(`input-${taskId}`).value.trim().toLowerCase();
                 if (val === target.toLowerCase()) {
-                    finishTask(taskId, numReward);
+                    await finishTask(taskId, numReward, btnEl);
                 } else {
                     showCustomAlert(false, "SAI TỪ KHÓA", "Từ khóa không chính xác. Hãy dạo quanh web tìm hiểu kỹ nhé!");
+                    // Nếu sai từ khóa thì mở lại nút để khách nhập lại
+                    if (btnEl) {
+                        btnEl.disabled = false;
+                        btnEl.innerHTML = 'Gửi';
+                    }
                 }
             } 
             else if (type === 'click') {
-                finishTask(taskId, numReward);
+                await finishTask(taskId, numReward, btnEl);
             }
         }
 
-        async function finishTask(taskId, reward) {
-            userData.spins += reward;
-            
+        async function finishTask(taskId, reward, btnEl) {
             // Tìm thông tin task để biết nó là loại gì
             const taskDef = tasks.find(x => x.id === taskId);
             let taskNameLow = taskDef ? taskDef.name.toLowerCase() : "";
             let isDaily = taskNameLow.includes('mỗi ngày') || taskNameLow.includes('hằng ngày') || taskNameLow.includes('hàng ngày') || taskNameLow.includes('điểm danh');
+            let todayStr = getTodayString();
+
+            // LỚP BẢO VỆ 2: Kiểm tra chéo xem khoảnh khắc này khách có đang bị lặp data không
+            if (isDaily) {
+                if (userData.dailyTasks && userData.dailyTasks[taskId] === todayStr) {
+                    console.log("Phát hiện spam click: Nhiệm vụ ngày đã xong.");
+                    return; // Ngừng chạy ngay
+                }
+            } else {
+                if (userData.completedTasks.includes(taskId)) {
+                    console.log("Phát hiện spam click: Nhiệm vụ vĩnh viễn đã xong.");
+                    return; // Ngừng chạy ngay
+                }
+            }
+
+            // Nếu vượt qua 2 lớp bảo vệ, mới bắt đầu cộng điểm
+            userData.spins += reward;
 
             if (isDaily) {
                 // Lưu mốc thời gian của ngày hôm nay vào kho
                 if(!userData.dailyTasks) userData.dailyTasks = {};
-                userData.dailyTasks[taskId] = getTodayString();
+                userData.dailyTasks[taskId] = todayStr;
             } else {
                 // Lưu vĩnh viễn
-                if (!userData.completedTasks.includes(taskId)) {
-                    userData.completedTasks.push(taskId);
-                }
+                userData.completedTasks.push(taskId);
             }
 
-            await updateDoc(doc(db, "users-vong-quay", currentUser.uid), {
-                spins: userData.spins,
-                completedTasks: userData.completedTasks,
-                dailyTasks: userData.dailyTasks || {}
-            });
+            try {
+                // Cập nhật lên máy chủ Firebase
+                await updateDoc(doc(db, "users-vong-quay", currentUser.uid), {
+                    spins: userData.spins,
+                    completedTasks: userData.completedTasks,
+                    dailyTasks: userData.dailyTasks || {}
+                });
 
-            showCustomAlert(true, "HOÀN THÀNH", `Làm nhiệm vụ thành công! Bạn nhận được <strong style="color:#e74c3c">+${reward} lượt quay.</strong>`);
-            updateSpinsUI();
-            renderTasks();
+                showCustomAlert(true, "HOÀN THÀNH", `Làm nhiệm vụ thành công! Bạn nhận được <strong style="color:#e74c3c">+${reward} lượt quay.</strong>`);
+                updateSpinsUI();
+                renderTasks();
+            } catch (error) {
+                console.log("Lỗi mạng khi cộng điểm:", error);
+                // Nếu bị lỗi kết nối, nhả lại nút bấm
+                if (btnEl) {
+                    btnEl.disabled = false;
+                    btnEl.innerHTML = 'Thử lại';
+                }
+            }
         }
 
         window.showCustomAlert = function(isWin, title, message) {
