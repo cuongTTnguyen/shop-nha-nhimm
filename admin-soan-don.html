@@ -75,7 +75,7 @@
             width: 20px; height: 20px; border-radius: 6px; cursor: pointer; transition: 0.2s;
         }
         .chk-box:hover { transform: scale(1.1); }
-        .chk-box.state-0 { background: #fff; border: 2px solid #ccc; }
+        .chk-box.state-0 { background: #e74c3c; border: 2px solid #c0392b; }
         .chk-box.state-1 { background: #3498db; border: 2px solid #2980b9; }
         .chk-box.state-2 { background: #9b59b6; border: 2px solid #8e44ad; }
 
@@ -161,7 +161,7 @@
                 </select>
                 <div style="font-size: 12px; color: #555; background: #eee; padding: 8px 12px; border-radius: 8px;">
                     <strong>Ý nghĩa màu:</strong> 
-                    <span style="background:#fff; border:1px solid #ccc; padding:2px 5px; border-radius:3px; margin:0 3px;">ĐO (Chưa chuẩn bị)</span> ➔ 
+                    <span style="background:#e74c3c; color:white; padding:2px 5px; border-radius:3px; margin:0 3px;">Đỏ (Chưa chuẩn bị)</span> ➔ 
                     <span style="background:#3498db; color:white; padding:2px 5px; border-radius:3px; margin:0 3px;">Xanh (Đã in)</span> ➔ 
                     <span style="background:#9b59b6; color:white; padding:2px 5px; border-radius:3px; margin:0 3px;">Tím (Hoàn thành)</span>
                 </div>
@@ -436,7 +436,17 @@
                     }
                 }
 
+                // TRÍCH XUẤT NGÔN NGỮ TỪ ĐƠN HÀNG HOẶC QUÉT TRỰC TIẾP TỪ GHI CHÚ
                 let ngonNguStr = order.ngonNgu || (order.khachHang && order.khachHang.ngonNgu) || 'Tiếng Việt';
+                if (order.khachHang && order.khachHang.ghiChu) {
+                    // Quét tìm chuỗi "Ngôn ngữ: [Giá trị] |" trong ghi chú do hệ thống tự sinh lúc chốt đơn
+                    let match = order.khachHang.ghiChu.match(/Ngôn ngữ:\s*(.*?)\s*\|/);
+                    if (match && match[1]) {
+                        ngonNguStr = match[1].trim();
+                    }
+                }
+                // Tùy chỉnh màu sắc nổi bật nếu khách chọn Tiếng Anh/English
+                let langColor = (ngonNguStr.toLowerCase().includes('anh') || ngonNguStr.toLowerCase().includes('english')) ? '#2980b9' : '#d35400';
                 
                 // Thu thập các hàng con (1 SP = 1 Hàng)
                 let orderRows = [];
@@ -614,7 +624,7 @@
                                 <strong style="color:#2c3e50;">${order.khachHang.ten}</strong>
                                 <div style="font-size:11px; color:#888;">${order.khachHang.sdt || ''}</div>
                             </td>
-                            <td class="col-lang" rowspan="${totalRows}">${ngonNguStr}</td>
+                            <td class="col-lang" rowspan="${totalRows}" style="color: ${langColor};">${ngonNguStr}</td>
                         `;
                     }
                     

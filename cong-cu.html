@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <!-- Cấu hình chống zoom và vô hiệu hóa các thao tác kéo thả mặc định trên Mobile để cảm ứng mượt hơn -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Công cụ Hỗ trợ - ROOT Việt Nam</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Thư viện hiệu ứng pháo giấy -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { 
+            background-color: #f4f1ea; 
+            margin: 0; 
+            padding: 0;
+            overflow: hidden; /* Ngăn trang web cuộn lên xuống khi đang chơi */
+        }
+        
+        .tools-container {
+            height: calc(100vh - 70px); /* Bù trừ 70px của Header thay vì dùng padding */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        /* THANH ĐIỀU HƯỚNG CHUYỂN TAB */
+        .tabs-header {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            padding: 10px 0 0 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .tab-btn {
+            flex: 1;
+            max-width: 250px;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            color: #888;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            color: #d35400;
+            border-bottom-color: #d35400;
+            background: #fff9e6;
+            border-radius: 10px 10px 0 0;
+        }
+
+        /* KHU VỰC HIỂN THỊ CANVAS */
+        .tab-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle, #fffaf0 0%, #e0d9c5 100%);
+        }
+        .mode-panel {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+        }
+        .mode-panel.active { display: block; }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            /* Chặn hoàn toàn các cử chỉ kéo trang của trình duyệt trên Canvas */
+            touch-action: none; 
+        }
+
+        /* NÚT ĐỔ XÚC XẮC */
+        .btn-roll {
+            position: absolute;
+            bottom: 15%; /* Nâng cao lên để phù hợp đa màn hình thay vì 40px */
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #d35400, #c0392b);
+            color: white;
+            border: 3px solid #f1c40f;
+            padding: 18px 50px;
+            border-radius: 40px;
+            font-size: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(211,84,0,0.4);
+            z-index: 100;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-roll:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 15px 35px rgba(211,84,0,0.5);
+        }
+        .btn-roll:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        /* POPUP KẾT QUẢ ĐỔ XÚC XẮC */
+        .custom-alert-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;
+        }
+        .custom-alert-box {
+            background: #fff; padding: 40px; border-radius: 25px; text-align: center; 
+            max-width: 400px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
+            border: 5px solid #d35400; transform: scale(0.8); 
+            animation: popAlert 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popAlert { to { transform: scale(1); } }
+        .alert-icon { font-size: 70px; margin-bottom: 20px; color: #f1c40f; text-shadow: 0 4px 10px rgba(241, 196, 15, 0.4); }
+        .alert-title { font-size: 22px; font-weight: 900; font-family: 'Montserrat', sans-serif; color: #4a6741; margin-bottom: 15px; }
+        .alert-msg { font-size: 45px; font-family: 'Montserrat', sans-serif; font-weight: 900; color: #e74c3c; margin-bottom: 30px; letter-spacing: 2px;}
+        .btn-close-alert { background: #d35400; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-close-alert:hover { background: #c0392b; transform: scale(1.05); }
+
+    </style>
+</head>
+<body class="index-page">
+
+    <!-- Chèn Header Dùng Chung -->
+    <header id="global-header" class="index-header"></header>
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
+    <div id="left-sidebar" class="left-sidebar"></div>
+
+    <div class="tools-container">
+        <!-- Chuyển Đổi Chế Độ -->
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab('dice')"><i class="fas fa-dice-d20"></i> Đổ Xúc Xắc</button>
+            <button class="tab-btn" onclick="switchTab('touch')"><i class="fas fa-hand-pointer"></i> Chọn Người Chơi</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- CHẾ ĐỘ ĐỔ XÚC XẮC -->
+            <div id="mode-dice" class="mode-panel active">
+                <canvas id="dice-canvas"></canvas>
+                <button class="btn-roll" onclick="doRoll()"><i class="fas fa-bolt"></i> ĐỔ XÚC XẮC LẦN NỮA</button>
+            </div>
+            
+            <!-- CHẾ ĐỘ CHẠM TAY (CHWAZI) -->
+            <div id="mode-touch" class="mode-panel">
+                <canvas id="touch-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Kết Quả Xúc Xắc -->
+    <div id="dice-result-modal" class="custom-alert-overlay">
+        <div class="custom-alert-box">
+            <i class="fas fa-dice alert-icon"></i>
+            <div class="alert-title">KẾT QUẢ NHẬN ĐƯỢC</div>
+            <div class="alert-msg" id="dice-result-text">3 - 1</div>
+            <button class="btn-close-alert" onclick="closeDiceModal()">Tuyệt vời</button>
+        </div>
+    </div>
+
+    <script src="layout-helper.js"></script>
+
+    <script>
+        let currentTab = 'dice';
+        let width, height;
+        
+        const diceCanvas = document.getElementById('dice-canvas');
+        const diceCtx = diceCanvas.getContext('2d');
+        
+        const touchCanvas = document.getElementById('touch-canvas');
+        const touchCtx = touchCanvas.getContext('2d');
+
+        function resizeCanvas() {
+            width = document.querySelector('.tab-content').clientWidth;
+            height = document.querySelector('.tab-content').clientHeight;
+            diceCanvas.width = width;
+            diceCanvas.height = height;
+            touchCanvas.width = width;
+            touchCanvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            document.getElementById('mode-dice').classList.remove('active');
+            document.getElementById('mode-touch').classList.remove('active');
+            document.getElementById(`mode-${tab}`).classList.add('active');
+            
+            // Xóa dữ liệu chế độ cảm ứng nếu chuyển tab
+            if (tab === 'dice') resetTouchChooser();
+        }
+
+        /* =========================================================================
+           TÍNH NĂNG 1: VẬT LÝ XÚC XẮC D12 (PHIÊN BẢN 3D SIÊU MƯỢT)
+           ========================================================================= */
+        let dice1 = null;
+        let dice2 = null;
+        let resultShown = true;
+        let d12Geometry = null;
+
+        function initD12Geometry() {
+            const phi = (1 + Math.sqrt(5)) / 2;
+            
+            // 20 Đỉnh của khối D12 (Chuẩn tỷ lệ Vàng)
+            let vertices = [
+                [1,1,1], [1,1,-1], [1,-1,1], [1,-1,-1],
+                [-1,1,1], [-1,1,-1], [-1,-1,1], [-1,-1,-1],
+                [0, 1/phi, phi], [0, 1/phi, -phi], [0, -1/phi, phi], [0, -1/phi, -phi],
+                [1/phi, phi, 0], [1/phi, -phi, 0], [-1/phi, phi, 0], [-1/phi, -phi, 0],
+                [phi, 0, 1/phi], [phi, 0, -1/phi], [-phi, 0, 1/phi], [-phi, 0, -1/phi]
+            ];
+            
+            // Chuẩn hóa khoảng cách các đỉnh về 1 để thành hình cầu
+            vertices = vertices.map(p => { 
+                let l = Math.hypot(p[0],p[1],p[2]); 
+                return [p[0]/l, p[1]/l, p[2]/l]; 
+            });
+
+            // 12 Mặt của khối D12 (ĐÃ SỬA LẠI TỌA ĐỘ PHÁP TUYẾN CHUẨN XÁC)
+            let normals = [
+                [0, phi, 1], [0, phi, -1], [0, -phi, 1], [0, -phi, -1],
+                [1, 0, phi], [1, 0, -phi], [-1, 0, phi], [-1, 0, -phi],
+                [phi, 1, 0], [phi, -1, 0], [-phi, 1, 0], [-phi, -1, 0]
+            ];
+            normals = normals.map(p => { 
+                let l = Math.hypot(p[0],p[1],p[2]); 
+                return [p[0]/l, p[1]/l, p[2]/l]; 
+            });
+
+            let faces = [];
+            let values = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]; 
+
+            normals.forEach((normal, i) => {
+                let fv = [];
+                vertices.forEach(pt => {
+                    // Hạ thấp mốc kiểm tra xuống 0.75 để quét trúng đủ 5 đỉnh của cùng 1 mặt phẳng
+                    if (pt[0]*normal[0] + pt[1]*normal[1] + pt[2]*normal[2] > 0.75) {
+                        fv.push(pt);
+                    }
+                });
+                
+                // Trọng tâm của mặt
+                let cx=0, cy=0, cz=0;
+                fv.forEach(pt => { cx+=pt[0]; cy+=pt[1]; cz+=pt[2]; });
+                cx /= fv.length; cy /= fv.length; cz /= fv.length;
+
+                // Chọn 1 điểm bất kỳ làm mốc (trục U)
+                let p0 = fv[0];
+                let uDir = [p0[0]-cx, p0[1]-cy, p0[2]-cz];
+                let uLen = Math.hypot(uDir[0], uDir[1], uDir[2]);
+                uDir = [uDir[0]/uLen, uDir[1]/uLen, uDir[2]/uLen];
+
+                // Trục V = Normal x U
+                let vDir = [
+                    normal[1]*uDir[2] - normal[2]*uDir[1],
+                    normal[2]*uDir[0] - normal[0]*uDir[2],
+                    normal[0]*uDir[1] - normal[1]*uDir[0]
+                ];
+
+                // Sắp xếp các đỉnh xoay theo chiều kim đồng hồ để tạo đa giác lồi
+                fv.sort((a, b) => {
+                    let da = [a[0]-cx, a[1]-cy, a[2]-cz];
+                    let db = [b[0]-cx, b[1]-cy, b[2]-cz];
+                    
+                    let angleA = Math.atan2(
+                        da[0]*vDir[0] + da[1]*vDir[1] + da[2]*vDir[2], 
+                        da[0]*uDir[0] + da[1]*uDir[1] + da[2]*uDir[2]
+                    );
+                    let angleB = Math.atan2(
+                        db[0]*vDir[0] + db[1]*vDir[1] + db[2]*vDir[2], 
+                        db[0]*uDir[0] + db[1]*uDir[1] + db[2]*uDir[2]
+                    );
+                    return angleA - angleB;
+                });
+                
+                // Vector UP để định hướng chữ hiển thị không bị lộn ngược
+                let upVec = [0, 1, 0];
+                let dot = upVec[0]*normal[0] + upVec[1]*normal[1] + upVec[2]*normal[2];
+                let localUp = [upVec[0] - dot*normal[0], upVec[1] - dot*normal[1], upVec[2] - dot*normal[2]];
+                let lul = Math.hypot(localUp[0], localUp[1], localUp[2]);
+                
+                if (lul > 0.001) {
+                    localUp = [localUp[0]/lul, localUp[1]/lul, localUp[2]/lul];
+                } else {
+                    localUp = [1,0,0];
+                }
+
+                faces.push({ normal: normal, vertices: fv, val: values[i], localUp: localUp });
+            });
+            
+            d12Geometry = faces;
+        }
+
+        function rotate3D(pt, rx, ry, rz) {
+            let x = pt[0], y = pt[1], z = pt[2];
+            let y1 = y*Math.cos(rx) - z*Math.sin(rx);
+            let z1 = y*Math.sin(rx) + z*Math.cos(rx);
+            let x2 = x*Math.cos(ry) + z1*Math.sin(ry);
+            let z2 = -x*Math.sin(ry) + z1*Math.cos(ry);
+            let x3 = x2*Math.cos(rz) - y1*Math.sin(rz);
+            let y3 = x2*Math.sin(rz) + y1*Math.cos(rz);
+            return [x3, y3, z2];
+        }
+
+        function adjustColorBrightness(hex, factor) {
+            let r = parseInt(hex.slice(1, 3), 16); let g = parseInt(hex.slice(3, 5), 16); let b = parseInt(hex.slice(5, 7), 16);
+            r = Math.floor(r * factor); g = Math.floor(g * factor); b = Math.floor(b * factor);
+            r = Math.min(255, Math.max(0, r)); g = Math.min(255, Math.max(0, g)); b = Math.min(255, Math.max(0, b));
+            return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+        }
+
+        function createDice(x, y, vx, color) {
+            return {
+                x: x, y: y,
+                vx: vx + (Math.random() * 8 - 4), 
+                vy: 10 + Math.random() * 15,      
+                radius: 50,                       
+                
+                // Trục xoay 3D
+                rx: Math.random() * Math.PI * 2,
+                ry: Math.random() * Math.PI * 2,
+                rz: Math.random() * Math.PI * 2,
+                
+                // Tốc độ xoay (Gia tốc góc)
+                vrx: (Math.random() - 0.5) * 0.5,
+                vry: (Math.random() - 0.5) * 0.5,
+                vrz: (Math.random() - 0.5) * 0.5,
+
+                currentValue: 0,
+                stopped: false,
+                color: color
+            };
+        }
+
+        function doRoll() {
+            dice1 = createDice(width * 0.2, -100, 15, '#d35400'); // Xúc xắc Cam
+            dice2 = createDice(width * 0.8, -100, -15, '#4a6741'); // Xúc xắc Xanh
+            resultShown = false;
+        }
+
+        function updateDicePhysics(dice) {
+            if (dice.stopped) return;
+
+            dice.vy += 0.9; // Trọng lực
+            dice.x += dice.vx;
+            dice.y += dice.vy;
+
+            dice.rx += dice.vrx;
+            dice.ry += dice.vry;
+            dice.rz += dice.vrz;
+
+            // Nảy dưới sàn
+            if (dice.y + dice.radius > height - 100) { 
+                dice.y = height - 100 - dice.radius;
+                dice.vy *= -0.45; 
+                dice.vx *= 0.85;  
+                dice.vrx *= 0.85;
+                dice.vry *= 0.85;
+                dice.vrz *= 0.85;
+            }
+
+            // Bật tường
+            if (dice.x - dice.radius < 0) { dice.x = dice.radius; dice.vx *= -0.7; }
+            if (dice.x + dice.radius > width) { dice.x = width - dice.radius; dice.vx *= -0.7; }
+
+            // Điều kiện dừng
+            if (Math.abs(dice.vy) < 1.5 && dice.y + dice.radius >= height - 105) {
+                dice.vy = 0;
+                if (Math.abs(dice.vx) < 0.3) dice.vx = 0;
+                if (Math.abs(dice.vrx) < 0.05 && Math.abs(dice.vry) < 0.05) {
+                    dice.vrx = 0; dice.vry = 0; dice.vrz = 0;
+                }
+            }
+
+            if (dice.vx === 0 && dice.vy === 0 && dice.vrx === 0) {
+                dice.stopped = true;
+                
+                // Khi dừng, quét xem mặt nào đang ngửa lên vuông góc với Camera nhất
+                let maxZ = -1;
+                let bestVal = 0;
+                
+                d12Geometry.forEach(face => {
+                    let rotNormal = rotate3D(face.normal, dice.rx, dice.ry, dice.rz);
+                    if (rotNormal[2] > maxZ) {
+                        maxZ = rotNormal[2];
+                        bestVal = face.val;
+                    }
+                });
+                dice.currentValue = bestVal;
+            }
+        }
+
+        function checkDiceCollision(d1, d2) {
+            if (d1.stopped && d2.stopped) return;
+            
+            let dx = d2.x - d1.x; let dy = d2.y - d1.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let minDist = d1.radius + d2.radius;
+
+            if (dist < minDist) {
+                let angle = Math.atan2(dy, dx);
+                let overlap = minDist - dist;
+                
+                let moveX = Math.cos(angle) * overlap / 2;
+                let moveY = Math.sin(angle) * overlap / 2;
+
+                d1.x -= moveX; d1.y -= moveY; d2.x += moveX; d2.y += moveY;
+
+                let tempVx = d1.vx; let tempVy = d1.vy;
+                d1.vx = d2.vx * 0.8; d1.vy = d2.vy * 0.8;
+                d2.vx = tempVx * 0.8; d2.vy = tempVy * 0.8;
+                
+                // Va đập khiến xúc xắc xoay hỗn loạn hơn
+                d1.vrx += (Math.random() - 0.5) * 0.4; d1.vry += (Math.random() - 0.5) * 0.4;
+                d2.vrx += (Math.random() - 0.5) * 0.4; d2.vry += (Math.random() - 0.5) * 0.4;
+            }
+        }
+
+        function drawDice(ctx, dice) {
+            ctx.save();
+            ctx.translate(dice.x, dice.y);
+
+            let projectedFaces = [];
+            d12Geometry.forEach(face => {
+                let rotNormal = rotate3D(face.normal, dice.rx, dice.ry, dice.rz);
+                // Chỉ vẽ các mặt hoàn toàn hướng về phía camera (Culling chuẩn)
+                if (rotNormal[2] > 0) { 
+                    let rotVerts = face.vertices.map(v => rotate3D(v, dice.rx, dice.ry, dice.rz));
+                    let rotLocalUp = rotate3D(face.localUp, dice.rx, dice.ry, dice.rz);
+                    projectedFaces.push({ normal: rotNormal, vertices: rotVerts, val: face.val, localUp: rotLocalUp });
+                }
+            });
+
+            // Sắp xếp các mặt theo chiều sâu Z, mặt nào xa vẽ trước, gần vẽ sau
+            projectedFaces.sort((a,b) => a.normal[2] - b.normal[2]);
+
+            projectedFaces.forEach(face => {
+                ctx.beginPath();
+                face.vertices.forEach((v, i) => {
+                    let px = v[0] * dice.radius;
+                    let py = v[1] * dice.radius;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.closePath();
+
+                // Đổ bóng 3D: Càng hướng về camera càng sáng
+                let shade = 0.4 + 0.6 * Math.max(0, face.normal[2]);
+                ctx.fillStyle = adjustColorBrightness(dice.color, shade);
+                ctx.fill();
+                
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = adjustColorBrightness(dice.color, 0.2); // Bo viền tối
+                ctx.stroke();
+
+                // Vẽ chữ lên mặt (Chỉ vẽ lên những mặt đang nổi lên)
+                if (face.normal[2] > 0.4) {
+                    let cx=0, cy=0;
+                    face.vertices.forEach(v => { cx+=v[0]; cy+=v[1]; });
+                    cx = (cx/5) * dice.radius;
+                    cy = (cy/5) * dice.radius;
+
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    
+                    // Xoay chữ theo đúng phương của mặt phẳng đó
+                    let angle = Math.atan2(face.localUp[1], face.localUp[0]) + Math.PI/2;
+                    ctx.rotate(angle);
+
+                    // Phối cảnh Perspective Text (Ép dẹp chữ khi nhìn nghiêng)
+                    let scale = face.normal[2];
+                    ctx.scale(scale, scale);
+
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold ' + (dice.radius * 0.45) + 'px Montserrat, Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetY = 2;
+                    
+                    ctx.fillText(face.val, 0, 0);
+                    ctx.restore();
+                }
+            });
+            ctx.restore();
+        }
+
+        function closeDiceModal() {
+            document.getElementById('dice-result-modal').style.display = 'none';
+        }
+
+        /* =========================================================================
+           TÍNH NĂNG 2: CHẠM MÀN HÌNH CHỌN NGƯỜI CHƠI (CHWAZI CLONE)
+           ========================================================================= */
+        let activeTouches = {};
+        const availableColors = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#e84393'];
+        let timerValue = 5;
+        let timerInterval = null;
+        let choosingPhase = false;
+        let winnerId = null;
+
+        // Bắt sự kiện ngón tay CHẠM VÀO
+        touchCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); 
+            if (winnerId) return; // Nếu đã có kết quả thì phải nhả tay ra hết mới làm lại được
+            
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                let t = e.changedTouches[i];
+                activeTouches[t.identifier] = {
+                    x: t.clientX, 
+                    y: t.clientY - 70, // Bù trừ 70px của cái Header phía trên
+                    color: availableColors[Object.keys(activeTouches).length % availableColors.length]
+                };
+            }
+            checkTimer();
+        }, { passive: false });
+
+        // Bắt sự kiện ngón tay DI CHUYỂN
+        touchCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (winnerId) return;
+            
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                let t = e.changedTouches[i];
+                if (activeTouches[t.identifier]) {
+                    activeTouches[t.identifier].x = t.clientX;
+                    activeTouches[t.identifier].y = t.clientY - 70;
+                }
+            }
+        }, { passive: false });
+
+        // Bắt sự kiện ngón tay NHẤC LÊN
+        const handleTouchEnd = (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                delete activeTouches[e.changedTouches[i].identifier];
+            }
+            // Nếu không còn ngón tay nào trên màn hình -> Reset toàn bộ
+            if (Object.keys(activeTouches).length === 0) {
+                resetTouchChooser();
+            }
+        };
+        touchCanvas.addEventListener('touchend', handleTouchEnd);
+        touchCanvas.addEventListener('touchcancel', handleTouchEnd);
+
+        // (Dành cho việc test trên PC)
+        let isMouseDown = false;
+        touchCanvas.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            handleTouchStartSimulation(e.clientX, e.clientY);
+        });
+        touchCanvas.addEventListener('mousemove', (e) => {
+            if(!isMouseDown) return;
+            if(activeTouches['mouse']) {
+                activeTouches['mouse'].x = e.clientX;
+                activeTouches['mouse'].y = e.clientY - 70;
+            }
+        });
+        touchCanvas.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            delete activeTouches['mouse'];
+            if (Object.keys(activeTouches).length === 0) resetTouchChooser();
+        });
+        
+        function handleTouchStartSimulation(x, y) {
+            if (winnerId) return;
+            activeTouches['mouse'] = {
+                x: x, y: y - 70,
+                color: availableColors[Object.keys(activeTouches).length % availableColors.length]
+            };
+            checkTimer();
+        }
+
+        function checkTimer() {
+            let count = Object.keys(activeTouches).length;
+            if (count > 0 && !choosingPhase) {
+                choosingPhase = true;
+                timerValue = 5;
+                clearInterval(timerInterval);
+                
+                timerInterval = setInterval(() => {
+                    timerValue--;
+                    if (timerValue <= 0) {
+                        clearInterval(timerInterval);
+                        pickWinner();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pickWinner() {
+            let keys = Object.keys(activeTouches);
+            if (keys.length > 0) {
+                // Chọn ngẫu nhiên 1 ngón tay làm người thắng
+                winnerId = keys[Math.floor(Math.random() * keys.length)];
+                fireConfettiPopup();
+            }
+        }
+
+        function resetTouchChooser() {
+            clearInterval(timerInterval);
+            choosingPhase = false;
+            timerValue = 5;
+            winnerId = null;
+            activeTouches = {};
+        }
+
+        function drawTouchApp(ctx) {
+            ctx.clearRect(0, 0, width, height);
+            let keys = Object.keys(activeTouches);
+            
+            // Vẽ câu hướng dẫn ở giữa màn hình
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            if (keys.length === 0) {
+                ctx.fillStyle = '#888';
+                ctx.font = 'bold 22px Montserrat, sans-serif';
+                ctx.fillText("ĐẶT NGÓN TAY LÊN MÀN HÌNH", width/2, height/2 - 20);
+                ctx.font = 'italic 16px Arial, sans-serif';
+                ctx.fillText("(Hệ thống sẽ chọn ngẫu nhiên người đi trước)", width/2, height/2 + 15);
+            } 
+            else if (choosingPhase && !winnerId) {
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.font = 'bold 250px Arial';
+                ctx.fillText(timerValue, width/2, height/2);
+            } 
+            else if (winnerId) {
+                ctx.fillStyle = 'rgba(39, 174, 96, 0.2)';
+                ctx.font = 'bold 50px Montserrat, sans-serif';
+                ctx.fillText("ĐÃ CHỌN XONG!", width/2, height/2);
+            }
+
+            // Vẽ các đốm sáng tại vị trí chạm tay
+            keys.forEach(id => {
+                let touch = activeTouches[id];
+                let isWinner = (winnerId == id);
+                let isLoser = (winnerId != null && winnerId != id);
+
+                let currentRadius = isWinner ? 90 : 70;
+                
+                ctx.beginPath();
+                ctx.arc(touch.x, touch.y, currentRadius, 0, Math.PI*2);
+                
+                if (isLoser) {
+                    // Tắt đèn những người thua
+                    ctx.fillStyle = 'rgba(150, 150, 150, 0.5)';
+                    ctx.fill();
+                } else {
+                    // Phát sáng người đang chạm hoặc người thắng
+                    ctx.fillStyle = touch.color;
+                    ctx.fill();
+                    
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = '#fff';
+                    ctx.stroke();
+                    
+                    // Hiệu ứng sóng nhịp đập (Pulsing)
+                    let pulse = (isWinner ? 20 : 10) * Math.abs(Math.sin(Date.now() / 150));
+                    ctx.beginPath();
+                    ctx.arc(touch.x, touch.y, currentRadius + 10 + pulse, 0, Math.PI*2);
+                    ctx.strokeStyle = touch.color;
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+                }
+            });
+        }
+
+        /* =========================================================================
+           VÒNG LẶP RENDER CHÍNH CHO TOÀN BỘ GAME (60 FPS)
+           ========================================================================= */
+        function gameLoop() {
+            if (currentTab === 'dice') {
+                diceCtx.clearRect(0, 0, width, height);
+                
+                if (dice1 && dice2) {
+                    updateDicePhysics(dice1);
+                    updateDicePhysics(dice2);
+                    checkDiceCollision(dice1, dice2);
+                    
+                    drawDice(diceCtx, dice1);
+                    drawDice(diceCtx, dice2);
+                    
+                    // Kiểm tra nếu cả 2 dừng lại thì show kết quả
+                    if (dice1.stopped && dice2.stopped && !resultShown && dice1.y > 0) {
+                        resultShown = true;
+                        setTimeout(() => {
+                            // Số lớn (Attacker) đặt trước, số nhỏ (Defender) đặt sau theo chuẩn Root
+                            let val1 = dice1.currentValue;
+                            let val2 = dice2.currentValue;
+                            let max = Math.max(val1, val2);
+                            let min = Math.min(val1, val2);
+                            
+                            document.getElementById('dice-result-text').innerText = `${max} - ${min}`;
+                            document.getElementById('dice-result-modal').style.display = 'flex';
+                            fireConfettiPopup();
+                        }, 600); // Chờ khựng lại nửa giây rồi mới nổ popup
+                    }
+                }
+            } else {
+                drawTouchApp(touchCtx);
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function fireConfettiPopup() {
+            var duration = 2 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10001 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // Kích hoạt vòng lặp game ngay khi mở trang
+        initD12Geometry(); // Cấu trúc hình học 3D
+        initDice(); // Khởi tạo mảng trống
+        function initDice() {
+            dice1 = createDice(-100, -100, 0, '#fff'); dice1.stopped = true;
+            dice2 = createDice(-100, -100, 0, '#fff'); dice2.stopped = true;
+        }
+        
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

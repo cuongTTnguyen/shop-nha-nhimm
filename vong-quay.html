@@ -34,6 +34,43 @@
         }
         .pointer-spinning { animation: pointer-wiggle var(--wiggle-speed, 0.1s) ease-in-out infinite; }
         
+        /* --- BẢNG TIN VÒNG QUAY (LIVE TICKER) --- */
+        .ticker-wrap {
+            width: 100%; max-width: 1100px; margin: 0 auto 30px auto;
+            background: #2c3e50; color: #fff; padding: 0;
+            border-radius: 12px; overflow: hidden; position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 2px solid #f1c40f;
+            display: flex; align-items: center;
+        }
+        .ticker-title {
+            background: #f39c12; color: #fff; padding: 12px 20px;
+            font-weight: 900; font-size: 14px; z-index: 10;
+            white-space: nowrap; box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .ticker-viewport {
+            flex: 1; overflow: hidden; white-space: nowrap; padding: 12px 0;
+            /* Tạo mờ 2 bên viền để chữ trôi ra vào nhìn mượt hơn */
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        }
+        .ticker-move {
+            display: inline-block; white-space: nowrap;
+            /* Tăng thời gian lên 40s để chữ chạy chậm và êm hơn */
+            animation: ticker-anim 40s linear infinite;
+        }
+        .ticker-move:hover { animation-play-state: paused; cursor: default; }
+        .ticker-item {
+            display: inline-block; margin-right: 50px; font-size: 14px;
+        }
+        .ticker-item .t-name { color: #3498db; font-weight: bold; }
+        .ticker-item .t-prize { color: #f1c40f; font-weight: bold; text-transform: uppercase; }
+        
+        @keyframes ticker-anim {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
         .btn-spin { margin-top: 35px; background: linear-gradient(135deg, #d35400, #c0392b); color: white; border: none; padding: 18px 50px; border-radius: 40px; font-size: 22px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(211,84,0,0.4); transition: 0.3s; width: 80%; text-transform: uppercase; letter-spacing: 2px; border: 2px solid #f1c40f;}
         .btn-spin:hover:not(:disabled) { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(211,84,0,0.5); }
         .btn-spin:disabled { background: #ccc; border-color: #aaa; cursor: not-allowed; box-shadow: none; transform: none;}
@@ -103,6 +140,20 @@
     <h1 class="main-title">VÒNG QUAY MAY MẮN</h1>
     <p class="sub-title">Làm nhiệm vụ hoặc mua hàng để nhận thêm Lượt Quay và Điểm May Mắn!</p>
 
+    <!-- BẢNG TIN LIVE TICKER CHẠY NGANG -->
+    <div class="ticker-wrap">
+        <div class="ticker-title"><i class="fas fa-bullhorn"></i> TIN MỚI NHẤT</div>
+        <div class="ticker-viewport">
+            <div class="ticker-move" id="live-ticker">
+                <div class="ticker-item">🎉 Khách hàng <span class="t-name">Hải***@gmail.com</span> vừa quay trúng <span class="t-prize">[Freeship Đơn Hàng]</span></div>
+                <div class="ticker-item">🔥 <span class="t-name">Trần***@gmail.com</span> vừa làm nhiệm vụ nhận được <span class="t-prize">+5 lượt quay</span></div>
+                <div class="ticker-item">🎁 Khách hàng <span class="t-name">Mèo***@gmail.com</span> vừa quay trúng <span class="t-prize">[Giảm 50.000đ]</span></div>
+                <div class="ticker-item">🎉 <span class="t-name">Lê***@gmail.com</span> vừa quay trúng <span class="t-prize">[Thẻ Promo Vagabond]</span></div>
+                <div class="ticker-item">⭐ Bạn có muốn là người tiếp theo? Hãy thử vận may ngay bên dưới!</div>
+            </div>
+        </div>
+    </div>
+
     <div class="vq-container">
         
         <!-- CỘT 1: VÒNG QUAY -->
@@ -130,7 +181,6 @@
                 </div>
                 <p style="font-size:11px; color:#888; margin-top:-5px; margin-bottom:15px;">
                     * Tổng tỉ lệ trúng các phần quà không vượt quá 70% (Luôn có 3 ô Trượt 10%). Nếu bạn bơm điểm quá 70%, hệ thống tự động bòn rút điểm của các quà khác để cân bằng. Điểm đã bấm [Lưu] không thể giảm xuống.
-                    <br><b>Lưu ý!!! Quà sẽ thuộc dạng voucher, sử dụng khi đặt đơn hàng nha!</b>
                 </p>
                 
                 <div id="alloc-list">
@@ -554,7 +604,7 @@
                     drawWheel(); // Vẽ lại vòng quay
                     
                     fireConfetti();
-                    showCustomAlert(true, "TRÚNG LỚN DÒ NHA!", `🎉 Bạn đã tuyệt vời quay trúng:<br><strong style="font-size:20px; color:#d35400;">${wonSegment.name}</strong><br><br><span style="font-size:13px;color:#888;">(Hệ thống đã tiêu hao một nửa số % mà bạn đã bơm thêm vào món quà này)</span><br><br>Quà đã chuyển thành Voucher, đặt đơn và nhận ưu đãi nha!`);
+                    showCustomAlert(true, "TRÚNG LỚN DÒ NHA!", `🎉 Bạn đã tuyệt vời quay trúng:<br><strong style="font-size:20px; color:#d35400;">${wonSegment.name}</strong><br><br><span style="font-size:13px;color:#888;">(Hệ thống đã tiêu hao một nửa số % mà bạn đã bơm thêm vào món quà này)</span><br><br>Hãy chụp màn hình lại và inbox Admin Fanpage để nhận quà nhé!`);
                 }
 
                 updateSpinsUI();

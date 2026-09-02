@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* CSS GIAO DIỆN PHE CHI TIẾT (Chuẩn bản thiết kế gốc) */
-        :root { --f-color: #e67e22; /* Màu cam mặc định của stats */ }
+        /* CSS GIAO DIỆN PHE CHI TIẾT */
+        :root { --f-color: #e67e22; }
         
         .faction-detail-body { max-width: 1000px; margin: 30px auto; padding: 0 15px; }
 
@@ -66,6 +66,41 @@
         .gallery-item img:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); border-color: var(--f-color);}
         .img-caption { font-size: 13px; color: #2c3e50; font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;}
 
+        /* --- CSS MỚI: PHẦN BÌNH LUẬN & ĐÁNH GIÁ --- */
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e0d9c5; padding-bottom: 10px; }
+        .review-header h2 { color: #d35400; margin: 0; font-size: 22px; }
+        .avg-rating-box { display: flex; align-items: center; gap: 10px; }
+        .avg-score { font-size: 28px; font-weight: bold; color: #f1c40f; }
+        .avg-stars { color: #f1c40f; font-size: 16px; }
+
+        .review-form-box { background: #fdfaf3; padding: 20px; border-radius: 12px; border: 1px dashed #4a6741; margin-bottom: 30px; }
+        .star-selector { font-size: 24px; color: #ddd; cursor: pointer; margin-bottom: 10px; display: inline-block;}
+        .star-selector i { transition: 0.2s; margin-right: 5px; }
+        .star-selector i.active, .star-selector i:hover ~ i { color: #f1c40f; } /* Hack CSS để hover sao mượt */
+        .star-selector:hover i { color: #f1c40f; } 
+        .star-selector i:hover ~ i { color: #ddd; } 
+
+        .review-textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; resize: vertical; min-height: 80px; box-sizing: border-box; margin-bottom: 15px; outline: none;}
+        .review-textarea:focus { border-color: #4a6741; }
+        .btn-submit-review { background: #4a6741; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit-review:hover { background: #d35400; }
+
+        .review-list { display: flex; flex-direction: column; gap: 15px; }
+        .review-card { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #eee; display: flex; gap: 15px; }
+        .r-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2c3e50; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; flex-shrink: 0;}
+        .r-content { flex: 1; }
+        .r-name { font-weight: bold; color: #333; margin-bottom: 2px; }
+        .r-date { font-size: 11px; color: #888; margin-bottom: 5px; }
+        .r-stars { color: #f1c40f; font-size: 12px; margin-bottom: 8px; }
+        .r-text { font-size: 14px; color: #444; line-height: 1.5; margin: 0; }
+        .no-reviews { text-align: center; padding: 20px; color: #888; font-style: italic; }
+
+        /* NÚT THẢ TIM (HỮU ÍCH) */
+        .btn-like { background: #fdfaf3; border: 1px solid #ccc; color: #888; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-like:hover:not(:disabled) { border-color: #e74c3c; color: #e74c3c; background: #fdf0ed; }
+        .btn-like.liked { border-color: #e74c3c; color: #e74c3c; background: #fdf0ed; }
+        .btn-like:disabled { opacity: 0.5; cursor: not-allowed; }
+
         /* Ảnh Fullscreen */
         .fullscreen-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; cursor: zoom-out; }
         .fullscreen-content { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 5px; }
@@ -89,21 +124,14 @@
         <button type="button">Tìm</button>
     </div>
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebarMenu()"></div>
-    <div id="left-sidebar" class="left-sidebar">
-        <div class="sidebar-header"><span class="sidebar-title">MENU</span><button class="close-sidebar" onclick="toggleSidebarMenu()">&times;</button></div>
-        <ul class="sidebar-nav">
-            <li><a href="index.html">🏠 Menu chính</a></li>
-            <li><a href="tong-hop-phe.html">🐾 Tổng hợp phe</a></li>
-            <li><a href="san-pham.html">🛒 Tiếp tục mua sắm</a></li>
-        </ul>
-    </div>
+    <div id="left-sidebar" class="left-sidebar"></div>
 
     <!-- MÀN HÌNH ĐANG TẢI -->
     <div id="loading-view">
         <h2><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu phe phái...</h2>
     </div>
 
-    <!-- NỘI DUNG CHÍNH SẼ ĐƯỢC BƠM VÀO ĐÂY -->
+    <!-- NỘI DUNG CHÍNH -->
     <main class="faction-detail-body" id="main-view">
         
         <!-- Khung 1: Thông tin cơ bản -->
@@ -154,13 +182,61 @@
 
             <hr class="divider">
 
-            <!-- Thư viện hình ảnh sẽ sinh ra tự động -->
             <div id="f-gallery" class="faction-gallery"></div>
-        
+            
+            <div style="margin-top: 50px; text-align: center;">
+                <button style="background:#4a6741; color:white; border:none; padding:15px 40px; border-radius:30px; cursor:pointer; font-weight:bold; font-size: 16px; transition: 0.3s; box-shadow: 0 5px 15px rgba(74, 103, 65, 0.3);" 
+                        onmouseover="this.style.transform='scale(1.05)'" 
+                        onmouseout="this.style.transform='scale(1)'"
+                        onclick="window.location.href='san-pham.html'">
+                    <i class="fas fa-shopping-cart"></i> GHÉ THĂM SHOP ĐỂ MUA PHE NÀY
+                </button>
+            </div>
         </section>
+
+        <!-- KHUNG 4: ĐÁNH GIÁ VÀ BÌNH LUẬN -->
+        <section class="faction-frame frame-4">
+            <div class="review-header">
+                <h2><i class="fas fa-comments"></i> Đánh Giá Cộng Đồng</h2>
+                <div class="avg-rating-box">
+                    <span class="avg-score" id="rv-avg-score">0.0</span>
+                    <div>
+                        <div class="avg-stars" id="rv-avg-stars">
+                            <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #888;" id="rv-total-count">0 đánh giá</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Đăng bình luận -->
+            <div class="review-form-box" id="review-form-container" style="display:none;">
+                <h4 style="margin: 0 0 10px 0; color: #333;">Cảm nhận của bạn về phe này:</h4>
+                <div class="star-selector" id="star-selector">
+                    <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                </div>
+                <textarea id="rv-content" class="review-textarea" placeholder="Chia sẻ chiến thuật hoặc cảm nhận của bạn về độ cân bằng..."></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="rv-msg" style="font-size:13px; font-weight:bold;"></span>
+                    <button class="btn-submit-review" id="btn-submit-rv" onclick="submitReview()">Gửi Đánh Giá</button>
+                </div>
+            </div>
+
+            <!-- Nút Yêu cầu đăng nhập -->
+            <div id="review-login-prompt" style="text-align:center; padding: 20px; background:#f9f9f9; border-radius:10px; margin-bottom: 30px;">
+                <p style="color:#666; margin-bottom: 10px;">Bạn cần đăng nhập để tham gia bình luận & đánh giá.</p>
+                <button onclick="window.location.href='dang-nhap.html'" style="background:#3498db; color:white; border:none; padding:8px 20px; border-radius:20px; cursor:pointer; font-weight:bold;">Đăng nhập ngay</button>
+            </div>
+
+            <!-- Danh sách Bình luận -->
+            <div class="review-list" id="reviews-list-container">
+                <div style="text-align:center; color:#888;"><i class="fas fa-spinner fa-spin"></i> Đang tải bình luận...</div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Ảnh zoom toàn màn hình -->
+    <!-- Ảnh Fullscreen -->
     <div id="fullscreen-modal" class="fullscreen-modal" onclick="this.style.display='none'">
         <img class="fullscreen-content" id="img-full">
     </div>
@@ -172,47 +248,50 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, query, where, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0",
-            authDomain: "rootvn-3eeca.firebaseapp.com",
-            projectId: "rootvn-3eeca",
-            storageBucket: "rootvn-3eeca.firebasestorage.app",
-            messagingSenderId: "92355209659",
-            appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyApRi3KOcuCyN_RH9gNl2g17f03_D5t_l0", authDomain: "rootvn-3eeca.firebaseapp.com", projectId: "rootvn-3eeca", storageBucket: "rootvn-3eeca.firebasestorage.app", messagingSenderId: "92355209659", appId: "1:92355209659:web:0ed0e8a38118e86ea63c9e" };
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let currentFactionName = "";
+        let currentUser = null;
+        let selectedRating = 5; // Mặc định 5 sao
+
+        // KIỂM TRA ĐĂNG NHẬP
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                document.getElementById('review-form-container').style.display = 'block';
+                document.getElementById('review-login-prompt').style.display = 'none';
+            } else {
+                document.getElementById('review-form-container').style.display = 'none';
+                document.getElementById('review-login-prompt').style.display = 'block';
+            }
+            if (currentFactionName) loadReviews(); // Tải lại bình luận để cập nhật trạng thái nút Like
+        });
+
+        // LOAD DỮ LIỆU PHE
         async function loadFactionDetail() {
             const urlParams = new URLSearchParams(window.location.search);
-            const factionName = urlParams.get('name')?.trim();
+            currentFactionName = urlParams.get('name')?.trim();
             const loadingView = document.getElementById('loading-view');
             const mainView = document.getElementById('main-view');
 
-            if (!factionName) {
-                loadingView.innerHTML = "<h2 style='text-align:center;'>⚠️ Không tìm thấy thông tin phe!</h2>";
-                return;
-            }
+            if (!currentFactionName) { loadingView.innerHTML = "<h2 style='text-align:center;'>⚠️ Không tìm thấy thông tin phe!</h2>"; return; }
 
             try {
-                const q = query(collection(db, "phe-phai"), where("ten", "==", factionName));
+                const q = query(collection(db, "phe-phai"), where("ten", "==", currentFactionName));
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty) {
                     const phe = querySnapshot.docs[0].data();
                     
                     document.title = phe.ten + " - Shop Nhà Nhimm";
-
-                    // === THIẾT LẬP MÀU CHỦ ĐẠO TỪ FIREBASE ===
-                    if (phe.mauChuDao) {
-                        document.documentElement.style.setProperty('--f-color', phe.mauChuDao);
-                    } else {
-                        document.documentElement.style.setProperty('--f-color', '#e67e22'); // Màu mặc định
-                    }
+                    if (phe.mauChuDao) document.documentElement.style.setProperty('--f-color', phe.mauChuDao);
                     
-                    // 1. Gắn thông tin Text
                     document.getElementById('f-name').innerText = phe.ten;
                     document.getElementById('f-breadcrumb').innerText = phe.ten;
                     document.getElementById('f-author').innerText = phe.taoBoi || 'Đang cập nhật';
@@ -220,66 +299,238 @@
                     document.getElementById('f-slogan').innerText = phe.slogan ? `"${phe.slogan}"` : '';
                     if(phe.anh) document.getElementById('f-icon').src = phe.anh;
                     
-                    // 2. Status Badge
                     const statusEl = document.getElementById('f-status');
                     statusEl.innerText = phe.trangThai || 'Cân bằng';
                     statusEl.classList.add((phe.trangThai === "Testing") ? "status-testing" : "status-balanced");
 
-                    // 3. Reach Header
-                    let typeTxt = phe.loaiPhe || 'ĐANG CẬP NHẬT';
-                    let reachTxt = phe.tamAnhHuong !== undefined && phe.tamAnhHuong !== "" ? phe.tamAnhHuong : '?';
-                    document.getElementById('f-reach-title').innerText = `${typeTxt} (Tầm ảnh hưởng: ${reachTxt})`;
+                    document.getElementById('f-reach-title').innerText = `${phe.loaiPhe || 'ĐANG CẬP NHẬT'} (Tầm ảnh hưởng: ${phe.tamAnhHuong !== undefined ? phe.tamAnhHuong : '?'})`;
 
-                    // 4. Stats Bars
                     const setStat = (id, percent, text) => {
                         const el = document.getElementById(id);
-                        // Nếu chưa nhập phần trăm thì set mờ mờ 5% cho đỡ móp layout
-                        el.style.width = percent ? percent + '%' : '0%'; 
-                        el.innerText = text || '';
+                        el.style.width = percent ? percent + '%' : '0%'; el.innerText = text || '';
                     };
                     setStat('s-comp-bar', phe.statCompPc, phe.statCompTxt);
                     setStat('s-card-bar', phe.statCardPc, phe.statCardTxt);
                     setStat('s-aggr-bar', phe.statAggrPc, phe.statAggrTxt);
                     setStat('s-craft-bar', phe.statCraftPc, phe.statCraftTxt);
 
-                    // 5. Gallery
                     const gallery = document.getElementById('f-gallery');
-                    gallery.innerHTML = ""; // Clear
-                    
                     const addImg = (src, label, fullWidth) => {
                         if(src && src.trim() !== "") {
-                            gallery.innerHTML += `
-                                <div class="gallery-item ${fullWidth ? 'full-width' : ''}">
-                                    <img src="${src}" alt="${label}" onclick="window.openFull(this.src)" onerror="this.style.display='none'">
-                                    <p class="img-caption">${label}</p>
-                                </div>
-                            `;
+                            gallery.innerHTML += `<div class="gallery-item ${fullWidth ? 'full-width' : ''}"><img src="${src}" alt="${label}" onclick="window.openFull(this.src)"><p class="img-caption">${label}</p></div>`;
                         }
                     };
-                    
-                    addImg(phe.imgFront, "BẢNG MẶT TRƯỚC", false);
-                    addImg(phe.imgBack, "BẢNG MẶT SAU", false);
-                    addImg(phe.imgAdset, "ADVANCED SETUP (ADSET)", false);
-                    addImg(phe.imgCards, "LÁ BÀI & LINH KIỆN KHÁC", false);
+                    addImg(phe.imgFront, "BẢNG MẶT TRƯỚC", false); addImg(phe.imgBack, "BẢNG MẶT SAU", false);
+                    addImg(phe.imgAdset, "ADVANCED SETUP (ADSET)", false); addImg(phe.imgCards, "LÁ BÀI & LINH KIỆN KHÁC", false);
 
                     loadingView.style.display = 'none';
                     mainView.style.display = 'block';
+                    
+                    // Nạp bình luận
+                    loadReviews();
 
-                } else {
-                    loadingView.innerHTML = `<h2 style='text-align:center;'>⚠️ Phe "${factionName}" này chưa có dữ liệu chi tiết!</h2>`;
-                }
-            } catch (error) {
-                console.error(error);
-                loadingView.innerHTML = "<h2 style='text-align:center; color:red;'>❌ Lỗi tải dữ liệu. Vui lòng thử lại sau!</h2>";
-            }
+                } else { loadingView.innerHTML = `<h2 style='text-align:center;'>⚠️ Phe "${currentFactionName}" này chưa có dữ liệu!</h2>`; }
+            } catch (error) { loadingView.innerHTML = "<h2 style='text-align:center; color:red;'>❌ Lỗi tải dữ liệu. Vui lòng thử lại sau!</h2>"; }
         }
 
         loadFactionDetail();
 
-        window.openFull = function(src) {
-            const modal = document.getElementById('fullscreen-modal');
-            document.getElementById('img-full').src = src;
-            modal.style.display = 'flex';
+        window.openFull = function(src) { document.getElementById('img-full').src = src; document.getElementById('fullscreen-modal').style.display = 'flex'; };
+
+        // -----------------------------------------------------
+        // XỬ LÝ LOGIC BÌNH LUẬN & ĐÁNH GIÁ
+        // -----------------------------------------------------
+
+        // Giao diện chọn Sao
+        const stars = document.querySelectorAll('#star-selector i');
+        stars.forEach(star => {
+            star.addEventListener('click', (e) => {
+                selectedRating = parseInt(e.target.getAttribute('data-val'));
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-val')) <= selectedRating) s.classList.add('active');
+                    else s.classList.remove('active');
+                });
+            });
+        });
+        // Khởi tạo sáng 5 sao lúc đầu
+        stars.forEach(s => s.classList.add('active'));
+
+        function generateStarsHTML(rating) {
+            let html = '';
+            for(let i=1; i<=5; i++) {
+                if (i <= rating) html += '<i class="fas fa-star"></i>';
+                else html += '<i class="far fa-star"></i>';
+            }
+            return html;
+        }
+
+        async function loadReviews() {
+            const container = document.getElementById('reviews-list-container');
+            try {
+                // Sửa lỗi Index: Chỉ lọc theo tên phe, sau đó dùng JS để sắp xếp ngày
+                const q = query(collection(db, "binh-luan-phe"), where("tenPhe", "==", currentFactionName));
+                const snap = await getDocs(q);
+                
+                if (snap.empty) {
+                    container.innerHTML = `<div class="no-reviews">Chưa có đánh giá nào. Hãy là người đầu tiên nêu cảm nhận nhé!</div>`;
+                    document.getElementById('rv-avg-score').innerText = "0.0";
+                    document.getElementById('rv-avg-stars').innerHTML = generateStarsHTML(0);
+                    document.getElementById('rv-total-count').innerText = "0 đánh giá";
+                    return;
+                }
+
+                let reviews = [];
+                snap.forEach(doc => {
+                    reviews.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sắp xếp ngày tạo mới nhất lên đầu bằng Javascript
+                reviews.sort((a, b) => {
+                    let timeA = a.ngayTao ? a.ngayTao.toMillis() : 0;
+                    let timeB = b.ngayTao ? b.ngayTao.toMillis() : 0;
+                    return timeB - timeA;
+                });
+
+                let html = "";
+                let totalScore = 0;
+                let count = 0;
+
+                reviews.forEach(data => {
+                    totalScore += data.rating;
+                    count++;
+                    
+                    let dateStr = "Vừa xong";
+                    if(data.ngayTao) {
+                        const d = data.ngayTao.toDate();
+                        dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} - ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}`;
+                    }
+
+                    // Ẩn 1 phần email để bảo mật thông tin (vd: cuong***@gmail.com)
+                    let displayName = data.userEmail;
+                    if(displayName.includes('@')) {
+                        let parts = displayName.split('@');
+                        displayName = parts[0].substring(0, 3) + "***@" + parts[1];
+                    }
+
+                    let likes = data.likes || [];
+                    let likesCount = likes.length;
+                    let isLiked = currentUser && likes.includes(currentUser.uid);
+                    let rewardBadge = data.rewarded ? `<span style="background: #f1c40f; color: #d35400; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-left: 10px;" title="Bình luận xuất sắc đã được thưởng điểm!"><i class="fas fa-crown"></i> Top Comment</span>` : '';
+
+                    html += `
+                        <div class="review-card">
+                            <div class="r-avatar">${displayName.charAt(0).toUpperCase()}</div>
+                            <div class="r-content">
+                                <div class="r-name">${displayName} ${rewardBadge}</div>
+                                <div class="r-date">${dateStr}</div>
+                                <div class="r-stars">${generateStarsHTML(data.rating)}</div>
+                                <p class="r-text">${data.noiDung}</p>
+                                <div class="r-actions" style="margin-top: 10px;">
+                                    <button class="btn-like ${isLiked ? 'liked' : ''}" onclick="window.toggleLike('${data.id}', '${data.uid}')" ${!currentUser ? 'disabled title="Đăng nhập để thả tim"' : ''}>
+                                        <i class="fas fa-heart"></i> Hữu ích (${likesCount})
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+                // Tính và vẽ điểm trung bình lên đầu trang
+                let avg = (totalScore / count).toFixed(1);
+                document.getElementById('rv-avg-score').innerText = avg;
+                document.getElementById('rv-avg-stars').innerHTML = generateStarsHTML(Math.round(avg));
+                document.getElementById('rv-total-count').innerText = `${count} đánh giá`;
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = `<div class="no-reviews" style="color:red;">Lỗi tải bình luận: ${e.message}</div>`;
+            }
+        }
+
+        window.submitReview = async function() {
+            const btn = document.getElementById('btn-submit-rv');
+            const msg = document.getElementById('rv-msg');
+            const content = document.getElementById('rv-content').value.trim();
+
+            if (!content) { msg.style.color = "red"; msg.innerText = "Bạn chưa viết cảm nhận kìa!"; return; }
+            if (!currentUser) return;
+
+            btn.innerText = "Đang gửi..."; btn.disabled = true;
+
+            const reviewData = {
+                tenPhe: currentFactionName,
+                uid: currentUser.uid,
+                userEmail: currentUser.email,
+                rating: selectedRating,
+                noiDung: content,
+                likes: [], // Khởi tạo mảng thả tim
+                rewarded: false, // Trạng thái đã nhận thưởng chưa
+                ngayTao: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "binh-luan-phe"), reviewData);
+                msg.style.color = "green"; msg.innerText = "Đã gửi đánh giá thành công!";
+                document.getElementById('rv-content').value = ""; // Xóa trắng ô nhập
+                loadReviews(); // Tải lại danh sách
+                setTimeout(() => { msg.innerText = ""; btn.innerText = "Gửi Đánh Giá"; btn.disabled = false; }, 2000);
+            } catch(e) {
+                console.error(e);
+                msg.style.color = "red"; msg.innerText = "Lỗi khi gửi (Có thể do Rules Firebase)";
+                btn.innerText = "Gửi Đánh Giá"; btn.disabled = false;
+            }
+        };
+
+        // HÀM XỬ LÝ THẢ TIM VÀ TẶNG ĐIỂM
+        window.toggleLike = async function(commentId, authorUid) {
+            if (!currentUser) { alert("Bạn cần đăng nhập để thả tim nhé!"); return; }
+            
+            try {
+                const commentRef = doc(db, "binh-luan-phe", commentId);
+                const commentSnap = await getDoc(commentRef);
+                if (!commentSnap.exists()) return;
+                
+                let data = commentSnap.data();
+                let likes = data.likes || [];
+                let rewarded = data.rewarded || false;
+                
+                let hasLiked = likes.includes(currentUser.uid);
+                
+                if (hasLiked) {
+                    // Nếu đã thả tim rồi thì bỏ tim
+                    likes = likes.filter(uid => uid !== currentUser.uid);
+                } else {
+                    // Nếu chưa thả tim thì thêm vào
+                    likes.push(currentUser.uid);
+                }
+                
+                await updateDoc(commentRef, { likes: likes });
+                
+                // KIỂM TRA MỐC TẶNG ĐIỂM (Ví dụ: Đạt 10 tim và chưa được thưởng)
+                if (likes.length >= 10 && !rewarded) {
+                    const userVqRef = doc(db, "users-vong-quay", authorUid);
+                    const userVqSnap = await getDoc(userVqRef);
+                    
+                    if (userVqSnap.exists()) {
+                        let curPts = userVqSnap.data().luckyPoints || 0;
+                        await updateDoc(userVqRef, { luckyPoints: curPts + 5 });
+                    } else {
+                        await setDoc(userVqRef, { spins: 0, luckyPoints: 5, allocatedPoints: {}, wonPrizes: [], completedTasks: [], dailyTasks: {} });
+                    }
+                    
+                    // Đánh dấu bình luận này đã nhận thưởng để không cộng trùng lặp
+                    await updateDoc(commentRef, { rewarded: true });
+                    
+                    alert("🎉 CHÚC MỪNG!\nBình luận này vừa đạt 10 lượt Hữu ích.\nTác giả đã được hệ thống tự động thưởng +5 Điểm May Mắn!");
+                }
+                
+                loadReviews(); // Tải lại để cập nhật số lượng và màu sắc nút tim
+            } catch(e) {
+                console.error(e);
+                alert("Lỗi khi thả tim. Hãy kiểm tra lại quyền (Rules) Firebase.");
+            }
         };
     </script>
 </body>
