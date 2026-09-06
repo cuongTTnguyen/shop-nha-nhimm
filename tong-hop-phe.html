@@ -201,8 +201,17 @@
                         window.danhSachPhe.push({ id: doc.id, ...doc.data() });
                     });
                     
-                    // Sắp xếp danh sách phe theo tên ABC cho đẹp
-                    window.danhSachPhe.sort((a, b) => (a.ten || '').localeCompare(b.ten || ''));
+                    // Sắp xếp danh sách phe theo thứ tự hiển thị (thuTu), sau đó mới đến tên ABC
+                    window.danhSachPhe.sort((a, b) => {
+                        let orderA = parseInt(a.thuTu);
+                        if (isNaN(orderA)) orderA = 1000; // Nếu chưa điền thứ tự, cho xuống cuối
+                        
+                        let orderB = parseInt(b.thuTu);
+                        if (isNaN(orderB)) orderB = 1000;
+
+                        if (orderA !== orderB) return orderA - orderB;
+                        return (a.ten || '').localeCompare(b.ten || '');
+                    });
                     
                     window.hienThiPhe('tat-ca');
                 } catch (error) {

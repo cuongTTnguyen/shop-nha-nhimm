@@ -235,10 +235,29 @@
             try {
                 const snapshot = await getDocs(collection(db, "phe-phai"));
                 danhSachLocal = [];
-                let html = "";
+                
+                // Đẩy toàn bộ dữ liệu vào mảng
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    danhSachLocal.push({ id: doc.id, ...data });
+                    danhSachLocal.push({ id: doc.id, ...doc.data() });
+                });
+
+                // SẮP XẾP DANH SÁCH THEO THỨ TỰ HIỂN THỊ (Từ bé đến lớn)
+                danhSachLocal.sort((a, b) => {
+                    let orderA = parseInt(a.thuTu); 
+                    if(isNaN(orderA)) orderA = 1000; // Nếu không nhập, tự đẩy xuống cuối
+                    
+                    let orderB = parseInt(b.thuTu); 
+                    if(isNaN(orderB)) orderB = 1000;
+                    
+                    if (orderA !== orderB) return orderA - orderB;
+                    
+                    // Nếu cùng thứ tự thì xếp theo tên A-Z
+                    return (a.ten || '').localeCompare(b.ten || '');
+                });
+
+                let html = "";
+                // Duyệt mảng ĐÃ SẮP XẾP để in ra HTML
+                danhSachLocal.forEach(data => {
                     html += `
                         <div class="manage-item-card">
                             <img src="${data.anh}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'">
@@ -247,8 +266,8 @@
                                 <div style="font-size:12px; color:#666;">Thứ tự: ${data.thuTu !== undefined ? data.thuTu : 'Chưa set'} | Tác giả: ${data.taoBoi || 'Chưa rõ'}</div>
                             </div>
                             <div class="manage-item-actions">
-                                <button class="btn-mini btn-edit-mini" onclick="window.prepareEdit('${doc.id}')">Sửa</button>
-                                <button class="btn-mini btn-delete-mini" onclick="window.confirmDelete(this, '${doc.id}')">Xóa</button>
+                                <button class="btn-mini btn-edit-mini" onclick="window.prepareEdit('${data.id}')">Sửa</button>
+                                <button class="btn-mini btn-delete-mini" onclick="window.confirmDelete(this, '${data.id}')">Xóa</button>
                             </div>
                         </div>
                     `;
